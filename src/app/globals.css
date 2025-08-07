@@ -267,7 +267,7 @@ body {
 .header-content {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 2rem;
 }
 
@@ -379,6 +379,14 @@ body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: .5rem;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.section-header > div:first-child {
+  display: flex;
+  align-items: center;
+  flex: 1;
 }
 
 .section-header h2 {
@@ -492,9 +500,9 @@ body {
   transform: translate(-50%, -50%);
   background: var(--color-primary);
   color: var(--color-background);
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.5rem;
   border-radius: var(--border-radius);
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   opacity: 0;
   pointer-events: none;
@@ -623,6 +631,62 @@ body {
 
 #color-sets-container {
   margin-bottom: 2rem;
+}
+
+.color-set-wrapper {
+  cursor: grab;
+  transition: var(--transition);
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+}
+
+.color-set-wrapper:hover {
+  background: var(--color-hover);
+}
+
+.color-set-wrapper:active {
+  cursor: grabbing;
+}
+
+.color-set-wrapper.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+  z-index: 100;
+}
+
+.color-set-wrapper.drag-over {
+  background: var(--color-hover);
+  border: 2px dashed var(--color-primary);
+  padding: 2rem;
+}
+
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--color-secondary);
+  cursor: grab;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+
+
+.drag-handle:hover {
+  color: var(--color-primary);
+  background: var(--color-hover);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .add-color-set-section {

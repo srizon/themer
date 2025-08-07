@@ -12,7 +12,6 @@ export default function Header({ onExportAll, onImport, onClearData }: HeaderPro
       <div className="header-content">
         <div className="header-text">
           <h1>Color Palette Generator</h1>
-          <p>Generate beautiful color palettes for your design projects</p>
         </div>
         
         <div className="header-actions">

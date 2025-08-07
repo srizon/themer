@@ -15,6 +15,8 @@ export default function Home() {
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [currentExportColorSet, setCurrentExportColorSet] = useState<ColorSetType | null>(null);
   const [importData, setImportData] = useState<ImportData | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const themer = new ColorThemer({
@@ -67,6 +69,12 @@ export default function Home() {
     }
   };
 
+  const handleRegenerateWithBetterContrast = (setId: number) => {
+    if (colorThemer) {
+      colorThemer.regenerateWithBetterContrast(setId);
+    }
+  };
+
   const handleExportModalClose = () => {
     setExportModalOpen(false);
     setCurrentExportColorSet(null);
@@ -84,6 +92,39 @@ export default function Home() {
     }
   };
 
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData('text/plain', index.toString());
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    const dragIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    
+    if (colorThemer && !isNaN(dragIndex) && dragIndex !== dropIndex) {
+      colorThemer.reorderColorSets(dragIndex, dropIndex);
+    }
+    
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
   return (
     <div style={{ minHeight: '100vh' }}>
       <div className="container">
@@ -94,17 +135,32 @@ export default function Home() {
         />
 
         <div id="color-sets-container">
-          {colorSets.map((colorSet) => (
-            <ColorSet
+          {colorSets.map((colorSet, index) => (
+            <div
               key={colorSet.id}
-              colorSet={colorSet}
-              onRemove={handleRemoveColorSet}
-              onUpdate={handleUpdateColorSet}
-              onExport={() => {
-                setCurrentExportColorSet(colorSet);
-                setExportModalOpen(true);
-              }}
-            />
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragEnd={handleDragEnd}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, index)}
+              className={`color-set-wrapper ${
+                draggedIndex === index ? 'dragging' : ''
+              } ${
+                dragOverIndex === index ? 'drag-over' : ''
+              }`}
+            >
+              <ColorSet
+                colorSet={colorSet}
+                onRemove={handleRemoveColorSet}
+                onUpdate={handleUpdateColorSet}
+                onRegenerateContrast={handleRegenerateWithBetterContrast}
+                onExport={() => {
+                  setCurrentExportColorSet(colorSet);
+                  setExportModalOpen(true);
+                }}
+              />
+            </div>
           ))}
         </div>
 

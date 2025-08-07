@@ -117,6 +117,19 @@ export class ColorThemer {
     }
   }
 
+  reorderColorSets(fromIndex: number, toIndex: number) {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || 
+        fromIndex >= this.colorSets.length || toIndex >= this.colorSets.length) {
+      return;
+    }
+
+    const [movedSet] = this.colorSets.splice(fromIndex, 1);
+    this.colorSets.splice(toIndex, 0, movedSet);
+    
+    this.notifyColorSetsChange();
+    this.saveToStorage();
+  }
+
   updateColorSet(setId: number, updates: Partial<ColorSet>) {
     const colorSet = this.colorSets.find(set => set.id === setId);
     if (!colorSet) return;
@@ -130,6 +143,23 @@ export class ColorThemer {
     
     this.notifyColorSetsChange();
     this.saveToStorage();
+  }
+
+  // Method to regenerate colors with improved contrast ratios
+  regenerateWithBetterContrast(setId: number) {
+    const colorSet = this.colorSets.find(set => set.id === setId);
+    if (!colorSet) return;
+
+    // Regenerate the color set with improved algorithms
+    this.generateColorSet(colorSet);
+    
+    // Log contrast analysis for debugging
+    this.debugContrastRatios(colorSet);
+    
+    this.notifyColorSetsChange();
+    this.saveToStorage();
+    
+    this.showNotification('Colors regenerated with improved contrast ratios', 'success');
   }
 
   private generateColorSet(colorSet: ColorSet) {
@@ -166,11 +196,32 @@ export class ColorThemer {
     const [h, s, l] = this.hexToHsl(baseColor);
     const colors: string[] = [];
     
+    // Target contrast ratios for each shade based on Tailwind CSS standards
+    // These create harmonious and evenly distributed contrast ratios
+    const targetContrasts = [
+      1.05,   // 50
+      1.17,   // 100
+      1.31,   // 200
+      1.44,   // 300
+      1.60,   // 400
+      1.79,   // 500
+      2.69,   // 600
+      4.32,   // 700
+      7.39,   // 800
+      13.03,  // 900
+      19.42   // 950
+    ];
+    
+    // Generate colors with specific target contrast ratios
     for (let i = 0; i < count; i++) {
-      const step = i / (count - 1);
-      const lightness = Math.max(5, Math.min(95, 95 - (step * 90)));
-      const saturation = Math.max(25, Math.min(100, s));
-      colors.push(this.hslToHex(h, saturation, lightness));
+      const targetContrast = targetContrasts[i] || targetContrasts[targetContrasts.length - 1];
+      const lightness = this.findLightnessForContrast(h, s, targetContrast);
+      
+      // Use a sophisticated saturation curve for more harmonious colors
+      // Lighter shades get slightly higher saturation, darker shades get slightly lower
+      const saturationCurve = this.calculateSaturationCurve(s, i, count);
+      const color = this.hslToHex(h, saturationCurve, lightness);
+      colors.push(color);
     }
     
     return colors;
@@ -429,6 +480,98 @@ export class ColorThemer {
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
   }
 
+  private calculateLuminance(r: number, g: number, b: number): number {
+    const [rs, gs, bs] = [r, g, b].map(c => {
+      c = c / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+  }
+
+  private getContrastRatio(color1: string, color2: string = '#FFFFFF'): number {
+    const [r1, g1, b1] = this.hexToRgb(color1);
+    const [r2, g2, b2] = this.hexToRgb(color2);
+    
+    const luminance1 = this.calculateLuminance(r1, g1, b1);
+    const luminance2 = this.calculateLuminance(r2, g2, b2);
+    
+    const maxLuminance = Math.max(luminance1, luminance2);
+    const minLuminance = Math.min(luminance1, luminance2);
+    
+    return (maxLuminance + 0.05) / (minLuminance + 0.05);
+  }
+
+  private findLightnessForContrast(hue: number, saturation: number, targetContrast: number): number {
+    // For very low contrast (like 1.05), we need a very light color
+    // For very high contrast (like 19.5), we need a very dark color
+    let bestLightness = 50;
+    let bestDiff = Infinity;
+    
+    // Use a more comprehensive grid search for better accuracy
+    // Adjust step size based on target contrast for better precision
+    const stepSize = targetContrast < 2 ? 0.2 : targetContrast < 5 ? 0.5 : 1;
+    
+    for (let l = 0; l <= 100; l += stepSize) {
+      const testColor = this.hslToHex(hue, saturation, l);
+      const contrast = this.getContrastRatio(testColor);
+      const diff = Math.abs(contrast - targetContrast);
+      
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        bestLightness = l;
+      }
+      
+      // If we're very close, we can stop early
+      if (diff < 0.01) break;
+    }
+    
+    // Refine the result with a finer search around the best value
+    if (bestDiff > 0.05) {
+      const refineRange = stepSize * 2;
+      const startL = Math.max(0, bestLightness - refineRange);
+      const endL = Math.min(100, bestLightness + refineRange);
+      
+      for (let l = startL; l <= endL; l += 0.1) {
+        const testColor = this.hslToHex(hue, saturation, l);
+        const contrast = this.getContrastRatio(testColor);
+        const diff = Math.abs(contrast - targetContrast);
+        
+        if (diff < bestDiff) {
+          bestDiff = diff;
+          bestLightness = l;
+        }
+        
+        if (diff < 0.005) break;
+      }
+    }
+    
+    return Math.max(1, Math.min(99, bestLightness));
+  }
+
+  private calculateSaturationCurve(baseSaturation: number, index: number, totalCount: number): number {
+    // Create a bell curve for saturation that peaks in the middle shades
+    // This creates more vibrant mid-tones and slightly muted extremes
+    const normalizedIndex = index / (totalCount - 1);
+    const curve = Math.sin(normalizedIndex * Math.PI) * 0.15; // 15% variation
+    
+    // Ensure minimum saturation for very light/dark shades
+    const minSaturation = 25;
+    const maxSaturation = Math.min(100, baseSaturation + 20);
+    
+    let saturation = baseSaturation + (curve * baseSaturation);
+    
+    // Apply additional adjustments for extreme shades
+    if (normalizedIndex < 0.2) {
+      // Very light shades - slightly increase saturation for better visibility
+      saturation += 5;
+    } else if (normalizedIndex > 0.8) {
+      // Very dark shades - slightly decrease saturation for better harmony
+      saturation -= 10;
+    }
+    
+    return Math.max(minSaturation, Math.min(maxSaturation, saturation));
+  }
+
   private hexToRgb(hex: string): [number, number, number] {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -576,5 +719,45 @@ export class ColorThemer {
   setCurrentColorFormat(format: ColorFormat) {
     this.currentColorFormat = format;
     this.saveToStorage();
+  }
+
+  // Debug method to test contrast ratios
+  getContrastRatioForColor(color: string): number {
+    return this.getContrastRatio(color);
+  }
+
+  // Method to validate contrast ratios for a color set
+  validateContrastRatios(colorSet: ColorSet): { shade: string; expected: number; actual: number; difference: number }[] {
+    const results = [];
+    const shadeNames = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
+    const expectedContrasts = [1.05, 1.17, 1.31, 1.44, 1.60, 1.79, 2.69, 4.32, 7.39, 13.03, 19.42];
+    
+    for (let i = 0; i < colorSet.colors.length && i < expectedContrasts.length; i++) {
+      const actualContrast = this.getContrastRatio(colorSet.colors[i]);
+      const expectedContrast = expectedContrasts[i];
+      const difference = Math.abs(actualContrast - expectedContrast);
+      
+      results.push({
+        shade: shadeNames[i] || `${i * 100}`,
+        expected: expectedContrast,
+        actual: actualContrast,
+        difference: difference
+      });
+    }
+    
+    return results;
+  }
+
+  // Debug method to log contrast ratios for a color set
+  debugContrastRatios(colorSet: ColorSet): void {
+    const validation = this.validateContrastRatios(colorSet);
+    console.log('Contrast Ratio Analysis for:', colorSet.baseColor);
+    console.table(validation.map(v => ({
+      Shade: v.shade,
+      Expected: v.expected.toFixed(2),
+      Actual: v.actual.toFixed(2),
+      Difference: v.difference.toFixed(3),
+      Status: v.difference < 0.1 ? '✅' : v.difference < 0.3 ? '⚠️' : '❌'
+    })));
   }
 }
