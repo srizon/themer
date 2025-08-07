@@ -11,12 +11,13 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 - **Responsive Design**: Works perfectly on desktop and mobile devices
 - **Real-time Updates**: See changes instantly as you modify colors and settings
 - **Color Information**: View contrast ratios and Tailwind-style weights for each color
+- **Local Storage**: Automatically saves your palettes to browser storage
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 with App Router
+- **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS
+- **Styling**: Pure CSS with CSS Custom Properties
 - **State Management**: React hooks with localStorage persistence
 - **Deployment**: Ready for Vercel, Netlify, or any Node.js hosting
 
@@ -32,7 +33,7 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 1. Clone the repository:
 ```bash
 git clone <your-repo-url>
-cd themer-nextjs
+cd themer
 ```
 
 2. Install dependencies:
@@ -75,7 +76,7 @@ The app is ready to deploy on any platform that supports Next.js:
 
 ### Creating Color Palettes
 
-1. **Add a New Palette**: Click "Add Another Color Set" to create a new palette
+1. **Add a New Palette**: Click "Add Another Color" to create a new palette
 2. **Choose Base Color**: Use the color picker or enter a hex value
 3. **Select Palette Type**: Choose from 6 different color theory approaches
 4. **Adjust Color Count**: Set the number of colors (3-20)
@@ -117,22 +118,37 @@ Uses a base color and the two colors adjacent to its complement.
 ## Project Structure
 
 ```
-src/
-├── app/                 # Next.js App Router
-│   ├── layout.tsx      # Root layout
-│   ├── page.tsx        # Main page component
-│   └── globals.css     # Global styles
-├── components/         # React components
-│   ├── Header.tsx      # App header with actions
-│   ├── ColorSet.tsx    # Individual color palette
-│   ├── ColorSwatch.tsx # Individual color swatch
-│   ├── ExportModal.tsx # Export functionality
-│   └── ImportConfirmationModal.tsx # Import handling
-├── lib/               # Utility libraries
-│   └── ColorThemer.ts # Core color generation logic
-└── types/             # TypeScript type definitions
-    └── color.ts       # Color-related types
+themer/
+├── src/
+│   ├── app/                 # Next.js App Router
+│   │   ├── layout.tsx      # Root layout
+│   │   ├── page.tsx        # Main page component
+│   │   └── globals.css     # Global styles
+│   ├── components/         # React components
+│   │   ├── Header.tsx      # App header with actions
+│   │   ├── ColorSet.tsx    # Individual color palette
+│   │   ├── ColorSwatch.tsx # Individual color swatch
+│   │   ├── ExportModal.tsx # Export functionality
+│   │   └── ImportConfirmationModal.tsx # Import handling
+│   ├── lib/               # Utility libraries
+│   │   └── ColorThemer.ts # Core color generation logic
+│   └── types/             # TypeScript type definitions
+│       └── color.ts       # Color-related types
+├── package.json           # Dependencies and scripts
+├── next.config.ts         # Next.js configuration
+├── tsconfig.json          # TypeScript configuration
+├── eslint.config.mjs      # ESLint configuration
+└── README.md              # Project documentation
 ```
+
+## Recent Updates
+
+### v0.1.0 - Project Restructuring
+- **Restructured project layout**: Moved from nested `themer-nextjs/` directory to flat structure
+- **Updated dependencies**: Upgraded to Next.js 15.4.6 and React 19.1.0
+- **Improved file organization**: Cleaner project structure for better maintainability
+- **Enhanced TypeScript support**: Updated type definitions and configurations
+- **Modern ESLint setup**: Updated to ESLint v9 with Next.js configuration
 
 ## Customization
 
@@ -144,10 +160,10 @@ src/
 
 ### Styling
 
-The app uses Tailwind CSS for styling. You can customize:
-- Colors in `tailwind.config.js`
-- Global styles in `globals.css`
+The app uses pure CSS with CSS Custom Properties for styling. You can customize:
+- Colors and variables in `src/app/globals.css`
 - Component-specific styles in each component
+- CSS Custom Properties for consistent theming
 
 ### Color Algorithms
 
@@ -155,6 +171,23 @@ All color generation algorithms are in the `ColorThemer` class. You can modify:
 - Color validation logic
 - Weight calculation for Tailwind-style naming
 - Contrast ratio calculations
+
+## Development
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+### Code Style
+
+The project uses:
+- TypeScript for type safety
+- ESLint for code linting
+- Pure CSS with CSS Custom Properties for styling
+- React hooks for state management
 
 ## Contributing
 
@@ -177,4 +210,4 @@ For issues and questions:
 
 ---
 
-Built with ❤️ using Next.js, TypeScript, and Tailwind CSS
+Built with ❤️ using Next.js, TypeScript, and CSS

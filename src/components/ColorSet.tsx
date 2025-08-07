@@ -118,9 +118,9 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
   };
 
   return (
-    <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
+    <section className="color-section">
+      <div className="section-header">
+        <div>
           {isEditingName ? (
             <input
               type="text"
@@ -128,12 +128,12 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               onChange={(e) => setTempName(e.target.value)}
               onBlur={handleNameBlur}
               onKeyDown={handleNameKeyDown}
-              className="text-2xl font-semibold text-gray-900 bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-0 py-1"
+              className="input input-text palette-name editing"
               autoFocus
             />
           ) : (
             <h2
-              className="text-2xl font-semibold text-gray-900 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded transition-colors"
+              className="palette-name"
               onClick={() => setIsEditingName(true)}
             >
               {getPaletteName()}
@@ -141,13 +141,13 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
           )}
         </div>
         
-        <div className="flex gap-2">
+        <div className="actions">
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            className="btn btn-icon btn-ghost"
             title={isEditing ? 'Close edit mode' : 'Edit palette'}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               {isEditing ? (
                 <path d="M20 6L9 17l-5-5"/>
               ) : (
@@ -161,10 +161,10 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
           
           <button
             onClick={onExport}
-            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            className="btn btn-icon btn-ghost"
             title="Export"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7,10 12,15 17,10"/>
               <line x1="12" y1="15" x2="12" y2="3"/>
@@ -173,10 +173,10 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
           
           <button
             onClick={() => onRemove(colorSet.id)}
-            className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+            className="btn btn-icon btn-ghost"
             title="Remove color set"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="m18 6-12 12"/>
               <path d="m6 6 12 12"/>
             </svg>
@@ -185,64 +185,56 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
       </div>
       
       {isEditing && (
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Base Color
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="color"
-                  value={colorSet.baseColor}
-                  onChange={(e) => handleBaseColorChange(e.target.value)}
-                  className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={colorSet.baseColor}
-                  onChange={(e) => handleBaseColorChange(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Type
-              </label>
-              <select
-                value={colorSet.paletteType}
-                onChange={(e) => handlePaletteTypeChange(e.target.value as ColorSetType['paletteType'])}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="monochromatic">Monochromatic</option>
-                <option value="analogous">Analogous</option>
-                <option value="complementary">Complementary</option>
-                <option value="triadic">Triadic</option>
-                <option value="tetradic">Tetradic</option>
-                <option value="split-complementary">Split Complementary</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Colors
-              </label>
+        <div className="color-set-controls">
+          <div className="control-group">
+            <label>Base Color</label>
+            <div className="color-input-wrapper">
               <input
-                type="number"
-                min="3"
-                max="20"
-                value={colorSet.colorCount}
-                onChange={(e) => handleColorCountChange(parseInt(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                type="color"
+                value={colorSet.baseColor}
+                onChange={(e) => handleBaseColorChange(e.target.value)}
+                className="input input-color"
+              />
+              <input
+                type="text"
+                value={colorSet.baseColor}
+                onChange={(e) => handleBaseColorChange(e.target.value)}
+                className="input input-text"
               />
             </div>
+          </div>
+          
+          <div className="control-group">
+            <label>Type</label>
+            <select
+              value={colorSet.paletteType}
+              onChange={(e) => handlePaletteTypeChange(e.target.value as ColorSetType['paletteType'])}
+              className="input input-select"
+            >
+              <option value="monochromatic">Monochromatic</option>
+              <option value="analogous">Analogous</option>
+              <option value="complementary">Complementary</option>
+              <option value="triadic">Triadic</option>
+              <option value="tetradic">Tetradic</option>
+              <option value="split-complementary">Split Complementary</option>
+            </select>
+          </div>
+          
+          <div className="control-group">
+            <label>Colors</label>
+            <input
+              type="number"
+              min="3"
+              max="20"
+              value={colorSet.colorCount}
+              onChange={(e) => handleColorCountChange(parseInt(e.target.value))}
+              className="input input-number"
+            />
           </div>
         </div>
       )}
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+      <div className="color-grid">
         {colorSet.colors.map((color, index) => (
           <ColorSwatch
             key={`${colorSet.id}-${index}`}

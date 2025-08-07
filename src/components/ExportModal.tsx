@@ -252,36 +252,32 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
+    <div className={`modal ${isOpen ? 'active' : ''}`}>
+      <div className="modal-backdrop" onClick={onClose} />
       
-      <div className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden">
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Export Palette</h3>
+      <div className="modal-content">
+        <div className="modal-header">
+          <h3>Export Palette</h3>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+            className="btn btn-icon btn-ghost"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="m18 6-12 12"/>
               <path d="m6 6 12 12"/>
             </svg>
           </button>
         </div>
         
-        <div className="p-6 space-y-6">
+        <div className="modal-body">
           {/* Export format options */}
-          <div>
-            <div className="flex gap-2 mb-4">
+          <div className="export-section">
+            <div className="export-options">
               {(['css', 'scss', 'json', 'tailwind'] as ExportFormat[]).map((format) => (
                 <button
                   key={format}
                   onClick={() => setExportFormat(format)}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    exportFormat === format
-                      ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                      : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
-                  }`}
+                  className={`export-option ${exportFormat === format ? 'active' : ''}`}
                 >
                   {format.toUpperCase()}
                 </button>
@@ -290,33 +286,35 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
           </div>
           
           {/* Color format options */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Color Format:
-            </label>
-            <select
-              value={colorFormat}
-              onChange={(e) => setColorFormat(e.target.value as ColorFormat)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="hex">HEX (#ffffff)</option>
-              <option value="rgb">RGB (255, 255, 255)</option>
-              <option value="rgba">RGBA (255, 255, 255, 1)</option>
-              <option value="hsl">HSL (0, 0%, 100%)</option>
-              <option value="hsla">HSLA (0, 0%, 100%, 1)</option>
-            </select>
+          <div className="export-section">
+            <div className="color-format-options">
+              <label>
+                Color Format:
+              </label>
+              <select
+                value={colorFormat}
+                onChange={(e) => setColorFormat(e.target.value as ColorFormat)}
+                className="input input-select"
+              >
+                <option value="hex">HEX (#ffffff)</option>
+                <option value="rgb">RGB (255, 255, 255)</option>
+                <option value="rgba">RGBA (255, 255, 255, 1)</option>
+                <option value="hsl">HSL (0, 0%, 100%)</option>
+                <option value="hsla">HSLA (0, 0%, 100%, 1)</option>
+              </select>
+            </div>
           </div>
           
           {/* Export preview */}
-          <div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <pre className="text-sm text-gray-800 whitespace-pre-wrap overflow-auto max-h-64">
+          <div className="export-section">
+            <div className="export-preview">
+              <pre>
                 {exportCode}
               </pre>
             </div>
             <button
               onClick={handleCopy}
-              className="mt-3 w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+              className="btn btn-primary copy-btn"
             >
               Copy to Clipboard
             </button>

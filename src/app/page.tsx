@@ -85,15 +85,15 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-20 py-20">
+    <div style={{ minHeight: '100vh' }}>
+      <div className="container">
         <Header
           onExportAll={handleExportAll}
           onImport={handleImport}
           onClearData={handleClearData}
         />
 
-        <div id="color-sets-container" className="space-y-8">
+        <div id="color-sets-container">
           {colorSets.map((colorSet) => (
             <ColorSet
               key={colorSet.id}
@@ -108,12 +108,12 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="add-color-set-section">
           <button
             onClick={handleAddColorSet}
-            className="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 hover:text-gray-700 transition-colors"
+            className="btn btn-secondary btn-lg"
           >
-            + Add Another Color Set
+            + Add Another Color
           </button>
         </div>
 

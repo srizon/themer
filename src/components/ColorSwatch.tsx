@@ -66,27 +66,24 @@ export default function ColorSwatch({ color, index, total }: ColorSwatchProps) {
   const contrastRatio = getContrastRatio(color);
 
   return (
-    <div className="group relative">
+    <div className="color-swatch">
       <div
-        className="aspect-square rounded-lg cursor-pointer relative overflow-hidden border border-gray-200 hover:border-gray-300 transition-colors"
+        className="color-display"
         style={{ backgroundColor: color }}
         onClick={handleCopy}
       >
         {/* Copy indicator */}
         {showCopied && (
-          <div className="absolute inset-0 bg-black bg-opacity-75 text-white flex items-center justify-center text-sm font-medium animate-in fade-in duration-200">
+          <div className="copy-indicator show">
             Copied!
           </div>
         )}
-        
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200" />
       </div>
       
       {/* Color info */}
-      <div className="mt-2 text-center">
-        <div className="text-xs font-medium text-gray-900">{weight}</div>
-        <div className="text-xs text-gray-500">{contrastRatio}</div>
+      <div className="color-info">
+        <div className="color-weight">{weight}</div>
+        <div className="color-contrast">{contrastRatio}</div>
       </div>
     </div>
   );
