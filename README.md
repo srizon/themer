@@ -32,7 +32,7 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/srizon/themer.git
 cd themer
 ```
 
