@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ColorSet, ExportFormat, ColorFormat } from '@/types/color';
 
 interface ExportModalProps {
@@ -14,13 +14,7 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   const [colorFormat, setColorFormat] = useState<ColorFormat>('hex');
   const [exportCode, setExportCode] = useState('');
 
-  useEffect(() => {
-    if (colorSet) {
-      generateExportCode();
-    }
-  }, [colorSet, exportFormat, colorFormat]);
-
-  const generateExportCode = () => {
+  const generateExportCode = useCallback(() => {
     if (!colorSet) return;
 
     switch (exportFormat) {
@@ -37,7 +31,13 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
         setExportCode(generateTailwindExport());
         break;
     }
-  };
+  }, [colorSet, exportFormat, colorFormat]);
+
+  useEffect(() => {
+    if (colorSet) {
+      generateExportCode();
+    }
+  }, [generateExportCode]);
 
   const generateCSSExport = (): string => {
     if (!colorSet) return '';

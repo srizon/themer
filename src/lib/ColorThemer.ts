@@ -172,7 +172,7 @@ export class ColorThemer {
     }
 
     // Validate and adjust colors to ensure they match their expected names
-    colors = this.validateAndAdjustColors(colors, colorSet.baseColor);
+    colors = this.validateAndAdjustColors(colors);
     colorSet.colors = colors;
   }
 
@@ -185,7 +185,7 @@ export class ColorThemer {
     
     if (isNeutral) {
       // For neutral colors, use the balanced lightness curve
-      const lightnessValues = this.generateBalancedLightnessCurve(count, l, true);
+      const lightnessValues = this.generateBalancedLightnessCurve(count);
       return lightnessValues.map(lightness => this.hslToHex(0, 0, lightness));
     } else {
       // For true monochromatic palettes, we need to preserve exact hue and saturation
@@ -204,7 +204,7 @@ export class ColorThemer {
   }
 
   // Generate a balanced lightness curve with even distribution
-  private generateBalancedLightnessCurve(count: number, baseLightness: number, isNeutral: boolean): number[] {
+  private generateBalancedLightnessCurve(count: number): number[] {
     // Use the same even distribution approach for all color types
     // This ensures consistent spacing regardless of whether it's neutral or colored
     
@@ -597,7 +597,7 @@ export class ColorThemer {
     const hueRange = 60; // Reduced from 60 to create tighter harmony
     
     // Generate a balanced lightness curve for smoother progression
-    const lightnessValues = this.generateBalancedLightnessCurve(count, l, false);
+    const lightnessValues = this.generateBalancedLightnessCurve(count);
     
     for (let i = 0; i < count; i++) {
       // Create smoother hue progression
@@ -622,7 +622,7 @@ export class ColorThemer {
     const colors: string[] = [];
     
     // Generate a balanced lightness curve
-    const lightnessValues = this.generateBalancedLightnessCurve(count, l, false);
+    const lightnessValues = this.generateBalancedLightnessCurve(count);
     
     // Calculate how many colors to allocate to each hue
     const halfCount = Math.ceil(count / 2);
@@ -698,7 +698,7 @@ export class ColorThemer {
     return colors;
   }
 
-  private validateAndAdjustColors(colors: string[], baseColor: string): string[] {
+  private validateAndAdjustColors(colors: string[]): string[] {
     // For monochromatic palettes, don't adjust colors at all
     // This ensures hue and saturation remain consistent
     return colors;
@@ -791,7 +791,7 @@ export class ColorThemer {
     let bestHex = this.hslToHex(targetHue, targetSaturation, targetLightness);
     
     // Verify and adjust if needed to get exact HSL values
-    let [resultH, resultS, resultL] = this.hexToHsl(bestHex);
+    const [resultH, resultS] = this.hexToHsl(bestHex);
     
     // If the conversion doesn't produce exact values, search for the best match
     if (Math.round(resultH) !== targetHue || Math.round(resultS) !== targetSaturation) {
