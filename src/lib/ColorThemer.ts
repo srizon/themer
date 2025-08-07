@@ -145,22 +145,7 @@ export class ColorThemer {
     this.saveToStorage();
   }
 
-  // Method to regenerate colors with improved contrast ratios
-  regenerateWithBetterContrast(setId: number) {
-    const colorSet = this.colorSets.find(set => set.id === setId);
-    if (!colorSet) return;
 
-    // Regenerate the color set with improved algorithms
-    this.generateColorSet(colorSet);
-    
-    // Log contrast analysis for debugging
-    this.debugContrastRatios(colorSet);
-    
-    this.notifyColorSetsChange();
-    this.saveToStorage();
-    
-    this.showNotification('Colors regenerated with improved contrast ratios', 'success');
-  }
 
   private generateColorSet(colorSet: ColorSet) {
     let colors: string[] = [];
@@ -198,7 +183,7 @@ export class ColorThemer {
     
     // Target contrast ratios for each shade based on Tailwind CSS standards
     // These create harmonious and evenly distributed contrast ratios
-    const targetContrasts = [
+    const baseTargetContrasts = [
       1.05,   // 50
       1.17,   // 100
       1.31,   // 200
@@ -212,9 +197,12 @@ export class ColorThemer {
       19.42   // 950
     ];
     
+    // Generate target contrasts for the requested count
+    const targetContrasts = this.generateTargetContrasts(count, baseTargetContrasts);
+    
     // Generate colors with specific target contrast ratios
     for (let i = 0; i < count; i++) {
-      const targetContrast = targetContrasts[i] || targetContrasts[targetContrasts.length - 1];
+      const targetContrast = targetContrasts[i];
       const lightness = this.findLightnessForContrast(h, s, targetContrast);
       
       // Use a sophisticated saturation curve for more harmonious colors
@@ -225,6 +213,32 @@ export class ColorThemer {
     }
     
     return colors;
+  }
+
+  // Generate target contrast ratios for any count, interpolating between base values
+  private generateTargetContrasts(count: number, baseContrasts: number[]): number[] {
+    if (count <= baseContrasts.length) {
+      return baseContrasts.slice(0, count);
+    }
+    
+    const targetContrasts: number[] = [];
+    const step = (baseContrasts.length - 1) / (count - 1);
+    
+    for (let i = 0; i < count; i++) {
+      const position = i * step;
+      const lowerIndex = Math.floor(position);
+      const upperIndex = Math.min(lowerIndex + 1, baseContrasts.length - 1);
+      const fraction = position - lowerIndex;
+      
+      // Linear interpolation between base contrast values
+      const lowerContrast = baseContrasts[lowerIndex];
+      const upperContrast = baseContrasts[upperIndex];
+      const interpolatedContrast = lowerContrast + (upperContrast - lowerContrast) * fraction;
+      
+      targetContrasts.push(interpolatedContrast);
+    }
+    
+    return targetContrasts;
   }
 
   private generateAnalogous(baseColor: string, count: number): string[] {

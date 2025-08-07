@@ -8,11 +8,10 @@ interface ColorSetProps {
   colorSet: ColorSetType;
   onRemove: (setId: number) => void;
   onUpdate: (setId: number, updates: Partial<ColorSetType>) => void;
-  onRegenerateContrast: (setId: number) => void;
   onExport: () => void;
 }
 
-export default function ColorSet({ colorSet, onRemove, onUpdate, onRegenerateContrast, onExport }: ColorSetProps) {
+export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: ColorSetProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(colorSet.customName || '');
@@ -155,21 +154,6 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onRegenerateCon
         </div>
         
         <div className="actions">
-          {colorSet.paletteType === 'monochromatic' && (
-            <button
-              onClick={() => onRegenerateContrast(colorSet.id)}
-              className="btn btn-icon btn-ghost"
-              title="Regenerate with improved contrast ratios"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-                <path d="M21 3v5h-5"/>
-                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-                <path d="M3 21v-5h5"/>
-              </svg>
-            </button>
-          )}
-          
           <button
             onClick={() => setIsEditing(!isEditing)}
             className="btn btn-icon btn-ghost"

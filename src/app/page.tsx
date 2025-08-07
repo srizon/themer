@@ -69,11 +69,7 @@ export default function Home() {
     }
   };
 
-  const handleRegenerateWithBetterContrast = (setId: number) => {
-    if (colorThemer) {
-      colorThemer.regenerateWithBetterContrast(setId);
-    }
-  };
+
 
   const handleExportModalClose = () => {
     setExportModalOpen(false);
@@ -154,7 +150,6 @@ export default function Home() {
                 colorSet={colorSet}
                 onRemove={handleRemoveColorSet}
                 onUpdate={handleUpdateColorSet}
-                onRegenerateContrast={handleRegenerateWithBetterContrast}
                 onExport={() => {
                   setCurrentExportColorSet(colorSet);
                   setExportModalOpen(true);

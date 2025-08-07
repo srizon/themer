@@ -143,6 +143,11 @@ themer/
 
 ## Recent Updates
 
+### v0.1.1 - Documentation Cleanup
+- **Removed test references**: Cleaned up documentation to reflect no testing framework
+- **Updated contributing guidelines**: Simplified contribution process
+- **Improved code style documentation**: Added clarity about project standards
+
 ### v0.1.0 - Project Restructuring
 - **Restructured project layout**: Moved from nested `themer-nextjs/` directory to flat structure
 - **Updated dependencies**: Upgraded to Next.js 15.4.6 and React 19.1.0
@@ -188,13 +193,14 @@ The project uses:
 - ESLint for code linting
 - Pure CSS with CSS Custom Properties for styling
 - React hooks for state management
+- No testing framework (focus on manual testing and code quality)
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Ensure code follows project standards
 5. Submit a pull request
 
 ## License
