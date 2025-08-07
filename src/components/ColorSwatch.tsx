@@ -23,17 +23,30 @@ export default function ColorSwatch({ color, index, total }: ColorSwatchProps) {
 
   const calculateTailwindWeight = (index: number, total: number): number => {
     if (total === 11) {
+      // Standard Tailwind weights for 11 colors
       const weights = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
       return weights[index];
-    } else if (total <= 10) {
-      const weights = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
-      const step = Math.floor(weights.length / total);
-      return weights[Math.min(index * step, weights.length - 1)];
+    } else if (total === 13) {
+      // Extended weights for 13 colors (like in the image)
+      const weights = [50, 125, 200, 275, 350, 425, 500, 575, 650, 725, 800, 875, 950];
+      return weights[index];
     } else {
+      // For all other counts, create a smooth, evenly distributed progression
+      const normalizedIndex = index / (total - 1);
+      
+      // Always start at 50 and end at 950
       const min = 50;
       const max = 950;
-      const step = (max - min) / (total - 1);
-      return Math.round(min + (index * step));
+      
+      // Use a linear distribution for consistent steps
+      // This ensures equal perceptual spacing between weights
+      const weight = Math.round(min + (normalizedIndex * (max - min)));
+      
+      // Round to nearest 25 for cleaner values (like Tailwind standard)
+      const rounded = Math.round(weight / 25) * 25;
+      
+      // Ensure we don't exceed bounds and maintain monotonic increase
+      return Math.max(min, Math.min(max, rounded));
     }
   };
 

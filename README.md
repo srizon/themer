@@ -12,6 +12,8 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 - **Real-time Updates**: See changes instantly as you modify colors and settings
 - **Color Information**: View contrast ratios and Tailwind-style weights for each color
 - **Local Storage**: Automatically saves your palettes to browser storage
+- **Advanced Color Algorithms**: Sophisticated color generation with perceptual uniformity
+- **Smart Tailwind Integration**: Intelligent weight calculation for any color count
 
 ## Tech Stack
 
@@ -98,13 +100,23 @@ The app is ready to deploy on any platform that supports Next.js:
 ## Color Theory Algorithms
 
 ### Monochromatic
-Creates variations of a single hue with different lightness levels.
+Creates variations of a single hue with different lightness levels. Now features:
+- **Perceptual Uniformity**: Even visual spacing between shades
+- **Neutral Color Detection**: Special handling for grays and near-neutral colors
+- **Exact HSL Preservation**: Maintains precise hue and saturation values
+- **Balanced Lightness Curves**: Mathematically even distribution from 5% to 95% lightness
 
 ### Analogous
-Uses colors that are next to each other on the color wheel.
+Uses colors that are next to each other on the color wheel. Enhanced with:
+- **Smooth Hue Progression**: Even distribution across the 60° hue range
+- **Harmonious Saturation**: Intelligent saturation curves for better visual harmony
+- **Balanced Lightness**: Consistent lightness progression across all colors
 
 ### Complementary
-Uses colors that are opposite each other on the color wheel.
+Uses colors that are opposite each other on the color wheel. Improved with:
+- **Dynamic Color Allocation**: Smart distribution between base and complementary hues
+- **Enhanced Saturation Curves**: Better color harmony and visual appeal
+- **Consistent Lightness Distribution**: Even spacing across the entire palette
 
 ### Triadic
 Uses three colors that are evenly spaced around the color wheel.
@@ -114,6 +126,30 @@ Uses four colors that form a rectangle on the color wheel.
 
 ### Split Complementary
 Uses a base color and the two colors adjacent to its complement.
+
+## Advanced Features
+
+### Smart Tailwind Weight Calculation
+The app now features intelligent weight calculation that adapts to any color count:
+
+- **Standard 11-color palettes**: Uses traditional Tailwind weights (50, 100, 200, ..., 950)
+- **13-color palettes**: Extended weights with intermediate values (50, 125, 200, ..., 950)
+- **Custom counts**: Mathematically even distribution with 25-point rounding for clean values
+- **Perceptual uniformity**: Ensures equal visual spacing between weights
+
+### Enhanced Color Generation
+Recent improvements include:
+
+- **Lab Color Space Support**: Perceptual color space for more natural progressions
+- **Sophisticated Saturation Curves**: Bell-curve distribution that peaks in mid-tones
+- **Lightness-based Adjustments**: Dynamic saturation adjustments based on lightness
+- **Exact HSL Matching**: Advanced algorithms to preserve exact hue and saturation values
+- **Neutral Color Detection**: Special handling for grays and near-neutral colors
+
+### Color Validation and Adjustment
+- **Automatic Color Validation**: Ensures all generated colors meet quality standards
+- **Contrast Ratio Calculations**: WCAG-compliant contrast calculations
+- **Color Space Conversions**: Full support for RGB, HSL, and Lab color spaces
 
 ## Project Structure
 
@@ -142,6 +178,16 @@ themer/
 ```
 
 ## Recent Updates
+
+### v0.1.2 - Advanced Color Algorithms (Latest)
+- **Enhanced Monochromatic Generation**: Improved algorithms with perceptual uniformity and exact HSL preservation
+- **Smart Tailwind Weight Calculation**: Intelligent weight distribution for any color count (3-20 colors)
+- **Lab Color Space Support**: Added perceptual color space for more natural color progressions
+- **Sophisticated Saturation Curves**: Bell-curve distribution that creates more harmonious palettes
+- **Neutral Color Detection**: Special handling for grays and near-neutral colors
+- **Exact HSL Matching**: Advanced algorithms to preserve precise hue and saturation values
+- **Enhanced Color Validation**: Improved color quality standards and contrast calculations
+- **Balanced Lightness Curves**: Mathematically even distribution from 5% to 95% lightness
 
 ### v0.1.1 - Documentation Cleanup
 - **Removed test references**: Cleaned up documentation to reflect no testing framework
@@ -176,6 +222,7 @@ All color generation algorithms are in the `ColorThemer` class. You can modify:
 - Color validation logic
 - Weight calculation for Tailwind-style naming
 - Contrast ratio calculations
+- Perceptual color space conversions
 
 ## Development
 

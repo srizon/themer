@@ -93,7 +93,7 @@ export class ColorThemer {
       id: setId,
       baseColor: randomColor,
       paletteType: 'monochromatic',
-      colorCount: 11,
+      colorCount: 11, // Standard Tailwind CSS shade count
       colors: []
     };
 
@@ -179,40 +179,390 @@ export class ColorThemer {
   // Color palette generation algorithms
   private generateMonochromatic(baseColor: string, count: number): string[] {
     const [h, s, l] = this.hexToHsl(baseColor);
+    
+    // Check if this is a neutral color (black, white, or gray)
+    const isNeutral = s < 15 || (l < 20) || (l > 80);
+    
+    if (isNeutral) {
+      // For neutral colors, use the balanced lightness curve
+      const lightnessValues = this.generateBalancedLightnessCurve(count, l, true);
+      return lightnessValues.map(lightness => this.hslToHex(0, 0, lightness));
+    } else {
+      // For true monochromatic palettes, we need to preserve exact hue and saturation
+      // Convert to a more manageable HSL representation and work from there
+      const exactHue = Math.round(h);
+      const exactSaturation = Math.round(s);
+      
+      const lightnessValues = this.generateHSLBasedLightnessCurve(h, s, l, count);
+      
+      // Generate colors that will maintain exact HSL values when displayed
+      return lightnessValues.map(lightness => {
+        // Find the best hex color that produces the desired rounded HSL values
+        return this.generateExactHSLColor(exactHue, exactSaturation, Math.round(lightness));
+      });
+    }
+  }
+
+  // Generate a balanced lightness curve with even distribution
+  private generateBalancedLightnessCurve(count: number, baseLightness: number, isNeutral: boolean): number[] {
+    // Use the same even distribution approach for all color types
+    // This ensures consistent spacing regardless of whether it's neutral or colored
+    
+    const maxLightness = 95; // Lightest shade
+    const minLightness = 5;  // Darkest shade
+    const totalRange = maxLightness - minLightness;
+    
+    const lightnessValues: number[] = [];
+    
+    for (let i = 0; i < count; i++) {
+      // Calculate position from 0 to 1
+      const position = i / (count - 1);
+      
+      // Linear interpolation for perfectly even distribution
+      const lightness = maxLightness - (position * totalRange);
+      
+      lightnessValues.push(lightness);
+    }
+    
+    return lightnessValues;
+  }
+
+  // Calculate Tailwind weight for a given index and total count (matches ColorSwatch logic)
+  private calculateTailwindWeight(index: number, total: number): number {
+    if (total === 11) {
+      // Standard Tailwind weights for 11 colors
+      const weights = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+      return weights[index];
+    } else if (total === 13) {
+      // Extended weights for 13 colors
+      const weights = [50, 125, 200, 275, 350, 425, 500, 575, 650, 725, 800, 875, 950];
+      return weights[index];
+    } else {
+      // For all other counts, create a smooth, evenly distributed progression
+      const normalizedIndex = index / (total - 1);
+      
+      // Always start at 50 and end at 950
+      const min = 50;
+      const max = 950;
+      
+      // Use a linear distribution for consistent steps
+      // This ensures equal perceptual spacing between weights
+      const weight = Math.round(min + (normalizedIndex * (max - min)));
+      
+      // Round to nearest 25 for cleaner values (like Tailwind standard)
+      const rounded = Math.round(weight / 25) * 25;
+      
+      // Ensure we don't exceed bounds and maintain monotonic increase
+      return Math.max(min, Math.min(max, rounded));
+    }
+  }
+
+  // Generate HSL-based lightness curve with even distribution
+  private generateHSLBasedLightnessCurve(hue: number, saturation: number, baseLightness: number, count: number): number[] {
+    // For monochromatic palettes, create an evenly distributed lightness progression
+    // from very light (95%) to very dark (5%) with mathematically even steps
+    
+    const maxLightness = 95; // Lightest shade
+    const minLightness = 5;  // Darkest shade
+    const totalRange = maxLightness - minLightness;
+    
+    const lightnessValues: number[] = [];
+    
+    for (let i = 0; i < count; i++) {
+      // Calculate position from 0 to 1
+      const position = i / (count - 1);
+      
+      // Linear interpolation for perfectly even distribution
+      const lightness = maxLightness - (position * totalRange);
+      
+      lightnessValues.push(lightness);
+    }
+    
+    return lightnessValues;
+  }
+
+  // Generate harmonious lightness progression with smooth transitions
+  private generateHarmoniousLightnessProgression(count: number, shade50Lightness: number, shade100Lightness: number, minLightness: number): number[] {
+    const lightnessValues: number[] = [];
+    
+    // Calculate the total lightness range available
+    const totalRange = shade50Lightness - minLightness;
+    
+    // Create a perceptually uniform distribution using a carefully tuned curve
+    for (let i = 0; i < count; i++) {
+      const normalizedPosition = i / (count - 1); // 0 to 1
+      
+      let lightness: number;
+      
+      if (i === 0) {
+        // First shade should be very light (shade 50 equivalent)
+        lightness = shade50Lightness;
+      } else if (i === 1 && count > 3) {
+        // Second shade should be close to first for smooth transition (shade 100 equivalent)
+        lightness = shade100Lightness;
+      } else {
+        // For remaining shades, use a carefully crafted curve that ensures even distribution
+        // Adjust the starting position to account for the first two fixed shades
+        const adjustedPosition = count > 3 ? (normalizedPosition - (2 / (count - 1))) / (1 - (2 / (count - 1))) : normalizedPosition;
+        const clampedPosition = Math.max(0, Math.min(1, adjustedPosition));
+        
+        // Use a combination of curves for different parts of the range
+        let curveValue: number;
+        
+        if (clampedPosition < 0.4) {
+          // Light to medium range: gentle curve
+          const t = clampedPosition / 0.4;
+          curveValue = Math.pow(t, 1.2);
+        } else if (clampedPosition < 0.7) {
+          // Medium range: linear for even distribution
+          const t = (clampedPosition - 0.4) / 0.3;
+          curveValue = 0.4 + (t * 0.3);
+        } else {
+          // Medium to dark range: steeper curve
+          const t = (clampedPosition - 0.7) / 0.3;
+          curveValue = 0.7 + (Math.pow(t, 0.8) * 0.3);
+        }
+        
+        // Calculate lightness based on curve
+        if (count > 3) {
+          const remainingRange = shade100Lightness - minLightness;
+          lightness = shade100Lightness - (curveValue * remainingRange);
+        } else {
+          lightness = shade50Lightness - (curveValue * totalRange);
+        }
+      }
+      
+      // Ensure we stay within reasonable bounds
+      lightness = Math.max(minLightness, Math.min(shade50Lightness, lightness));
+      lightnessValues.push(lightness);
+    }
+    
+    // Post-process to ensure no two adjacent shades are too close or too far apart
+    for (let i = 1; i < lightnessValues.length; i++) {
+      const diff = lightnessValues[i - 1] - lightnessValues[i];
+      const minDiff = totalRange / (count * 2); // Minimum difference
+      const maxDiff = totalRange / (count * 0.5); // Maximum difference
+      
+      if (diff < minDiff) {
+        // Shades too close, increase the difference
+        lightnessValues[i] = lightnessValues[i - 1] - minDiff;
+      } else if (diff > maxDiff) {
+        // Shades too far apart, reduce the difference
+        lightnessValues[i] = lightnessValues[i - 1] - maxDiff;
+      }
+      
+      // Ensure bounds
+      lightnessValues[i] = Math.max(minLightness, Math.min(lightnessValues[i - 1] - 0.5, lightnessValues[i]));
+    }
+    
+    return lightnessValues;
+  }
+
+  // Easing function for smoother transitions
+  private easeInOutCubic(t: number): number {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  // Calculate dynamic shade 100 based on base color characteristics
+  private calculateDynamicShade100(hue: number, saturation: number, baseLightness: number, shade50Lightness: number): number {
+    // Calculate the ideal step size based on various factors
+    
+    // Factor 1: Base color lightness - darker base colors need smaller steps
+    const lightnessRatio = baseLightness / 100;
+    const lightnessAdjustment = 1 - (lightnessRatio * 0.3); // 0.7 to 1.0 range
+    
+    // Factor 2: Saturation - higher saturation colors can handle slightly larger steps
+    const saturationRatio = saturation / 100;
+    const saturationAdjustment = 0.8 + (saturationRatio * 0.4); // 0.8 to 1.2 range
+    
+    // Factor 3: Hue-based adjustment - some hues are more sensitive to lightness changes
+    let hueAdjustment = 1.0;
+    if (hue >= 45 && hue <= 75) {
+      // Yellow range - more sensitive, use smaller steps
+      hueAdjustment = 0.7;
+    } else if (hue >= 240 && hue <= 270) {
+      // Blue range - can handle slightly larger steps
+      hueAdjustment = 1.1;
+    } else if (hue >= 120 && hue <= 150) {
+      // Green range - balanced
+      hueAdjustment = 0.9;
+    }
+    
+    // Calculate base step size (percentage points of lightness) - smaller for better harmony
+    const baseStepSize = 2.5; // Reduced from 4% for gentler transition
+    const dynamicStepSize = baseStepSize * lightnessAdjustment * saturationAdjustment * hueAdjustment;
+    
+    // Calculate target lightness for shade 100
+    let shade100Lightness = shade50Lightness - dynamicStepSize;
+    
+    // Ensure we don't create too small or too large a gap - tighter bounds for harmony
+    const minStep = 1.5; // Minimum 1.5% lightness difference
+    const maxStep = 4; // Maximum 4% lightness difference (reduced from 8%)
+    const actualStep = shade50Lightness - shade100Lightness;
+    
+    if (actualStep < minStep) {
+      shade100Lightness = shade50Lightness - minStep;
+    } else if (actualStep > maxStep) {
+      shade100Lightness = shade50Lightness - maxStep;
+    }
+    
+    // Ensure we stay within reasonable bounds (don't go below 75% lightness for shade 100)
+    shade100Lightness = Math.max(75, Math.min(shade50Lightness - 1, shade100Lightness));
+    
+    return shade100Lightness;
+  }
+
+  // Create even smoother progressions by interpolating between key color points
+  private generateSmoothColorProgression(baseColor: string, count: number): string[] {
+    const [h, s] = this.hexToHsl(baseColor);
     const colors: string[] = [];
     
-    // Target contrast ratios for each shade based on Tailwind CSS standards
-    // These create harmonious and evenly distributed contrast ratios
-    const baseTargetContrasts = [
-      1.05,   // 50
-      1.17,   // 100
-      1.31,   // 200
-      1.44,   // 300
-      1.60,   // 400
-      1.79,   // 500
-      2.69,   // 600
-      4.32,   // 700
-      7.39,   // 800
-      13.03,  // 900
-      19.42   // 950
+    // Define key color points for interpolation
+    const keyPoints = [
+      { lightness: 5, saturation: s * 0.3 },   // Very light
+      { lightness: 15, saturation: s * 0.6 },  // Light
+      { lightness: 30, saturation: s * 0.9 },  // Medium-light
+      { lightness: 50, saturation: s * 1.1 },  // Medium (peak saturation)
+      { lightness: 70, saturation: s * 0.9 },  // Medium-dark
+      { lightness: 85, saturation: s * 0.6 },  // Dark
+      { lightness: 95, saturation: s * 0.3 }   // Very dark
     ];
     
-    // Generate target contrasts for the requested count
-    const targetContrasts = this.generateTargetContrasts(count, baseTargetContrasts);
-    
-    // Generate colors with specific target contrast ratios
     for (let i = 0; i < count; i++) {
-      const targetContrast = targetContrasts[i];
-      const lightness = this.findLightnessForContrast(h, s, targetContrast);
+      const normalizedIndex = i / (count - 1);
       
-      // Use a sophisticated saturation curve for more harmonious colors
-      // Lighter shades get slightly higher saturation, darker shades get slightly lower
-      const saturationCurve = this.calculateSaturationCurve(s, i, count);
-      const color = this.hslToHex(h, saturationCurve, lightness);
-      colors.push(color);
+      // Find the two key points to interpolate between
+      const pointIndex = normalizedIndex * (keyPoints.length - 1);
+      const lowerIndex = Math.floor(pointIndex);
+      const upperIndex = Math.min(lowerIndex + 1, keyPoints.length - 1);
+      const fraction = pointIndex - lowerIndex;
+      
+      const lowerPoint = keyPoints[lowerIndex];
+      const upperPoint = keyPoints[upperIndex];
+      
+      // Interpolate between the key points
+      const lightness = lowerPoint.lightness + (upperPoint.lightness - lowerPoint.lightness) * fraction;
+      const saturation = lowerPoint.saturation + (upperPoint.saturation - lowerPoint.saturation) * fraction;
+      
+      // Apply bounds and adjustments
+      const finalLightness = Math.max(3, Math.min(97, lightness));
+      const finalSaturation = Math.max(20, Math.min(100, saturation));
+      
+      colors.push(this.hslToHex(h, finalSaturation, finalLightness));
     }
     
     return colors;
+  }
+
+  // Create perceptual color progressions using Lab color space for even smoother results
+  private generatePerceptualColorProgression(baseColor: string, count: number): string[] {
+    const colors: string[] = [];
+    
+    // Convert base color to Lab
+    const labBase = this.hexToLab(baseColor);
+    
+    // Create a perceptual lightness curve that feels more natural
+    const perceptualLightness = this.generatePerceptualLightnessCurve(count);
+    
+    for (let i = 0; i < count; i++) {
+      const targetL = perceptualLightness[i];
+      
+      // Interpolate chroma (saturation) based on lightness for better harmony
+      const chroma = this.calculatePerceptualChroma(labBase[1], labBase[2], targetL, i, count);
+      
+      // Create Lab color with interpolated values
+      const labColor = [targetL, chroma * Math.cos(labBase[1] * Math.PI / 180), chroma * Math.sin(labBase[2] * Math.PI / 180)];
+      
+      // Convert back to hex
+      colors.push(this.labToHex(labColor[0], labColor[1], labColor[2]));
+    }
+    
+    return colors;
+  }
+
+  // Generate perceptual lightness curve that feels more natural to the eye
+  private generatePerceptualLightnessCurve(count: number): number[] {
+    const lightnessValues: number[] = [];
+    
+    for (let i = 0; i < count; i++) {
+      const normalizedIndex = i / (count - 1);
+      
+      // Use a curve that follows human perception more closely
+      // This creates more balanced visual steps between shades
+      // Fixed to go from light to dark (95% to 5%)
+      let lightness: number;
+      
+      if (normalizedIndex < 0.3) {
+        // Light shades: more gradual progression
+        const t = normalizedIndex / 0.3;
+        lightness = 95 - (t * 25); // 95% to 70%
+      } else if (normalizedIndex < 0.7) {
+        // Mid-tones: more variation for better distinction
+        const t = (normalizedIndex - 0.3) / 0.4;
+        lightness = 70 - (t * 40); // 70% to 30%
+      } else {
+        // Dark shades: steeper progression
+        const t = (normalizedIndex - 0.7) / 0.3;
+        lightness = 30 - (t * 25); // 30% to 5%
+      }
+      
+      lightnessValues.push(lightness);
+    }
+    
+    return lightnessValues;
+  }
+
+  // Calculate perceptual chroma (saturation) based on lightness
+  private calculatePerceptualChroma(a: number, b: number, lightness: number, index: number, count: number): number {
+    const baseChroma = Math.sqrt(a * a + b * b);
+    
+    // Create a bell curve for chroma that peaks in mid-tones
+    const normalizedIndex = index / (count - 1);
+    const chromaCurve = Math.sin(normalizedIndex * Math.PI) * 0.3; // 30% variation
+    
+    // Adjust chroma based on lightness for better harmony
+    let lightnessAdjustment = 0;
+    if (lightness < 20) {
+      lightnessAdjustment = -0.2; // Reduce chroma for very dark shades
+    } else if (lightness > 80) {
+      lightnessAdjustment = 0.1; // Slightly increase chroma for very light shades
+    }
+    
+    const finalChroma = baseChroma * (1 + chromaCurve + lightnessAdjustment);
+    return Math.max(0, Math.min(128, finalChroma)); // Lab chroma bounds
+  }
+
+  // Improved saturation curve that creates more harmonious color progressions
+  private calculateImprovedSaturationCurve(baseSaturation: number, index: number, totalCount: number, lightness: number): number {
+    const normalizedIndex = index / (totalCount - 1);
+    
+    // Create a more sophisticated saturation curve
+    const baseCurve = Math.sin(normalizedIndex * Math.PI) * 0.2; // 20% variation
+    
+    // Adjust based on lightness for better visual harmony
+    let lightnessAdjustment = 0;
+    if (lightness < 20) {
+      // Very dark shades - reduce saturation slightly
+      lightnessAdjustment = -15;
+    } else if (lightness < 35) {
+      // Dark shades - slight reduction
+      lightnessAdjustment = -8;
+    } else if (lightness > 80) {
+      // Very light shades - increase saturation for better visibility
+      lightnessAdjustment = 10;
+    } else if (lightness > 65) {
+      // Light shades - slight increase
+      lightnessAdjustment = 5;
+    }
+    
+    // Calculate final saturation
+    const saturation = baseSaturation + (baseCurve * baseSaturation) + lightnessAdjustment;
+    
+    // Ensure minimum and maximum bounds
+    const minSaturation = 20;
+    const maxSaturation = Math.min(100, baseSaturation + 25);
+    
+    return Math.max(minSaturation, Math.min(maxSaturation, saturation));
   }
 
   // Generate target contrast ratios for any count, interpolating between base values
@@ -244,14 +594,24 @@ export class ColorThemer {
   private generateAnalogous(baseColor: string, count: number): string[] {
     const [h, s, l] = this.hexToHsl(baseColor);
     const colors: string[] = [];
-    const hueRange = 60;
+    const hueRange = 60; // Reduced from 60 to create tighter harmony
+    
+    // Generate a balanced lightness curve for smoother progression
+    const lightnessValues = this.generateBalancedLightnessCurve(count, l, false);
     
     for (let i = 0; i < count; i++) {
-      const hueOffset = (i - count/2) * (hueRange / count);
+      // Create smoother hue progression
+      const normalizedIndex = i / (count - 1);
+      const hueOffset = (normalizedIndex - 0.5) * hueRange; // Center the range
       const newHue = (h + hueOffset + 360) % 360;
-      const newSat = Math.max(35, Math.min(100, s + (Math.random() - 0.5) * 20));
-      const newLight = Math.max(20, Math.min(80, l + (Math.random() - 0.5) * 40));
-      colors.push(this.hslToHex(newHue, newSat, newLight));
+      
+      // Use the balanced lightness curve
+      const targetLightness = lightnessValues[i];
+      
+      // Create a more harmonious saturation curve
+      const saturationCurve = this.calculateImprovedSaturationCurve(s, i, count, targetLightness);
+      
+      colors.push(this.hslToHex(newHue, saturationCurve, targetLightness));
     }
     
     return colors;
@@ -261,16 +621,27 @@ export class ColorThemer {
     const [h, s, l] = this.hexToHsl(baseColor);
     const colors: string[] = [];
     
+    // Generate a balanced lightness curve
+    const lightnessValues = this.generateBalancedLightnessCurve(count, l, false);
+    
+    // Calculate how many colors to allocate to each hue
     const halfCount = Math.ceil(count / 2);
+    const secondHalfCount = count - halfCount;
+    
+    // Generate colors for the base hue
     for (let i = 0; i < halfCount; i++) {
-      const lightness = Math.max(20, Math.min(80, l + (i - halfCount/2) * (60/halfCount)));
-      colors.push(this.hslToHex(h, s, lightness));
+      const targetLightness = lightnessValues[i];
+      const saturationCurve = this.calculateImprovedSaturationCurve(s, i, halfCount, targetLightness);
+      colors.push(this.hslToHex(h, saturationCurve, targetLightness));
     }
     
+    // Generate colors for the complementary hue
     const compHue = (h + 180) % 360;
-    for (let i = 0; i < count - halfCount; i++) {
-      const lightness = Math.max(20, Math.min(80, l + (i - (count - halfCount)/2) * (60/(count - halfCount))));
-      colors.push(this.hslToHex(compHue, s, lightness));
+    for (let i = 0; i < secondHalfCount; i++) {
+      const adjustedIndex = i + halfCount;
+      const targetLightness = lightnessValues[adjustedIndex];
+      const saturationCurve = this.calculateImprovedSaturationCurve(s, i, secondHalfCount, targetLightness);
+      colors.push(this.hslToHex(compHue, saturationCurve, targetLightness));
     }
     
     return colors;
@@ -328,29 +699,9 @@ export class ColorThemer {
   }
 
   private validateAndAdjustColors(colors: string[], baseColor: string): string[] {
-    const baseColorName = this.getBaseColorName(baseColor);
-    const adjustedColors: string[] = [];
-    
-    colors.forEach((color) => {
-      let adjustedColor = color;
-      const [h, s, l] = this.hexToHsl(color);
-      const colorName = this.getBaseColorName(color);
-      
-      if (colorName !== baseColorName && this.shouldAdjustColor(colorName, baseColorName)) {
-        const baseHue = this.hexToHsl(baseColor)[0];
-        const adjustedHue = this.adjustHueToMatchName(h, baseColorName);
-        adjustedColor = this.hslToHex(adjustedHue, s, l);
-      }
-      
-      if (s < 25 && l > 15 && l < 85) {
-        const [adjH, , adjL] = this.hexToHsl(adjustedColor);
-        adjustedColor = this.hslToHex(adjH, 25, adjL);
-      }
-      
-      adjustedColors.push(adjustedColor);
-    });
-    
-    return adjustedColors;
+    // For monochromatic palettes, don't adjust colors at all
+    // This ensures hue and saturation remain consistent
+    return colors;
   }
 
   private shouldAdjustColor(colorName: string, baseColorName: string): boolean {
@@ -432,6 +783,63 @@ export class ColorThemer {
     const typeName = typeNames[paletteType] || '';
     const baseName = colorName.charAt(0).toUpperCase() + colorName.slice(1);
     return typeName ? `${baseName} ${typeName}` : baseName;
+  }
+
+  // Generate a hex color that will produce exact HSL values when converted back
+  private generateExactHSLColor(targetHue: number, targetSaturation: number, targetLightness: number): string {
+    // Convert the target HSL to hex
+    let bestHex = this.hslToHex(targetHue, targetSaturation, targetLightness);
+    
+    // Verify and adjust if needed to get exact HSL values
+    let [resultH, resultS, resultL] = this.hexToHsl(bestHex);
+    
+    // If the conversion doesn't produce exact values, search for the best match
+    if (Math.round(resultH) !== targetHue || Math.round(resultS) !== targetSaturation) {
+      // Priority search: find hex that gives exact hue and saturation (lightness can vary slightly)
+      let bestDiff = Infinity;
+      let foundExactHS = false;
+      const searchRange = 3; // Expanded search range
+      
+      for (let hAdj = -searchRange; hAdj <= searchRange; hAdj += 0.25) {
+        for (let sAdj = -searchRange; sAdj <= searchRange; sAdj += 0.25) {
+          for (let lAdj = -searchRange; lAdj <= searchRange; lAdj += 0.25) {
+            const testHex = this.hslToHex(
+              targetHue + hAdj, 
+              Math.max(0, Math.min(100, targetSaturation + sAdj)), 
+              Math.max(0, Math.min(100, targetLightness + lAdj))
+            );
+            const [testH, testS, testL] = this.hexToHsl(testHex);
+            
+            const hDiff = Math.abs(Math.round(testH) - targetHue);
+            const sDiff = Math.abs(Math.round(testS) - targetSaturation);
+            const lDiff = Math.abs(Math.round(testL) - targetLightness);
+            
+            // Prioritize exact hue and saturation match
+            if (hDiff === 0 && sDiff === 0) {
+              if (!foundExactHS || lDiff < bestDiff) {
+                bestDiff = lDiff;
+                bestHex = testHex;
+                foundExactHS = true;
+              }
+            } else if (!foundExactHS) {
+              // If no exact H,S match found yet, minimize total difference
+              const totalDiff = hDiff * 10 + sDiff * 10 + lDiff; // Weight H,S more heavily
+              if (totalDiff < bestDiff) {
+                bestDiff = totalDiff;
+                bestHex = testHex;
+              }
+            }
+            
+            // If we found a perfect H,S match with acceptable L, stop searching
+            if (foundExactHS && lDiff <= 1) {
+              break;
+            }
+          }
+        }
+      }
+    }
+    
+    return bestHex;
   }
 
   // Color utility functions
@@ -591,6 +999,112 @@ export class ColorThemer {
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return [r, g, b];
+  }
+
+  // Convert RGB to hex
+  private rgbToHex(r: number, g: number, b: number): string {
+    const toHex = (c: number) => {
+      const hex = c.toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    };
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  }
+
+  // Convert hex to Lab color space
+  private hexToLab(hex: string): [number, number, number] {
+    // First convert to RGB, then to XYZ, then to Lab
+    const [r, g, b] = this.hexToRgb(hex);
+    const [x, y, z] = this.rgbToXyz(r, g, b);
+    return this.xyzToLab(x, y, z);
+  }
+
+  // Convert RGB to XYZ
+  private rgbToXyz(r: number, g: number, b: number): [number, number, number] {
+    // Normalize RGB values
+    const rNorm = r / 255;
+    const gNorm = g / 255;
+    const bNorm = b / 255;
+    
+    // Apply gamma correction
+    const rGamma = rNorm > 0.04045 ? Math.pow((rNorm + 0.055) / 1.055, 2.4) : rNorm / 12.92;
+    const gGamma = gNorm > 0.04045 ? Math.pow((gNorm + 0.055) / 1.055, 2.4) : gNorm / 12.92;
+    const bGamma = bNorm > 0.04045 ? Math.pow((bNorm + 0.055) / 1.055, 2.4) : bNorm / 12.92;
+    
+    // Convert to XYZ
+    const x = rGamma * 0.4124 + gGamma * 0.3576 + bGamma * 0.1805;
+    const y = rGamma * 0.2126 + gGamma * 0.7152 + bGamma * 0.0722;
+    const z = rGamma * 0.0193 + gGamma * 0.1192 + bGamma * 0.9505;
+    
+    return [x, y, z];
+  }
+
+  // Convert XYZ to Lab
+  private xyzToLab(x: number, y: number, z: number): [number, number, number] {
+    // D65 white point
+    const xn = 0.95047;
+    const yn = 1.0;
+    const zn = 1.08883;
+    
+    const xr = this.xyzTransform(x / xn);
+    const yr = this.xyzTransform(y / yn);
+    const zr = this.xyzTransform(z / zn);
+    
+    const l = 116 * yr - 16;
+    const a = 500 * (xr - yr);
+    const b = 200 * (yr - zr);
+    
+    return [l, a, b];
+  }
+
+  // XYZ transform function
+  private xyzTransform(t: number): number {
+    return t > 0.008856 ? Math.pow(t, 1/3) : (7.787 * t) + (16 / 116);
+  }
+
+  // Convert Lab to hex
+  private labToHex(l: number, a: number, b: number): string {
+    const [x, y, z] = this.labToXyz(l, a, b);
+    const [r, g, bVal] = this.xyzToRgb(x, y, z);
+    return this.rgbToHex(r, g, bVal);
+  }
+
+  // Convert Lab to XYZ
+  private labToXyz(l: number, a: number, b: number): [number, number, number] {
+    const yr = (l + 16) / 116;
+    const xr = yr + a / 500;
+    const zr = yr - b / 200;
+    
+    const xn = 0.95047;
+    const yn = 1.0;
+    const zn = 1.08883;
+    
+    const x = xn * this.xyzInverseTransform(xr);
+    const y = yn * this.xyzInverseTransform(yr);
+    const z = zn * this.xyzInverseTransform(zr);
+    
+    return [x, y, z];
+  }
+
+  // XYZ inverse transform function
+  private xyzInverseTransform(t: number): number {
+    return t > 0.206897 ? Math.pow(t, 3) : (t - 16 / 116) / 7.787;
+  }
+
+  // Convert XYZ to RGB
+  private xyzToRgb(x: number, y: number, z: number): [number, number, number] {
+    const r = x * 3.2406 + y * -1.5372 + z * -0.4986;
+    const g = x * -0.9689 + y * 1.8758 + z * 0.0415;
+    const b = x * 0.0557 + y * -0.2040 + z * 1.0570;
+    
+    const rGamma = r > 0.0031308 ? 1.055 * Math.pow(r, 1/2.4) - 0.055 : 12.92 * r;
+    const gGamma = g > 0.0031308 ? 1.055 * Math.pow(g, 1/2.4) - 0.055 : 12.92 * g;
+    const bGamma = b > 0.0031308 ? 1.055 * Math.pow(b, 1/2.4) - 0.055 : 12.92 * b;
+    
+    return [
+      Math.max(0, Math.min(255, Math.round(rGamma * 255))),
+      Math.max(0, Math.min(255, Math.round(gGamma * 255))),
+      Math.max(0, Math.min(255, Math.round(bGamma * 255)))
+    ];
   }
 
   // Export functionality
