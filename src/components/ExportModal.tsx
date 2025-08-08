@@ -172,31 +172,53 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   };
 
   const calculateTailwindWeight = (index: number, total: number): number => {
-    if (total === 11) {
-      // Standard Tailwind weights for 11 colors
-      const weights = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-      return weights[index];
-    } else if (total === 13) {
-      // Extended weights for 13 colors (like in the image)
-      const weights = [50, 125, 200, 275, 350, 425, 500, 575, 650, 725, 800, 875, 950];
-      return weights[index];
+    // For 11 or fewer colors, remove weights from the middle in alternating pattern
+    if (total <= 11) {
+      if (total === 11) {
+        return [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950][index];
+      } else if (total === 10) {
+        return [50, 200, 300, 400, 500, 600, 700, 800, 900, 950][index];
+      } else if (total === 9) {
+        return [50, 200, 300, 400, 500, 600, 700, 800, 950][index];
+      } else if (total === 8) {
+        return [50, 300, 400, 500, 600, 700, 800, 950][index];
+      } else if (total === 7) {
+        return [50, 300, 400, 500, 600, 700, 950][index];
+      } else if (total === 6) {
+        return [50, 400, 500, 600, 700, 950][index];
+      } else if (total === 5) {
+        return [50, 400, 500, 600, 950][index];
+      } else if (total === 4) {
+        return [50, 500, 600, 950][index];
+      } else if (total === 3) {
+        return [50, 500, 950][index];
+      } else if (total === 2) {
+        return [50, 950][index];
+      } else {
+        return 500;
+      }
     } else {
-      // For all other counts, create a smooth, evenly distributed progression
-      const normalizedIndex = index / (total - 1);
-      
-      // Always start at 50 and end at 950
-      const min = 50;
-      const max = 950;
-      
-      // Use a linear distribution for consistent steps
-      // This ensures equal perceptual spacing between weights
-      const weight = Math.round(min + (normalizedIndex * (max - min)));
-      
-      // Round to nearest 25 for cleaner values (like Tailwind standard)
-      const rounded = Math.round(weight / 25) * 25;
-      
-      // Ensure we don't exceed bounds and maintain monotonic increase
-      return Math.max(min, Math.min(max, rounded));
+      // For more than 11 colors, follow the specific pattern
+      if (total === 12) {
+        return [50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950][index];
+      } else if (total === 13) {
+        return [50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950][index];
+      } else if (total === 14) {
+        return [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 850, 900, 950][index];
+      } else if (total === 15) {
+        return [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 750, 800, 850, 900, 950][index];
+      } else if (total === 16) {
+        return [50, 100, 150, 200, 250, 300, 350, 400, 500, 600, 700, 750, 800, 850, 900, 950][index];
+      } else if (total === 17) {
+        return [50, 100, 150, 200, 250, 300, 350, 400, 500, 600, 650, 700, 750, 800, 850, 900, 950][index];
+      } else if (total === 18) {
+        return [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 650, 700, 750, 800, 850, 900, 950][index];
+      } else if (total === 19) {
+        return [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950][index];
+      } else {
+        // For 20+ colors, use all weights
+        return [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950][index] || 500;
+      }
     }
   };
 
