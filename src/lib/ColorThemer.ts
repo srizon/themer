@@ -92,7 +92,6 @@ export class ColorThemer {
     const colorSet: ColorSet = {
       id: setId,
       baseColor: randomColor,
-      paletteType: 'monochromatic',
       colorCount: 11, // Standard Tailwind CSS shade count
       colors: []
     };
@@ -136,8 +135,10 @@ export class ColorThemer {
 
     Object.assign(colorSet, updates);
     
-    // Regenerate colors if base color or palette type changed
-    if (updates.baseColor || updates.paletteType || updates.colorCount) {
+    // Regenerate colors if base color, color count, or contrast/lightness bounds changed
+    if (updates.baseColor || updates.colorCount || updates.minContrast !== undefined || 
+        updates.maxContrast !== undefined || updates.minLightness !== undefined || 
+        updates.maxLightness !== undefined) {
       this.generateColorSet(colorSet);
     }
     
@@ -148,44 +149,38 @@ export class ColorThemer {
 
 
   private generateColorSet(colorSet: ColorSet) {
-    let colors: string[] = [];
+    // Only generate monochromatic colors with optional bounds
+    const colors = this.generateMonochromatic(
+      colorSet.baseColor, 
+      colorSet.colorCount,
+      colorSet.minContrast,
+      colorSet.maxContrast,
+      colorSet.minLightness,
+      colorSet.maxLightness
+    );
     
-    switch (colorSet.paletteType) {
-      case 'monochromatic':
-        colors = this.generateMonochromatic(colorSet.baseColor, colorSet.colorCount);
-        break;
-      case 'analogous':
-        colors = this.generateAnalogous(colorSet.baseColor, colorSet.colorCount);
-        break;
-      case 'complementary':
-        colors = this.generateComplementary(colorSet.baseColor, colorSet.colorCount);
-        break;
-      case 'triadic':
-        colors = this.generateTriadic(colorSet.baseColor, colorSet.colorCount);
-        break;
-      case 'tetradic':
-        colors = this.generateTetradic(colorSet.baseColor, colorSet.colorCount);
-        break;
-      case 'split-complementary':
-        colors = this.generateSplitComplementary(colorSet.baseColor, colorSet.colorCount);
-        break;
-    }
-
     // Validate and adjust colors to ensure they match their expected names
-    colors = this.validateAndAdjustColors(colors);
-    colorSet.colors = colors;
+    const validatedColors = this.validateAndAdjustColors(colors);
+    colorSet.colors = validatedColors;
   }
 
   // Color palette generation algorithms
-  private generateMonochromatic(baseColor: string, count: number): string[] {
+  private generateMonochromatic(
+    baseColor: string, 
+    count: number, 
+    minContrast?: number, 
+    maxContrast?: number, 
+    minLightness?: number, 
+    maxLightness?: number
+  ): string[] {
     const [h, s, l] = this.hexToHsl(baseColor);
     
     // Check if this is a neutral color (black, white, or gray)
     const isNeutral = s < 15 || (l < 20) || (l > 80);
     
     if (isNeutral) {
-      // For neutral colors, use the balanced lightness curve
-      const lightnessValues = this.generateBalancedLightnessCurve(count);
+      // For neutral colors, use the balanced lightness curve with bounds
+      const lightnessValues = this.generateBalancedLightnessCurve(count, minLightness, maxLightness);
       return lightnessValues.map(lightness => this.hslToHex(0, 0, lightness));
     } else {
       // For true monochromatic palettes, we need to preserve exact hue and saturation
@@ -193,7 +188,9 @@ export class ColorThemer {
       const exactHue = Math.round(h);
       const exactSaturation = Math.round(s);
       
-      const lightnessValues = this.generateHSLBasedLightnessCurve(h, s, l, count);
+      // Always use lightness bounds for generation, regardless of contrast values
+      // This ensures consistent behavior when user changes any of the four fields
+      const lightnessValues = this.generateHSLBasedLightnessCurve(h, s, l, count, minLightness, maxLightness);
       
       // Generate colors that will maintain exact HSL values when displayed
       return lightnessValues.map(lightness => {
@@ -204,13 +201,13 @@ export class ColorThemer {
   }
 
   // Generate a balanced lightness curve with even distribution
-  private generateBalancedLightnessCurve(count: number): number[] {
+  private generateBalancedLightnessCurve(count: number, minLightness?: number, maxLightness?: number): number[] {
     // Use the same even distribution approach for all color types
     // This ensures consistent spacing regardless of whether it's neutral or colored
     
-    const maxLightness = 95; // Lightest shade
-    const minLightness = 5;  // Darkest shade
-    const totalRange = maxLightness - minLightness;
+    const maxL = maxLightness ?? 95; // Lightest shade
+    const minL = minLightness ?? 5;  // Darkest shade
+    const totalRange = maxL - minL;
     
     const lightnessValues: number[] = [];
     
@@ -219,7 +216,7 @@ export class ColorThemer {
       const position = i / (count - 1);
       
       // Linear interpolation for perfectly even distribution
-      const lightness = maxLightness - (position * totalRange);
+      const lightness = maxL - (position * totalRange);
       
       lightnessValues.push(lightness);
     }
@@ -280,13 +277,20 @@ export class ColorThemer {
   }
 
   // Generate HSL-based lightness curve with even distribution
-  private generateHSLBasedLightnessCurve(hue: number, saturation: number, baseLightness: number, count: number): number[] {
+  private generateHSLBasedLightnessCurve(
+    hue: number, 
+    saturation: number, 
+    baseLightness: number, 
+    count: number, 
+    minLightness?: number, 
+    maxLightness?: number
+  ): number[] {
     // For monochromatic palettes, create an evenly distributed lightness progression
     // from very light (95%) to very dark (5%) with mathematically even steps
     
-    const maxLightness = 95; // Lightest shade
-    const minLightness = 5;  // Darkest shade
-    const totalRange = maxLightness - minLightness;
+    const maxL = maxLightness ?? 95; // Lightest shade
+    const minL = minLightness ?? 5;  // Darkest shade
+    const totalRange = maxL - minL;
     
     const lightnessValues: number[] = [];
     
@@ -295,7 +299,36 @@ export class ColorThemer {
       const position = i / (count - 1);
       
       // Linear interpolation for perfectly even distribution
-      const lightness = maxLightness - (position * totalRange);
+      const lightness = maxL - (position * totalRange);
+      
+      lightnessValues.push(lightness);
+    }
+    
+    return lightnessValues;
+  }
+
+  // Generate contrast-based lightness curve
+  private generateContrastBasedLightnessCurve(
+    hue: number, 
+    saturation: number, 
+    count: number, 
+    minContrast?: number, 
+    maxContrast?: number
+  ): number[] {
+    const minC = minContrast ?? 1.05; // Minimum contrast ratio
+    const maxC = maxContrast ?? 19.5; // Maximum contrast ratio
+    
+    const lightnessValues: number[] = [];
+    
+    for (let i = 0; i < count; i++) {
+      // Calculate position from 0 to 1
+      const position = i / (count - 1);
+      
+      // Interpolate contrast ratio between min and max
+      const targetContrast = minC + (position * (maxC - minC));
+      
+      // Find the lightness that gives us the target contrast ratio
+      const lightness = this.findLightnessForContrast(hue, saturation, targetContrast);
       
       lightnessValues.push(lightness);
     }
@@ -613,112 +646,7 @@ export class ColorThemer {
     return targetContrasts;
   }
 
-  private generateAnalogous(baseColor: string, count: number): string[] {
-    const [h, s, l] = this.hexToHsl(baseColor);
-    const colors: string[] = [];
-    const hueRange = 60; // Reduced from 60 to create tighter harmony
-    
-    // Generate a balanced lightness curve for smoother progression
-    const lightnessValues = this.generateBalancedLightnessCurve(count);
-    
-    for (let i = 0; i < count; i++) {
-      // Create smoother hue progression
-      const normalizedIndex = i / (count - 1);
-      const hueOffset = (normalizedIndex - 0.5) * hueRange; // Center the range
-      const newHue = (h + hueOffset + 360) % 360;
-      
-      // Use the balanced lightness curve
-      const targetLightness = lightnessValues[i];
-      
-      // Create a more harmonious saturation curve
-      const saturationCurve = this.calculateImprovedSaturationCurve(s, i, count, targetLightness);
-      
-      colors.push(this.hslToHex(newHue, saturationCurve, targetLightness));
-    }
-    
-    return colors;
-  }
 
-  private generateComplementary(baseColor: string, count: number): string[] {
-    const [h, s, l] = this.hexToHsl(baseColor);
-    const colors: string[] = [];
-    
-    // Generate a balanced lightness curve
-    const lightnessValues = this.generateBalancedLightnessCurve(count);
-    
-    // Calculate how many colors to allocate to each hue
-    const halfCount = Math.ceil(count / 2);
-    const secondHalfCount = count - halfCount;
-    
-    // Generate colors for the base hue
-    for (let i = 0; i < halfCount; i++) {
-      const targetLightness = lightnessValues[i];
-      const saturationCurve = this.calculateImprovedSaturationCurve(s, i, halfCount, targetLightness);
-      colors.push(this.hslToHex(h, saturationCurve, targetLightness));
-    }
-    
-    // Generate colors for the complementary hue
-    const compHue = (h + 180) % 360;
-    for (let i = 0; i < secondHalfCount; i++) {
-      const adjustedIndex = i + halfCount;
-      const targetLightness = lightnessValues[adjustedIndex];
-      const saturationCurve = this.calculateImprovedSaturationCurve(s, i, secondHalfCount, targetLightness);
-      colors.push(this.hslToHex(compHue, saturationCurve, targetLightness));
-    }
-    
-    return colors;
-  }
-
-  private generateTriadic(baseColor: string, count: number): string[] {
-    const [h, s, l] = this.hexToHsl(baseColor);
-    const colors: string[] = [];
-    const hues = [h, (h + 120) % 360, (h + 240) % 360];
-    
-    for (let i = 0; i < count; i++) {
-      const hueIndex = i % 3;
-      const baseHue = hues[hueIndex];
-      const variation = Math.floor(i / 3);
-      const lightness = Math.max(20, Math.min(80, l + (variation - 1) * 20));
-      const saturation = Math.max(40, Math.min(100, s + (Math.random() - 0.5) * 20));
-      colors.push(this.hslToHex(baseHue, saturation, lightness));
-    }
-    
-    return colors;
-  }
-
-  private generateTetradic(baseColor: string, count: number): string[] {
-    const [h, s, l] = this.hexToHsl(baseColor);
-    const colors: string[] = [];
-    const hues = [h, (h + 90) % 360, (h + 180) % 360, (h + 270) % 360];
-    
-    for (let i = 0; i < count; i++) {
-      const hueIndex = i % 4;
-      const baseHue = hues[hueIndex];
-      const variation = Math.floor(i / 4);
-      const lightness = Math.max(20, Math.min(80, l + (variation - 1) * 15));
-      const saturation = Math.max(40, Math.min(100, s + (Math.random() - 0.5) * 20));
-      colors.push(this.hslToHex(baseHue, saturation, lightness));
-    }
-    
-    return colors;
-  }
-
-  private generateSplitComplementary(baseColor: string, count: number): string[] {
-    const [h, s, l] = this.hexToHsl(baseColor);
-    const colors: string[] = [];
-    const hues = [h, (h + 150) % 360, (h + 210) % 360];
-    
-    for (let i = 0; i < count; i++) {
-      const hueIndex = i % 3;
-      const baseHue = hues[hueIndex];
-      const variation = Math.floor(i / 3);
-      const lightness = Math.max(20, Math.min(80, l + (variation - 1) * 20));
-      const saturation = Math.max(40, Math.min(100, s + (Math.random() - 0.5) * 20));
-      colors.push(this.hslToHex(baseHue, saturation, lightness));
-    }
-    
-    return colors;
-  }
 
   private validateAndAdjustColors(colors: string[]): string[] {
     // For monochromatic palettes, don't adjust colors at all
@@ -792,20 +720,7 @@ export class ColorThemer {
     else return 'red';
   }
 
-  private generatePaletteName(colorName: string, paletteType: string): string {
-    const typeNames: Record<string, string> = {
-      'monochromatic': '',
-      'analogous': 'Harmony',
-      'complementary': 'Contrast',
-      'triadic': 'Balance',
-      'tetradic': 'Vibrant',
-      'split-complementary': 'Dynamic'
-    };
-    
-    const typeName = typeNames[paletteType] || '';
-    const baseName = colorName.charAt(0).toUpperCase() + colorName.slice(1);
-    return typeName ? `${baseName} ${typeName}` : baseName;
-  }
+
 
   // Generate a hex color that will produce exact HSL values when converted back
   private generateExactHSLColor(targetHue: number, targetSaturation: number, targetLightness: number): string {
@@ -1190,8 +1105,7 @@ export class ColorThemer {
         const existingSet = this.colorSets.find(set => 
           (set.customName && set.customName === importedSet.customName) ||
           (!set.customName && !importedSet.customName && 
-           set.baseColor === importedSet.baseColor && 
-           set.paletteType === importedSet.paletteType)
+           set.baseColor === importedSet.baseColor)
         );
 
         if (existingSet) {

@@ -4,7 +4,8 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 
 ## Features
 
-- **Multiple Palette Types**: Monochromatic, Analogous, Complementary, Triadic, Tetradic, and Split Complementary
+- **Drag & Drop Reordering**: Reorder color palettes by dragging and dropping them
+- **Advanced Color Controls**: Fine-tune palettes with min/max contrast and lightness controls
 - **Interactive Color Swatches**: Click to copy colors to clipboard
 - **Export Options**: Export palettes in CSS, SCSS, JSON, and Tailwind CSS formats
 - **Import/Export**: Save and load your color palettes
@@ -12,8 +13,9 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 - **Real-time Updates**: See changes instantly as you modify colors and settings
 - **Color Information**: View contrast ratios and Tailwind-style weights for each color
 - **Local Storage**: Automatically saves your palettes to browser storage
-- **Advanced Color Algorithms**: Sophisticated color generation with perceptual uniformity
+- **Advanced Color Algorithms**: Sophisticated monochromatic color generation with perceptual uniformity
 - **Smart Tailwind Integration**: Intelligent weight calculation for any color count
+- **Automatic Value Synchronization**: Contrast and lightness values automatically update each other
 
 ## Tech Stack
 
@@ -80,9 +82,10 @@ The app is ready to deploy on any platform that supports Next.js:
 
 1. **Add a New Palette**: Click "Add Another Color" to create a new palette
 2. **Choose Base Color**: Use the color picker or enter a hex value
-3. **Select Palette Type**: Choose from 6 different color theory approaches
-4. **Adjust Color Count**: Set the number of colors (3-20)
-5. **Customize Names**: Click on palette names to edit them
+3. **Adjust Color Count**: Set the number of colors (3-20)
+4. **Fine-tune Controls**: Use min/max contrast and lightness controls for precise customization
+5. **Reorder Palettes**: Drag and drop palettes to reorder them
+6. **Customize Names**: Click on palette names to edit them
 
 ### Exporting Palettes
 
@@ -99,33 +102,15 @@ The app is ready to deploy on any platform that supports Next.js:
 
 ## Color Theory Algorithms
 
-### Monochromatic
-Creates variations of a single hue with different lightness levels. Now features:
+### Monochromatic (Enhanced)
+Creates variations of a single hue with different lightness levels. Features:
 - **Perceptual Uniformity**: Even visual spacing between shades
 - **Neutral Color Detection**: Special handling for grays and near-neutral colors
 - **Exact HSL Preservation**: Maintains precise hue and saturation values
 - **Balanced Lightness Curves**: Mathematically even distribution from 5% to 95% lightness
-
-### Analogous
-Uses colors that are next to each other on the color wheel. Enhanced with:
-- **Smooth Hue Progression**: Even distribution across the 60° hue range
-- **Harmonious Saturation**: Intelligent saturation curves for better visual harmony
-- **Balanced Lightness**: Consistent lightness progression across all colors
-
-### Complementary
-Uses colors that are opposite each other on the color wheel. Improved with:
-- **Dynamic Color Allocation**: Smart distribution between base and complementary hues
-- **Enhanced Saturation Curves**: Better color harmony and visual appeal
-- **Consistent Lightness Distribution**: Even spacing across the entire palette
-
-### Triadic
-Uses three colors that are evenly spaced around the color wheel.
-
-### Tetradic
-Uses four colors that form a rectangle on the color wheel.
-
-### Split Complementary
-Uses a base color and the two colors adjacent to its complement.
+- **Advanced Controls**: Fine-tune with min/max contrast and lightness controls
+- **Automatic Synchronization**: Contrast and lightness values automatically update each other
+- **Drag & Drop Reordering**: Easily reorder palettes for better organization
 
 ## Advanced Features
 
@@ -151,6 +136,12 @@ Recent improvements include:
 - **Contrast Ratio Calculations**: WCAG-compliant contrast calculations
 - **Color Space Conversions**: Full support for RGB, HSL, and Lab color spaces
 
+### Drag & Drop Reordering
+- **Intuitive Interface**: Drag any color palette to reorder it
+- **Visual Feedback**: Opacity and rotation effects during drag operations
+- **Smooth Animations**: CSS transitions for seamless user experience
+- **Persistent Order**: Reordered palettes are automatically saved to local storage
+
 ## Project Structure
 
 ```
@@ -174,12 +165,21 @@ themer/
 ├── next.config.ts         # Next.js configuration
 ├── tsconfig.json          # TypeScript configuration
 ├── eslint.config.mjs      # ESLint configuration
+├── vercel.json            # Vercel deployment configuration
 └── README.md              # Project documentation
 ```
 
 ## Recent Updates
 
-### v0.1.2 - Advanced Color Algorithms (Latest)
+### v0.1.3 - Drag & Drop Reordering & Advanced Controls (Latest)
+- **Drag & Drop Reordering**: Reorder color palettes by dragging and dropping them
+- **Advanced Color Controls**: Added min/max contrast and lightness controls with automatic synchronization
+- **Simplified Palette Types**: Streamlined to focus on monochromatic palettes with advanced customization
+- **Enhanced User Experience**: Improved visual feedback during drag operations with opacity and rotation effects
+- **Automatic Value Synchronization**: Contrast and lightness values automatically update each other for consistency
+- **Vercel Deployment Ready**: Added vercel.json configuration for seamless deployment
+
+### v0.1.2 - Advanced Color Algorithms
 - **Enhanced Monochromatic Generation**: Improved algorithms with perceptual uniformity and exact HSL preservation
 - **Smart Tailwind Weight Calculation**: Intelligent weight distribution for any color count (3-20 colors)
 - **Lab Color Space Support**: Added perceptual color space for more natural color progressions

@@ -1,10 +1,13 @@
 export interface ColorSet {
   id: number;
   baseColor: string;
-  paletteType: 'monochromatic' | 'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'split-complementary';
   colorCount: number;
   colors: string[];
   customName?: string;
+  minContrast?: number;
+  maxContrast?: number;
+  minLightness?: number;
+  maxLightness?: number;
 }
 
 export interface ImportData {

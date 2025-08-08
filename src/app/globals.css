@@ -345,6 +345,11 @@ body {
   transition: all 0.3s ease;
 }
 
+.color-set-controls .control-group:nth-child(n+4) {
+  border-left: 1px solid #e4e4e7;
+  padding-left: 1.5rem;
+}
+
 .control-group {
   display: flex;
   flex-direction: column;

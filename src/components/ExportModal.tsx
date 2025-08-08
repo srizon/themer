@@ -111,19 +111,11 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   const generatePaletteName = (): string => {
     if (!colorSet) return '';
     
-    const colorName = getBaseColorName(colorSet.baseColor);
-    const typeNames: Record<string, string> = {
-      'monochromatic': '',
-      'analogous': 'Harmony',
-      'complementary': 'Contrast',
-      'triadic': 'Balance',
-      'tetradic': 'Vibrant',
-      'split-complementary': 'Dynamic'
-    };
+    if (colorSet.customName) return colorSet.customName;
     
-    const typeName = typeNames[colorSet.paletteType] || '';
+    const colorName = getBaseColorName(colorSet.baseColor);
     const baseName = colorName.charAt(0).toUpperCase() + colorName.slice(1);
-    return typeName ? `${baseName} ${typeName}` : baseName;
+    return baseName;
   };
 
   const getBaseColorName = (hex: string): string => {

@@ -20,12 +20,92 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
     onUpdate(colorSet.id, { baseColor: color });
   };
 
-  const handlePaletteTypeChange = (type: ColorSetType['paletteType']) => {
-    onUpdate(colorSet.id, { paletteType: type });
-  };
-
   const handleColorCountChange = (count: number) => {
     onUpdate(colorSet.id, { colorCount: count });
+  };
+
+  // Helper function to calculate lightness from contrast
+  const calculateLightnessFromContrast = (contrast: number, isMinContrast: boolean): number => {
+    // For min contrast (low values like 1.05), we need high lightness (95%)
+    // For max contrast (high values like 19.5), we need low lightness (5%)
+    if (isMinContrast) {
+      // Min contrast -> Max lightness
+      // Lower contrast = higher lightness
+      const normalizedContrast = Math.max(1, Math.min(21, contrast));
+      const lightness = 95 - ((normalizedContrast - 1) * 4.5); // 1.05 -> 95%, 21 -> 5%
+      return Math.max(5, Math.min(95, Math.round(lightness)));
+    } else {
+      // Max contrast -> Min lightness
+      // Higher contrast = lower lightness
+      const normalizedContrast = Math.max(1, Math.min(21, contrast));
+      const lightness = 5 + ((21 - normalizedContrast) * 4.5); // 21 -> 5%, 1.05 -> 95%
+      return Math.max(5, Math.min(95, Math.round(lightness)));
+    }
+  };
+
+  // Helper function to calculate contrast from lightness
+  const calculateContrastFromLightness = (lightness: number, isMaxLightness: boolean): number => {
+    if (isMaxLightness) {
+      // Max lightness -> Min contrast
+      // Higher lightness = lower contrast
+      const normalizedLightness = Math.max(5, Math.min(95, lightness));
+      const contrast = 1 + ((95 - normalizedLightness) / 4.5); // 95% -> 1.05, 5% -> 21
+      return Math.max(1.05, Math.min(21, Math.round(contrast * 100) / 100));
+    } else {
+      // Min lightness -> Max contrast
+      // Lower lightness = higher contrast
+      const normalizedLightness = Math.max(5, Math.min(95, lightness));
+      const contrast = 21 - ((normalizedLightness - 5) / 4.5); // 5% -> 21, 95% -> 1.05
+      return Math.max(1.05, Math.min(21, Math.round(contrast * 100) / 100));
+    }
+  };
+
+  const handleMinContrastChange = (value: number | undefined) => {
+    // Reset to default if cleared
+    const finalValue = value !== undefined ? value : 1.05;
+    const updates: Partial<ColorSetType> = { minContrast: finalValue };
+    
+    // Auto-update max lightness when min contrast changes
+    const newMaxLightness = calculateLightnessFromContrast(finalValue, true);
+    updates.maxLightness = newMaxLightness;
+    
+    onUpdate(colorSet.id, updates);
+  };
+
+  const handleMaxContrastChange = (value: number | undefined) => {
+    // Reset to default if cleared
+    const finalValue = value !== undefined ? value : 19.5;
+    const updates: Partial<ColorSetType> = { maxContrast: finalValue };
+    
+    // Auto-update min lightness when max contrast changes
+    const newMinLightness = calculateLightnessFromContrast(finalValue, false);
+    updates.minLightness = newMinLightness;
+    
+    onUpdate(colorSet.id, updates);
+  };
+
+  const handleMinLightnessChange = (value: number | undefined) => {
+    // Reset to default if cleared
+    const finalValue = value !== undefined ? value : 5;
+    const updates: Partial<ColorSetType> = { minLightness: finalValue };
+    
+    // Auto-update max contrast when min lightness changes
+    const newMaxContrast = calculateContrastFromLightness(finalValue, false);
+    updates.maxContrast = newMaxContrast;
+    
+    onUpdate(colorSet.id, updates);
+  };
+
+  const handleMaxLightnessChange = (value: number | undefined) => {
+    // Reset to default if cleared
+    const finalValue = value !== undefined ? value : 95;
+    const updates: Partial<ColorSetType> = { maxLightness: finalValue };
+    
+    // Auto-update min contrast when max lightness changes
+    const newMinContrast = calculateContrastFromLightness(finalValue, true);
+    updates.minContrast = newMinContrast;
+    
+    onUpdate(colorSet.id, updates);
   };
 
   const handleNameChange = (name: string) => {
@@ -52,20 +132,10 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
   const getPaletteName = () => {
     if (colorSet.customName) return colorSet.customName;
     
-    // Generate name based on base color and palette type
+    // Generate name based on base color only (monochromatic)
     const colorName = getBaseColorName(colorSet.baseColor);
-    const typeNames: Record<string, string> = {
-      'monochromatic': '',
-      'analogous': 'Harmony',
-      'complementary': 'Contrast',
-      'triadic': 'Balance',
-      'tetradic': 'Vibrant',
-      'split-complementary': 'Dynamic'
-    };
-    
-    const typeName = typeNames[colorSet.paletteType] || '';
     const baseName = colorName.charAt(0).toUpperCase() + colorName.slice(1);
-    return typeName ? `${baseName} ${typeName}` : baseName;
+    return baseName;
   };
 
   const getBaseColorName = (hex: string): string => {
@@ -216,21 +286,7 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
             </div>
           </div>
           
-          <div className="control-group">
-            <label>Type</label>
-            <select
-              value={colorSet.paletteType}
-              onChange={(e) => handlePaletteTypeChange(e.target.value as ColorSetType['paletteType'])}
-              className="input input-select"
-            >
-              <option value="monochromatic">Monochromatic</option>
-              <option value="analogous">Analogous</option>
-              <option value="complementary">Complementary</option>
-              <option value="triadic">Triadic</option>
-              <option value="tetradic">Tetradic</option>
-              <option value="split-complementary">Split Complementary</option>
-            </select>
-          </div>
+
           
           <div className="control-group">
             <label>Colors</label>
@@ -240,6 +296,62 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               max="20"
               value={colorSet.colorCount}
               onChange={(e) => handleColorCountChange(parseInt(e.target.value))}
+              className="input input-number"
+            />
+          </div>
+
+          <div className="control-group">
+            <label>Min Contrast</label>
+            <input
+              type="number"
+              min="1"
+              max="21"
+              step="0.1"
+              value={colorSet.minContrast || ''}
+              onChange={(e) => handleMinContrastChange(parseFloat(e.target.value) || undefined)}
+              placeholder="1.05"
+              className="input input-number"
+            />
+          </div>
+
+          <div className="control-group">
+            <label>Max Contrast</label>
+            <input
+              type="number"
+              min="1"
+              max="21"
+              step="0.1"
+              value={colorSet.maxContrast || ''}
+              onChange={(e) => handleMaxContrastChange(parseFloat(e.target.value) || undefined)}
+              placeholder="19.5"
+              className="input input-number"
+            />
+          </div>
+
+          <div className="control-group">
+            <label>Max Lightness (%)</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              value={colorSet.maxLightness || ''}
+              onChange={(e) => handleMaxLightnessChange(parseInt(e.target.value) || undefined)}
+              placeholder="95"
+              className="input input-number"
+            />
+          </div>
+
+          <div className="control-group">
+            <label>Min Lightness (%)</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              value={colorSet.minLightness || ''}
+              onChange={(e) => handleMinLightnessChange(parseInt(e.target.value) || undefined)}
+              placeholder="5"
               className="input input-number"
             />
           </div>
