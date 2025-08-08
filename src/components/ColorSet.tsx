@@ -293,7 +293,7 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
             <input
               type="number"
               min="3"
-              max="20"
+              max="19"
               value={colorSet.colorCount}
               onChange={(e) => handleColorCountChange(parseInt(e.target.value))}
               className="input input-number"
