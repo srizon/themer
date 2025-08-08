@@ -176,7 +176,8 @@ export class ColorThemer {
     const [h, s, l] = this.hexToHsl(baseColor);
     
     // Check if this is a neutral color (black, white, or gray)
-    const isNeutral = s < 15 || (l < 20) || (l > 80);
+    // Use a much lower threshold for saturation to preserve subtle hues
+    const isNeutral = s < 5 || (l < 20) || (l > 80);
     
     if (isNeutral) {
       // For neutral colors, use the balanced lightness curve with bounds
@@ -203,7 +204,13 @@ export class ColorThemer {
         if (index === baseIndex) {
           return baseColor; // Preserve the user's exact base color
         } else {
-          return this.hslToHex(0, 0, lightness);
+          // For neutral colors, preserve the hue and saturation of the base color
+          // Only use pure gray if the base color is actually pure gray (saturation = 0)
+          if (s === 0) {
+            return this.hslToHex(0, 0, lightness);
+          } else {
+            return this.hslToHex(h, s, lightness);
+          }
         }
       });
     } else {
