@@ -171,7 +171,15 @@ themer/
 
 ## Recent Updates
 
-### v0.1.3 - Drag & Drop Reordering & Advanced Controls (Latest)
+### v0.1.4 - Base Color Preservation & Enhanced Algorithms (Latest)
+- **Base Color Preservation**: The user's exact base color is now preserved in the generated palette at the appropriate position
+- **Intelligent Color Positioning**: Base colors are automatically positioned based on their lightness value within the palette range
+- **Enhanced Neutral Color Handling**: Improved algorithms for grays and near-neutral colors with better base color preservation
+- **Edge Case Handling**: Proper handling of very light or very dark base colors that fall outside the standard range
+- **Improved Color Generation**: More sophisticated algorithms that maintain exact HSL values while preserving user intent
+- **Better User Experience**: Users can now see their chosen base color exactly as selected in the final palette
+
+### v0.1.3 - Drag & Drop Reordering & Advanced Controls
 - **Drag & Drop Reordering**: Reorder color palettes by dragging and dropping them
 - **Advanced Color Controls**: Added min/max contrast and lightness controls with automatic synchronization
 - **Simplified Palette Types**: Streamlined to focus on monochromatic palettes with advanced customization

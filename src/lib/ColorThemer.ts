@@ -180,8 +180,32 @@ export class ColorThemer {
     
     if (isNeutral) {
       // For neutral colors, use the balanced lightness curve with bounds
-      const lightnessValues = this.generateBalancedLightnessCurve(count, minLightness, maxLightness);
-      return lightnessValues.map(lightness => this.hslToHex(0, 0, lightness));
+      const lightnessValues = this.generateBalancedLightnessCurve(count, minLightness, maxLightness, l);
+      return lightnessValues.map((lightness, index) => {
+        // If this is the base color position, return the original base color
+        const maxL = maxLightness ?? 95;
+        const minL = minLightness ?? 5;
+        
+        // Handle edge cases where base color is outside the bounds
+        let baseIndex: number;
+        if (l <= minL) {
+          // Base color is very dark, place it at the darkest position
+          baseIndex = count - 1;
+        } else if (l >= maxL) {
+          // Base color is very light, place it at the lightest position
+          baseIndex = 0;
+        } else {
+          // Base color is within bounds, calculate its position
+          const basePosition = (maxL - l) / (maxL - minL);
+          baseIndex = Math.round(basePosition * (count - 1));
+        }
+        
+        if (index === baseIndex) {
+          return baseColor; // Preserve the user's exact base color
+        } else {
+          return this.hslToHex(0, 0, lightness);
+        }
+      });
     } else {
       // For true monochromatic palettes, we need to preserve exact hue and saturation
       // Convert to a more manageable HSL representation and work from there
@@ -193,22 +217,88 @@ export class ColorThemer {
       const lightnessValues = this.generateHSLBasedLightnessCurve(h, s, l, count, minLightness, maxLightness);
       
       // Generate colors that will maintain exact HSL values when displayed
-      return lightnessValues.map(lightness => {
-        // Find the best hex color that produces the desired rounded HSL values
-        return this.generateExactHSLColor(exactHue, exactSaturation, Math.round(lightness));
+      return lightnessValues.map((lightness, index) => {
+        // If this is the base color position, return the original base color
+        const maxL = maxLightness ?? 95;
+        const minL = minLightness ?? 5;
+        
+        // Handle edge cases where base color is outside the bounds
+        let baseIndex: number;
+        if (l <= minL) {
+          // Base color is very dark, place it at the darkest position
+          baseIndex = count - 1;
+        } else if (l >= maxL) {
+          // Base color is very light, place it at the lightest position
+          baseIndex = 0;
+        } else {
+          // Base color is within bounds, calculate its position
+          const basePosition = (maxL - l) / (maxL - minL);
+          baseIndex = Math.round(basePosition * (count - 1));
+        }
+        
+        if (index === baseIndex) {
+          return baseColor; // Preserve the user's exact base color
+        } else {
+          // Find the best hex color that produces the desired rounded HSL values
+          return this.generateExactHSLColor(exactHue, exactSaturation, Math.round(lightness));
+        }
       });
     }
   }
 
   // Generate a balanced lightness curve with even distribution
-  private generateBalancedLightnessCurve(count: number, minLightness?: number, maxLightness?: number): number[] {
+  private generateBalancedLightnessCurve(count: number, minLightness?: number, maxLightness?: number, baseLightness?: number): number[] {
     // Use the same even distribution approach for all color types
     // This ensures consistent spacing regardless of whether it's neutral or colored
     
     const maxL = maxLightness ?? 95; // Lightest shade
     const minL = minLightness ?? 5;  // Darkest shade
-    const totalRange = maxL - minL;
     
+    // If we only have one color, return the base lightness
+    if (count === 1) {
+      return [baseLightness ?? 50];
+    }
+    
+    // If base lightness is provided, preserve it
+    if (baseLightness !== undefined) {
+      // Handle edge cases where base color is outside the bounds
+      let baseIndex: number;
+      
+      if (baseLightness <= minL) {
+        // Base color is very dark, place it at the darkest position
+        baseIndex = count - 1;
+      } else if (baseLightness >= maxL) {
+        // Base color is very light, place it at the lightest position
+        baseIndex = 0;
+      } else {
+        // Base color is within bounds, calculate its position
+        const basePosition = (maxL - baseLightness) / (maxL - minL);
+        baseIndex = Math.round(basePosition * (count - 1));
+      }
+      
+      const lightnessValues: number[] = [];
+      
+      for (let i = 0; i < count; i++) {
+        let lightness: number;
+        
+        if (i === baseIndex) {
+          // Preserve the user's exact base color
+          lightness = baseLightness;
+        } else {
+          // Generate other shades around the base color
+          const position = i / (count - 1);
+          const totalRange = maxL - minL;
+          lightness = maxL - (position * totalRange);
+        }
+        
+        lightnessValues.push(lightness);
+      }
+      
+      return lightnessValues;
+    }
+    
+    // Fallback to original behavior if no base lightness provided
+    const totalRange = maxL - minL;
     const lightnessValues: number[] = [];
     
     for (let i = 0; i < count; i++) {
@@ -277,6 +367,7 @@ export class ColorThemer {
   }
 
   // Generate HSL-based lightness curve with even distribution
+  // Preserves the user's base color and generates other shades around it
   private generateHSLBasedLightnessCurve(
     hue: number, 
     saturation: number, 
@@ -285,21 +376,45 @@ export class ColorThemer {
     minLightness?: number, 
     maxLightness?: number
   ): number[] {
-    // For monochromatic palettes, create an evenly distributed lightness progression
-    // from very light (95%) to very dark (5%) with mathematically even steps
-    
     const maxL = maxLightness ?? 95; // Lightest shade
     const minL = minLightness ?? 5;  // Darkest shade
-    const totalRange = maxL - minL;
+    
+    // If we only have one color, return the base lightness
+    if (count === 1) {
+      return [baseLightness];
+    }
+    
+    // Handle edge cases where base color is outside the bounds
+    let adjustedBaseLightness = baseLightness;
+    let baseIndex: number;
+    
+    if (baseLightness <= minL) {
+      // Base color is very dark, place it at the darkest position
+      adjustedBaseLightness = minL;
+      baseIndex = count - 1;
+    } else if (baseLightness >= maxL) {
+      // Base color is very light, place it at the lightest position
+      adjustedBaseLightness = maxL;
+      baseIndex = 0;
+    } else {
+      // Base color is within bounds, calculate its position
+      const basePosition = (maxL - baseLightness) / (maxL - minL);
+      baseIndex = Math.round(basePosition * (count - 1));
+    }
     
     const lightnessValues: number[] = [];
     
     for (let i = 0; i < count; i++) {
-      // Calculate position from 0 to 1
-      const position = i / (count - 1);
+      let lightness: number;
       
-      // Linear interpolation for perfectly even distribution
-      const lightness = maxL - (position * totalRange);
+      if (i === baseIndex) {
+        // Preserve the user's exact base color (not the adjusted one)
+        lightness = baseLightness;
+      } else {
+        // Generate other shades around the base color
+        const position = i / (count - 1);
+        lightness = maxL - (position * (maxL - minL));
+      }
       
       lightnessValues.push(lightness);
     }
