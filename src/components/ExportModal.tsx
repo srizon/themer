@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { ColorSet, ExportFormat, ColorFormat } from '@/types/color';
 import { calculateTailwindWeight, hexToHsl, hexToRgb } from '@/lib/colorUtils';
 
@@ -15,9 +15,8 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   const [colorFormat, setColorFormat] = useState<ColorFormat>('hex');
   const [exportCode, setExportCode] = useState('');
 
-  const generateExportCode = useCallback(() => {
+  useEffect(() => {
     if (!colorSet) return;
-
     switch (exportFormat) {
       case 'css':
         setExportCode(generateCSSExport());
@@ -33,12 +32,6 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
         break;
     }
   }, [colorSet, exportFormat, colorFormat]);
-
-  useEffect(() => {
-    if (colorSet) {
-      generateExportCode();
-    }
-  }, [generateExportCode]);
 
   const generateCSSExport = (): string => {
     if (!colorSet) return '';
@@ -142,73 +135,95 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
     else return 'red';
   };
 
-  // hexToHsl moved to shared utils
-
   const formatColorNameForExport = (colorName: string): string => {
     return colorName.toLowerCase().replace(/\s+/g, '-');
   };
-
-  // calculateTailwindWeight moved to shared utils
 
   const convertColorFormat = (hex: string, format: ColorFormat): string => {
     switch (format) {
       case 'hex':
         return hex;
-      case 'rgb':
-        return hexToRgbString(hex);
-      case 'rgba':
-        return hexToRgbaString(hex);
-      case 'hsl':
-        return hexToHslString(hex);
-      case 'hsla':
-        return hexToHslaString(hex);
+      case 'rgb': {
+        const [r, g, b] = hexToRgb(hex);
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+      case 'rgba': {
+        const [r, g, b] = hexToRgb(hex);
+        return `rgba(${r}, ${g}, ${b}, 1)`;
+      }
+      case 'hsl': {
+        const [h, s, l] = hexToHsl(hex);
+        return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
+      }
+      case 'hsla': {
+        const [h, s, l] = hexToHsl(hex);
+        return `hsla(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%, 1)`;
+      }
       default:
         return hex;
     }
   };
 
-  const hexToRgbString = (hex: string): string => {
-    const [r, g, b] = hexToRgb(hex);
-    return `rgb(${r}, ${g}, ${b})`;
-  };
-
-  const hexToRgbaString = (hex: string): string => {
-    const [r, g, b] = hexToRgb(hex);
-    return `rgba(${r}, ${g}, ${b}, 1)`;
-  };
-
-  const hexToHslString = (hex: string): string => {
-    const [h, s, l] = hexToHsl(hex);
-    return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
-  };
-
-  const hexToHslaString = (hex: string): string => {
-    const [h, s, l] = hexToHsl(hex);
-    return `hsla(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%, 1)`;
-  };
-  // hexToRgb moved to shared utils
-
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(exportCode);
-      // You could add a toast notification here
+      // Check if clipboard API is available
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(exportCode);
+        // You could add a toast notification here
+      } else {
+        // Fallback for browsers that don't support clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = exportCode;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        if (!document.execCommand('copy')) {
+          console.error('Copy command failed');
+        }
+        
+        document.body.removeChild(textArea);
+      }
     } catch (error) {
       console.error('Failed to copy export code:', error);
+      // Fallback for browsers that don't support clipboard API
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = exportCode;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        if (!document.execCommand('copy')) {
+          console.error('Fallback copy also failed');
+        }
+        
+        document.body.removeChild(textArea);
+      } catch (fallbackError) {
+        console.error('Fallback copy also failed:', fallbackError);
+      }
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className={`modal ${isOpen ? 'active' : ''}`}>
+    <div className={`modal ${isOpen ? 'active' : ''}`} role="dialog" aria-modal="true" aria-labelledby="export-modal-title">
       <div className="modal-backdrop" onClick={onClose} />
       
       <div className="modal-content">
         <div className="modal-header">
-          <h3>Export Palette</h3>
+          <h3 id="export-modal-title">Export Palette</h3>
           <button
             onClick={onClose}
             className="btn btn-icon btn-ghost"
+            aria-label="Close export modal"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="m18 6-12 12"/>
@@ -226,6 +241,8 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
                   key={format}
                   onClick={() => setExportFormat(format)}
                   className={`export-option ${exportFormat === format ? 'active' : ''}`}
+                  aria-pressed={exportFormat === format}
+                  aria-label={`Export as ${format.toUpperCase()}`}
                 >
                   {format.toUpperCase()}
                 </button>
@@ -236,13 +253,15 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
           {/* Color format options */}
           <div className="export-section">
             <div className="color-format-options">
-              <label>
+              <label htmlFor="color-format-select">
                 Color Format:
               </label>
               <select
+                id="color-format-select"
                 value={colorFormat}
                 onChange={(e) => setColorFormat(e.target.value as ColorFormat)}
                 className="input input-select"
+                aria-label="Select color format"
               >
                 <option value="hex">HEX (#ffffff)</option>
                 <option value="rgb">RGB (255, 255, 255)</option>
@@ -256,13 +275,14 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
           {/* Export preview */}
           <div className="export-section">
             <div className="export-preview">
-              <pre>
+              <pre aria-label="Export code preview">
                 {exportCode}
               </pre>
             </div>
             <button
               onClick={handleCopy}
               className="btn btn-primary copy-btn"
+              aria-label="Copy export code to clipboard"
             >
               Copy to Clipboard
             </button>

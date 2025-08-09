@@ -342,16 +342,13 @@ export class ColorThemer {
     }
     
     // Handle edge cases where base color is outside the bounds
-    let adjustedBaseLightness = baseLightness;
     let baseIndex: number;
     
     if (baseLightness <= minL) {
       // Base color is very dark, place it at the darkest position
-      adjustedBaseLightness = minL;
       baseIndex = count - 1;
     } else if (baseLightness >= maxL) {
       // Base color is very light, place it at the lightest position
-      adjustedBaseLightness = maxL;
       baseIndex = 0;
     } else {
       // Base color is within bounds, calculate its position
