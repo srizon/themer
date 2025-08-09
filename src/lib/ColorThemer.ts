@@ -1,4 +1,5 @@
 import { ColorSet, ColorThemerCallbacks, ExportFormat, ColorFormat, ImportData } from '@/types/color';
+import { getEnhancedColorName, getBasicColorCategory } from './colorUtils';
 
 export class ColorThemer {
   private colorSets: ColorSet[] = [];
@@ -745,6 +746,9 @@ export class ColorThemer {
   }
 
   private adjustHueToMatchName(hue: number, targetColorName: string): number {
+    // Convert enhanced color name to basic category first
+    const basicCategory = getBasicColorCategory(targetColorName);
+    
     const targetHues = {
       'red': 0,
       'orange': 30,
@@ -756,7 +760,7 @@ export class ColorThemer {
       'pink': 330
     };
     
-    const targetHue = targetHues[targetColorName as keyof typeof targetHues];
+    const targetHue = targetHues[basicCategory as keyof typeof targetHues];
     if (targetHue === undefined) return hue;
     
     let diff = targetHue - hue;
@@ -767,26 +771,14 @@ export class ColorThemer {
   }
 
   private getBaseColorName(hex: string): string {
-    const [h, s, l] = this.hexToHsl(hex);
-    
-    if (s < 15) {
-      if (l < 20) return 'black';
-      if (l > 80) return 'white';
-      return 'gray';
-    }
-    
-    if (l < 15) return 'black';
-    if (l > 85) return 'white';
-    
-    if (h >= 0 && h < 15) return 'red';
-    else if (h >= 15 && h < 45) return 'orange';
-    else if (h >= 45 && h < 75) return 'yellow';
-    else if (h >= 75 && h < 165) return 'green';
-    else if (h >= 165 && h < 195) return 'cyan';
-    else if (h >= 195 && h < 255) return 'blue';
-    else if (h >= 255 && h < 315) return 'purple';
-    else if (h >= 315 && h < 345) return 'pink';
-    else return 'red';
+    // Use enhanced color naming for display purposes
+    return getEnhancedColorName(hex);
+  }
+  
+  private getBasicColorName(hex: string): string {
+    // Get the enhanced name and then convert to basic category for internal operations
+    const enhancedName = getEnhancedColorName(hex);
+    return getBasicColorCategory(enhancedName);
   }
 
 

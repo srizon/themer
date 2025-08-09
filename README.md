@@ -186,7 +186,15 @@ themer/
 
 ## Recent Updates
 
-### v0.1.6 - Analytics & Shared Utilities (Latest)
+### v0.1.7 - Enhanced Color Naming System (Latest)
+- **Advanced Color Naming**: Introduced sophisticated color naming system with 200+ descriptive color names based on hue, saturation, and lightness
+- **Intelligent Color Categorization**: Enhanced `getEnhancedColorName()` function provides creative and accurate color names like "Crimson", "Seafoam", "Midnight Purple", etc.
+- **Color Name Fallback System**: Added `getBasicColorCategory()` function for backward compatibility with systems requiring basic color categories
+- **Improved User Experience**: Palette names now use enhanced color names for better recognition and visual appeal
+- **Consolidated Color Logic**: Refactored color naming logic into shared utilities for consistency across components
+- **Dynamic Color Modifiers**: Smart modifiers based on saturation and lightness ("Bright", "Deep", "Soft", "Vintage", etc.)
+
+### v0.1.6 - Analytics & Shared Utilities
 - **Google Analytics 4**: Optional pageview tracking via `NEXT_PUBLIC_GA_MEASUREMENT_ID`, with `src/components/GoogleAnalytics.tsx` and helpers in `src/lib/gtag.ts`. Loaded conditionally in `src/app/layout.tsx`.
 - **Shared Color Utilities**: Common color conversion and Tailwind weight helpers consolidated in `src/lib/colorUtils.ts`. Components updated to import from shared utils.
 - **Docs**: Updated README with environment variables and project structure.

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ColorSet, ExportFormat, ColorFormat } from '@/types/color';
-import { calculateTailwindWeight, hexToHsl, hexToRgb } from '@/lib/colorUtils';
+import { calculateTailwindWeight, hexToHsl, hexToRgb, getEnhancedColorName } from '@/lib/colorUtils';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -107,32 +107,8 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
     
     if (colorSet.customName) return colorSet.customName;
     
-    const colorName = getBaseColorName(colorSet.baseColor);
-    const baseName = colorName.charAt(0).toUpperCase() + colorName.slice(1);
-    return baseName;
-  };
-
-  const getBaseColorName = (hex: string): string => {
-    const [h, s, l] = hexToHsl(hex);
-    
-    if (s < 15) {
-      if (l < 20) return 'black';
-      if (l > 80) return 'white';
-      return 'gray';
-    }
-    
-    if (l < 15) return 'black';
-    if (l > 85) return 'white';
-    
-    if (h >= 0 && h < 15) return 'red';
-    else if (h >= 15 && h < 45) return 'orange';
-    else if (h >= 45 && h < 75) return 'yellow';
-    else if (h >= 75 && h < 165) return 'green';
-    else if (h >= 165 && h < 195) return 'cyan';
-    else if (h >= 195 && h < 255) return 'blue';
-    else if (h >= 255 && h < 315) return 'purple';
-    else if (h >= 315 && h < 345) return 'pink';
-    else return 'red';
+    // Use enhanced color naming
+    return getEnhancedColorName(colorSet.baseColor);
   };
 
   const formatColorNameForExport = (colorName: string): string => {
