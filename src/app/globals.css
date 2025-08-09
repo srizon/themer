@@ -149,9 +149,12 @@ body {
 }
 
 .btn-icon svg {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
+
+/* Improve header icon contrast */
+.header .btn-icon { color: var(--color-primary); }
 
 /* Special button styles */
 .btn-export {
@@ -1102,7 +1105,7 @@ body {
   }
   
   .header-content {
-    flex-direction: column;
+    /* flex-direction: column; */
     gap: 0.75rem;
     align-items: stretch; /* allow actions grid to span full width */
   }
@@ -1123,6 +1126,8 @@ body {
     padding: 0 var(--spacing-md);
     font-size: 0.8125rem;
   }
+  /* Larger kebab icon on mobile for visibility */
+  .btn-icon svg { width: 22px; height: 22px; }
   .header-actions .btn-danger {
     grid-column: 1 / -1; /* clear spans full width */
   }
