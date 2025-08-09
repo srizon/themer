@@ -16,6 +16,7 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 - **Advanced Color Algorithms**: Sophisticated monochromatic color generation with perceptual uniformity
 - **Smart Tailwind Integration**: Intelligent weight calculation for any color count
 - **Automatic Value Synchronization**: Contrast and lightness values automatically update each other
+- **Optional Analytics**: Google Analytics 4 pageview tracking via `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 
 ## Tech Stack
 
@@ -24,6 +25,7 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 - **Styling**: Pure CSS with CSS Custom Properties
 - **State Management**: React hooks with localStorage persistence
 - **Deployment**: Ready for Vercel, Netlify, or any Node.js hosting
+- **Analytics (optional)**: Google Analytics 4
 
 ## Getting Started
 
@@ -52,6 +54,14 @@ npm run dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+### Environment Variables (Optional)
+
+Create a `.env.local` file to enable Google Analytics 4 pageview tracking:
+
+```bash
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
 ### Building for Production
 
 ```bash
@@ -66,6 +76,8 @@ npm start
 1. Push your code to GitHub
 2. Connect your repository to Vercel
 3. Deploy automatically
+
+If using Google Analytics, add `NEXT_PUBLIC_GA_MEASUREMENT_ID` in your project settings under Environment Variables.
 
 ### Other Platforms
 
@@ -147,31 +159,39 @@ Recent improvements include:
 ```
 themer/
 ├── src/
-│   ├── app/                 # Next.js App Router
-│   │   ├── layout.tsx      # Root layout
-│   │   ├── page.tsx        # Main page component
-│   │   └── globals.css     # Global styles
-│   ├── components/         # React components
-│   │   ├── Header.tsx      # App header with actions
-│   │   ├── ColorSet.tsx    # Individual color palette
-│   │   ├── ColorSwatch.tsx # Individual color swatch
-│   │   ├── ExportModal.tsx # Export functionality
-│   │   └── ImportConfirmationModal.tsx # Import handling
-│   ├── lib/               # Utility libraries
-│   │   └── ColorThemer.ts # Core color generation logic
-│   └── types/             # TypeScript type definitions
-│       └── color.ts       # Color-related types
-├── package.json           # Dependencies and scripts
-├── next.config.ts         # Next.js configuration
-├── tsconfig.json          # TypeScript configuration
-├── eslint.config.mjs      # ESLint configuration
-├── vercel.json            # Vercel deployment configuration
-└── README.md              # Project documentation
+│   ├── app/                          # Next.js App Router
+│   │   ├── layout.tsx                # Root layout (loads GA if configured)
+│   │   ├── page.tsx                  # Main page component
+│   │   └── globals.css               # Global styles
+│   ├── components/                   # React components
+│   │   ├── Header.tsx                # App header with actions
+│   │   ├── ColorSet.tsx              # Individual color palette
+│   │   ├── ColorSwatch.tsx           # Individual color swatch
+│   │   ├── ExportModal.tsx           # Export functionality
+│   │   ├── ImportConfirmationModal.tsx # Import handling
+│   │   └── GoogleAnalytics.tsx       # Client component to send GA pageviews
+│   ├── lib/                          # Utility libraries
+│   │   ├── ColorThemer.ts            # Core color generation logic
+│   │   ├── colorUtils.ts             # Shared color utilities (HSL/RGB, weights, contrast)
+│   │   └── gtag.ts                   # GA helpers (pageview/event)
+│   └── types/                        # TypeScript type definitions
+│       └── color.ts                  # Color-related types
+├── package.json                      # Dependencies and scripts
+├── next.config.ts                    # Next.js configuration
+├── tsconfig.json                     # TypeScript configuration
+├── eslint.config.mjs                 # ESLint configuration
+├── vercel.json                       # Vercel deployment configuration
+└── README.md                         # Project documentation
 ```
 
 ## Recent Updates
 
-### v0.1.5 - UI Polish & Icons (Latest)
+### v0.1.6 - Analytics & Shared Utilities (Latest)
+- **Google Analytics 4**: Optional pageview tracking via `NEXT_PUBLIC_GA_MEASUREMENT_ID`, with `src/components/GoogleAnalytics.tsx` and helpers in `src/lib/gtag.ts`. Loaded conditionally in `src/app/layout.tsx`.
+- **Shared Color Utilities**: Common color conversion and Tailwind weight helpers consolidated in `src/lib/colorUtils.ts`. Components updated to import from shared utils.
+- **Docs**: Updated README with environment variables and project structure.
+
+### v0.1.5 - UI Polish & Icons
 - **Icons & Favicons**: Updated `favicon.ico` and added app icons (`android-chrome-192x192.png`, `android-chrome-512x512.png`, `apple-touch-icon.png`, `favicon-16x16.png`, `favicon-32x32.png`) under `src/app/`
 - **Header UX**: Improved actions menu behavior and accessibility in `Header.tsx`
 - **Styling Refinements**: Polished styles in `globals.css`

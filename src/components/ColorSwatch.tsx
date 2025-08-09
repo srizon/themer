@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { calculateTailwindWeight, calculateLuminance, getContrastBetween, hexToHsl, hexToRgb, hslToHex } from '@/lib/colorUtils';
 
 interface ColorSwatchProps {
   color: string;
@@ -173,20 +174,30 @@ export default function ColorSwatch({ color, index, total }: ColorSwatchProps) {
     return (maxL + 0.05) / (minL + 0.05);
   };
 
-  // Mobile text color: use a deep shade of the same hue for very light swatches
+  // Mobile text color: prefer same-hue extremes (950/50) where accessible
   const getMobileTextColor = (hex: string): string => {
     const [h, s, l] = hexToHsl(hex);
-    // Only attempt dark same-hue text for light backgrounds
+
+    // Very light backgrounds → try deep same-hue (approx Tailwind 950)
     if (l >= 75) {
-      const candidate = hslToHex(h, Math.min(100, s * 1.05), 15);
-      const contrast = getContrastBetween(hex, candidate);
-      if (contrast >= 4.5) return candidate;
-      // Fallback: choose best of black/white
+      const candidateDeep = hslToHex(h, Math.min(100, s * 1.05), 15);
+      if (getContrastBetween(hex, candidateDeep) >= 4.5) return candidateDeep;
       const blackContrast = getContrastBetween(hex, '#000000');
       const whiteContrast = getContrastBetween(hex, '#FFFFFF');
       return blackContrast >= whiteContrast ? '#000000' : '#FFFFFF';
     }
-    // For mid/dark backgrounds, use standard accessible choice
+
+    // Very dark backgrounds → try light same-hue (approx Tailwind 50)
+    if (l <= 25) {
+      const adjustedS = Math.max(20, Math.min(100, s * 0.5));
+      const candidateLight = hslToHex(h, adjustedS, 95);
+      if (getContrastBetween(hex, candidateLight) >= 4.5) return candidateLight;
+      const blackContrast = getContrastBetween(hex, '#000000');
+      const whiteContrast = getContrastBetween(hex, '#FFFFFF');
+      return blackContrast >= whiteContrast ? '#000000' : '#FFFFFF';
+    }
+
+    // Mid tones → fallback to standard accessible black/white
     return getAccessibleTextColor(hex);
   };
 

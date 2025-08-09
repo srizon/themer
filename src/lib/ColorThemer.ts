@@ -321,57 +321,7 @@ export class ColorThemer {
     return lightnessValues;
   }
 
-  // Calculate Tailwind weight for a given index and total count (matches ColorSwatch logic)
-  private calculateTailwindWeight(index: number, total: number): number {
-    // For 11 or fewer colors, remove weights from the middle in alternating pattern
-    if (total <= 11) {
-      if (total === 11) {
-        return [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950][index];
-      } else if (total === 10) {
-        return [50, 200, 300, 400, 500, 600, 700, 800, 900, 950][index];
-      } else if (total === 9) {
-        return [50, 200, 300, 400, 500, 600, 700, 800, 950][index];
-      } else if (total === 8) {
-        return [50, 300, 400, 500, 600, 700, 800, 950][index];
-      } else if (total === 7) {
-        return [50, 300, 400, 500, 600, 700, 950][index];
-      } else if (total === 6) {
-        return [50, 400, 500, 600, 700, 950][index];
-      } else if (total === 5) {
-        return [50, 400, 500, 600, 950][index];
-      } else if (total === 4) {
-        return [50, 500, 600, 950][index];
-      } else if (total === 3) {
-        return [50, 500, 950][index];
-      } else if (total === 2) {
-        return [50, 950][index];
-      } else {
-        return 500;
-      }
-    } else {
-      // For more than 11 colors, follow the specific pattern
-      if (total === 12) {
-        return [50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950][index];
-      } else if (total === 13) {
-        return [50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950][index];
-      } else if (total === 14) {
-        return [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 850, 900, 950][index];
-      } else if (total === 15) {
-        return [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 750, 800, 850, 900, 950][index];
-      } else if (total === 16) {
-        return [50, 100, 150, 200, 250, 300, 350, 400, 500, 600, 700, 750, 800, 850, 900, 950][index];
-      } else if (total === 17) {
-        return [50, 100, 150, 200, 250, 300, 350, 400, 500, 600, 650, 700, 750, 800, 850, 900, 950][index];
-      } else if (total === 18) {
-        return [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 650, 700, 750, 800, 850, 900, 950][index];
-      } else if (total === 19) {
-        return [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950][index];
-      } else {
-        // For 20+ colors, use all weights
-        return [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950][index] || 500;
-      }
-    }
-  }
+  // Tailwind weight calculation moved to shared utils and duplicated in UI usage
 
   // Generate HSL-based lightness curve with even distribution
   // Preserves the user's base color and generates other shades around it

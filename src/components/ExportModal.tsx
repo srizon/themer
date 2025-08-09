@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ColorSet, ExportFormat, ColorFormat } from '@/types/color';
+import { calculateTailwindWeight, hexToHsl, hexToRgb } from '@/lib/colorUtils';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -141,86 +142,13 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
     else return 'red';
   };
 
-  const hexToHsl = (hex: string): [number, number, number] => {
-    const r = parseInt(hex.slice(1, 3), 16) / 255;
-    const g = parseInt(hex.slice(3, 5), 16) / 255;
-    const b = parseInt(hex.slice(5, 7), 16) / 255;
-
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h = 0, s = 0;
-    const l = (max + min) / 2;
-
-    if (max === min) {
-      h = s = 0;
-    } else {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
-      }
-      h /= 6;
-    }
-
-    return [h * 360, s * 100, l * 100];
-  };
+  // hexToHsl moved to shared utils
 
   const formatColorNameForExport = (colorName: string): string => {
     return colorName.toLowerCase().replace(/\s+/g, '-');
   };
 
-  const calculateTailwindWeight = (index: number, total: number): number => {
-    // For 11 or fewer colors, remove weights from the middle in alternating pattern
-    if (total <= 11) {
-      if (total === 11) {
-        return [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950][index];
-      } else if (total === 10) {
-        return [50, 200, 300, 400, 500, 600, 700, 800, 900, 950][index];
-      } else if (total === 9) {
-        return [50, 200, 300, 400, 500, 600, 700, 800, 950][index];
-      } else if (total === 8) {
-        return [50, 300, 400, 500, 600, 700, 800, 950][index];
-      } else if (total === 7) {
-        return [50, 300, 400, 500, 600, 700, 950][index];
-      } else if (total === 6) {
-        return [50, 400, 500, 600, 700, 950][index];
-      } else if (total === 5) {
-        return [50, 400, 500, 600, 950][index];
-      } else if (total === 4) {
-        return [50, 500, 600, 950][index];
-      } else if (total === 3) {
-        return [50, 500, 950][index];
-      } else if (total === 2) {
-        return [50, 950][index];
-      } else {
-        return 500;
-      }
-    } else {
-      // For more than 11 colors, follow the specific pattern
-      if (total === 12) {
-        return [50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950][index];
-      } else if (total === 13) {
-        return [50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950][index];
-      } else if (total === 14) {
-        return [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 850, 900, 950][index];
-      } else if (total === 15) {
-        return [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 750, 800, 850, 900, 950][index];
-      } else if (total === 16) {
-        return [50, 100, 150, 200, 250, 300, 350, 400, 500, 600, 700, 750, 800, 850, 900, 950][index];
-      } else if (total === 17) {
-        return [50, 100, 150, 200, 250, 300, 350, 400, 500, 600, 650, 700, 750, 800, 850, 900, 950][index];
-      } else if (total === 18) {
-        return [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 650, 700, 750, 800, 850, 900, 950][index];
-      } else if (total === 19) {
-        return [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950][index];
-      } else {
-        // For 20+ colors, use all weights
-        return [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950][index] || 500;
-      }
-    }
-  };
+  // calculateTailwindWeight moved to shared utils
 
   const convertColorFormat = (hex: string, format: ColorFormat): string => {
     switch (format) {
@@ -258,13 +186,7 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
     const [h, s, l] = hexToHsl(hex);
     return `hsla(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%, 1)`;
   };
-
-  const hexToRgb = (hex: string): [number, number, number] => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return [r, g, b];
-  };
+  // hexToRgb moved to shared utils
 
   const handleCopy = async () => {
     try {
