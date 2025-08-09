@@ -171,7 +171,13 @@ themer/
 
 ## Recent Updates
 
-### v0.1.4 - Base Color Preservation & Enhanced Algorithms (Latest)
+### v0.1.5 - UI Polish & Icons (Latest)
+- **Icons & Favicons**: Updated `favicon.ico` and added app icons (`android-chrome-192x192.png`, `android-chrome-512x512.png`, `apple-touch-icon.png`, `favicon-16x16.png`, `favicon-32x32.png`) under `src/app/`
+- **Header UX**: Improved actions menu behavior and accessibility in `Header.tsx`
+- **Styling Refinements**: Polished styles in `globals.css`
+- **Config Cleanup**: Minor `tsconfig.json` updates
+
+### v0.1.4 - Base Color Preservation & Enhanced Algorithms
 - **Base Color Preservation**: The user's exact base color is now preserved in the generated palette at the appropriate position
 - **Intelligent Color Positioning**: Base colors are automatically positioned based on their lightness value within the palette range
 - **Enhanced Neutral Color Handling**: Improved algorithms for grays and near-neutral colors with better base color preservation
