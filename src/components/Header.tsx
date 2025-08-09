@@ -61,7 +61,7 @@ export default function Header({ onExportAll, onImport, onClearData }: HeaderPro
               onClick={() => setMenuOpen((o) => !o)}
             >
               {/* Kebab icon */}
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <circle cx="12" cy="5" r="2" />
                 <circle cx="12" cy="12" r="2" />
                 <circle cx="12" cy="19" r="2" />
@@ -71,7 +71,7 @@ export default function Header({ onExportAll, onImport, onClearData }: HeaderPro
             {menuOpen && (
               <div className="dropdown-menu" role="menu">
                 <button className="dropdown-item" role="menuitem" onClick={() => handleAction('export')}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="7,10 12,15 17,10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
@@ -80,7 +80,7 @@ export default function Header({ onExportAll, onImport, onClearData }: HeaderPro
                 </button>
 
                 <button className="dropdown-item" role="menuitem" onClick={() => handleAction('import')}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="17,8 12,3 7,8" />
                     <line x1="12" y1="3" x2="12" y2="15" />
@@ -91,7 +91,7 @@ export default function Header({ onExportAll, onImport, onClearData }: HeaderPro
                 <div className="dropdown-separator" />
 
                 <button className="dropdown-item danger" role="menuitem" onClick={() => handleAction('clear')}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M3 6h18" />
                     <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
                     <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
