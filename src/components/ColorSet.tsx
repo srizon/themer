@@ -132,9 +132,8 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
 
   const getPaletteName = () => {
     if (colorSet.customName) return colorSet.customName;
-    
-    // Generate name based on base color using enhanced naming
-    return getEnhancedColorName(colorSet.baseColor);
+    // Use persisted generatedName if available; fallback to deterministic generation
+    return colorSet.generatedName || getEnhancedColorName(colorSet.baseColor);
   };
 
   // hexToHsl moved to shared utils

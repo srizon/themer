@@ -3,6 +3,7 @@ export interface ColorSet {
   baseColor: string;
   colorCount: number;
   colors: string[];
+  generatedName?: string;
   customName?: string;
   minContrast?: number;
   maxContrast?: number;

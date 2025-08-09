@@ -128,6 +128,30 @@ export function calculateTailwindWeight(index: number, total: number): number {
  */
 export function getEnhancedColorName(hex: string): string {
   const [h, s, l] = hexToHsl(hex);
+
+  // Use a seeded RNG so name generation is deterministic per color
+  const normalizeHex = (v: string) => v.trim().toUpperCase();
+  const seedFromString = (str: string): number => {
+    // Simple 32-bit FNV-1a hash
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+      hash ^= str.charCodeAt(i);
+      hash = Math.imul(hash, 0x01000193);
+    }
+    return hash >>> 0;
+  };
+  const mulberry32 = (seed: number) => {
+    let t = seed >>> 0;
+    return () => {
+      t += 0x6D2B79F5;
+      let r = Math.imul(t ^ (t >>> 15), 1 | t);
+      r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  };
+  const baseSeed = seedFromString(`${normalizeHex(hex)}|${Math.round(h)}|${Math.round(s)}|${Math.round(l)}`);
+  const rng = mulberry32(baseSeed);
+  const pick = <T,>(arr: T[]): T => arr[Math.max(0, Math.min(arr.length - 1, Math.floor(rng() * arr.length)))];
   
   // Handle achromatic colors (low saturation)
   if (s < 15) {
@@ -312,29 +336,29 @@ export function getEnhancedColorName(hex: string): string {
     else baseNames = ['Berry', 'Raspberry', 'Wine', 'Dark Rose'];
   }
   
-  // Select a random name from the available options for variety
-  const baseName = baseNames[Math.floor(Math.random() * baseNames.length)];
+  // Select a deterministic name from the available options for variety
+  const baseName = baseNames.length > 0 ? pick(baseNames) : 'Color';
   
   // Add modifiers based on saturation and lightness
   let modifier = '';
   if (s > 85 && l > 75) {
     const brightModifiers = ['Bright', 'Vibrant', 'Electric', 'Neon'];
-    modifier = brightModifiers[Math.floor(Math.random() * brightModifiers.length)] + ' ';
+    modifier = pick(brightModifiers) + ' ';
   } else if (s > 80 && l < 35) {
     const deepModifiers = ['Deep', 'Rich', 'Dark', 'Intense'];
-    modifier = deepModifiers[Math.floor(Math.random() * deepModifiers.length)] + ' ';
+    modifier = pick(deepModifiers) + ' ';
   } else if (s < 35 && l > 65) {
     const softModifiers = ['Soft', 'Pale', 'Light', 'Gentle'];
-    modifier = softModifiers[Math.floor(Math.random() * softModifiers.length)] + ' ';
+    modifier = pick(softModifiers) + ' ';
   } else if (s < 35 && l < 45) {
     const mutedModifiers = ['Muted', 'Dusty', 'Faded', 'Vintage'];
-    modifier = mutedModifiers[Math.floor(Math.random() * mutedModifiers.length)] + ' ';
+    modifier = pick(mutedModifiers) + ' ';
   } else if (l > 78) {
     const lightModifiers = ['Light', 'Pale', 'Pastel', 'Soft'];
-    modifier = lightModifiers[Math.floor(Math.random() * lightModifiers.length)] + ' ';
+    modifier = pick(lightModifiers) + ' ';
   } else if (l < 30) {
     const darkModifiers = ['Dark', 'Deep', 'Shadowy', 'Midnight'];
-    modifier = darkModifiers[Math.floor(Math.random() * darkModifiers.length)] + ' ';
+    modifier = pick(darkModifiers) + ' ';
   }
   
   return modifier + baseName;

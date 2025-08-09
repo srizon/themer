@@ -21,13 +21,20 @@ export class ColorThemer {
     if (this.colorSets.length === 0) {
       this.addColorSet();
     } else {
-      // Ensure colors are generated if they're missing
+      // Ensure colors are generated if they're missing and generate persisted names if missing
+      let mutated = false;
       this.colorSets.forEach(colorSet => {
         if (!colorSet.colors || colorSet.colors.length === 0) {
           this.generateColorSet(colorSet);
+          mutated = true;
+        }
+        if (!colorSet.generatedName) {
+          colorSet.generatedName = getEnhancedColorName(colorSet.baseColor);
+          mutated = true;
         }
       });
       this.notifyColorSetsChange();
+      if (mutated) this.saveToStorage();
     }
   }
 
@@ -163,6 +170,11 @@ export class ColorThemer {
     // Validate and adjust colors to ensure they match their expected names
     const validatedColors = this.validateAndAdjustColors(colors);
     colorSet.colors = validatedColors;
+
+    // Persist a deterministic generated name alongside the palette
+    // Only set or update when baseColor changes or if not present
+    const name = getEnhancedColorName(colorSet.baseColor);
+    colorSet.generatedName = name;
   }
 
   // Color palette generation algorithms
@@ -1191,6 +1203,9 @@ export class ColorThemer {
     this.colorSets.forEach(colorSet => {
       if (!colorSet.colors || colorSet.colors.length === 0) {
         this.generateColorSet(colorSet);
+      }
+      if (!colorSet.generatedName) {
+        colorSet.generatedName = getEnhancedColorName(colorSet.baseColor);
       }
     });
 

@@ -36,7 +36,7 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   const generateCSSExport = (): string => {
     if (!colorSet) return '';
     
-    const colorName = colorSet.customName || generatePaletteName();
+    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
     const exportName = formatColorNameForExport(colorName);
     
     let css = '';
@@ -51,7 +51,7 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   const generateSCSSExport = (): string => {
     if (!colorSet) return '';
     
-    const colorName = colorSet.customName || generatePaletteName();
+    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
     const exportName = formatColorNameForExport(colorName);
     
     let scss = `// ${colorName.charAt(0).toUpperCase() + colorName.slice(1)} Color Palette\n`;
@@ -66,7 +66,7 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   const generateJSONExport = (): string => {
     if (!colorSet) return '';
     
-    const colorName = colorSet.customName || generatePaletteName();
+    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
     const exportName = formatColorNameForExport(colorName);
     
     const palette: Record<string, string> = {};
@@ -81,7 +81,7 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   const generateTailwindExport = (): string => {
     if (!colorSet) return '';
     
-    const colorName = colorSet.customName || generatePaletteName();
+    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
     const exportName = formatColorNameForExport(colorName);
     
     let config = 'module.exports = {\n';
