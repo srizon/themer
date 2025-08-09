@@ -83,9 +83,9 @@ export class ColorThemer {
   addColorSet() {
     const setId = this.nextSetId++;
     
-    // Generate random color with better saturation and lightness for proper naming
+    // Generate random color with moderated saturation for softer results
     const hue = Math.random() * 360;
-    const saturation = Math.random() * 60 + 40; // 40-100% saturation
+    const saturation = Math.random() * 15 + 15; // 15-30% saturation (softer)
     const lightness = Math.random() * 40 + 30; // 30-70% lightness
     const randomColor = this.hslToHex(hue, saturation, lightness);
     

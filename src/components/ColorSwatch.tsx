@@ -7,9 +7,10 @@ interface ColorSwatchProps {
   color: string;
   index: number;
   total: number;
+  paletteColors: string[];
 }
 
-export default function ColorSwatch({ color, index, total }: ColorSwatchProps) {
+export default function ColorSwatch({ color, index, total, paletteColors }: ColorSwatchProps) {
   const [showCopied, setShowCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -174,36 +175,57 @@ export default function ColorSwatch({ color, index, total }: ColorSwatchProps) {
     return (maxL + 0.05) / (minL + 0.05);
   };
 
-  // Mobile text color: prefer same-hue extremes (950/50) where accessible
-  const getMobileTextColor = (hex: string): string => {
-    const [h, s, l] = hexToHsl(hex);
-
-    // Very light backgrounds → try deep same-hue (approx Tailwind 950)
-    if (l >= 75) {
-      const candidateDeep = hslToHex(h, Math.min(100, s * 1.05), 15);
-      if (getContrastBetween(hex, candidateDeep) >= 4.5) return candidateDeep;
-      const blackContrast = getContrastBetween(hex, '#000000');
-      const whiteContrast = getContrastBetween(hex, '#FFFFFF');
-      return blackContrast >= whiteContrast ? '#000000' : '#FFFFFF';
+  // Choose text color strictly from existing palette swatches (not generated) with ≥ 4.5:1 contrast
+  const getTextColorFromPalette = (bgHex: string, palette: string[]): string => {
+    if (!palette || palette.length === 0) {
+      return getAccessibleTextColor(bgHex);
     }
 
-    // Very dark backgrounds → try light same-hue (approx Tailwind 50)
-    if (l <= 25) {
-      const adjustedS = Math.max(20, Math.min(100, s * 0.5));
-      const candidateLight = hslToHex(h, adjustedS, 95);
-      if (getContrastBetween(hex, candidateLight) >= 4.5) return candidateLight;
-      const blackContrast = getContrastBetween(hex, '#000000');
-      const whiteContrast = getContrastBetween(hex, '#FFFFFF');
-      return blackContrast >= whiteContrast ? '#000000' : '#FFFFFF';
+    const normalize = (h: string) => h.trim().toUpperCase();
+    const uniquePalette = Array.from(new Set(palette.map(normalize)));
+
+    // Sort palette by lightness ascending (dark → light)
+    const paletteWithLightness = uniquePalette
+      .map(hex => ({ hex, l: hexToHsl(hex)[2] }))
+      .sort((a, b) => a.l - b.l);
+
+    const bgL = hexToHsl(bgHex)[2];
+    const bgIsLight = bgL >= 60;
+    const darker = paletteWithLightness.filter(p => p.l < bgL);
+    const lighter = paletteWithLightness.filter(p => p.l > bgL);
+
+    // Prefer the closest opposite-side shade that passes 7.0 (AAA)
+    const primary = (bgIsLight ? darker : lighter).sort((a, b) => Math.abs(a.l - bgL) - Math.abs(b.l - bgL));
+    for (const p of primary) {
+      if (normalize(p.hex) === normalize(bgHex)) continue;
+      if (getContrastBetween(bgHex, p.hex) >= 7.0) return p.hex;
     }
 
-    // Mid tones → fallback to standard accessible black/white
-    return getAccessibleTextColor(hex);
+    // If none pass on the opposite side, try the same-side (farther) as a fallback, still closest first
+    const secondary = (bgIsLight ? lighter : darker).sort((a, b) => Math.abs(a.l - bgL) - Math.abs(b.l - bgL));
+    for (const p of secondary) {
+      if (normalize(p.hex) === normalize(bgHex)) continue;
+      if (getContrastBetween(bgHex, p.hex) >= 7.0) return p.hex;
+    }
+
+    // Fallback to best of black/white
+    const blackContrast = getContrastBetween(bgHex, '#000000');
+    const whiteContrast = getContrastBetween(bgHex, '#FFFFFF');
+    return blackContrast >= whiteContrast ? '#000000' : '#FFFFFF';
   };
+
+  // Mobile text uses palette-based selection
+  const getMobileTextColor = (hex: string): string => getTextColorFromPalette(hex, paletteColors);
 
   const weight = calculateTailwindWeight(index, total);
   const contrastRatio = getContrastRatio(color);
   const textColor = isMobile ? getMobileTextColor(color) : getAccessibleTextColor(color);
+  // For the HEX label specifically, prefer lighter same-hue (50/100) on mid-to-dark backgrounds too
+  const [hMob, sMob, lMob] = hexToHsl(color);
+  let hexTextColor = textColor;
+  if (isMobile) {
+    hexTextColor = getTextColorFromPalette(color, paletteColors);
+  }
   const hexDisplay = color.replace('#', '').toUpperCase();
 
   return (
@@ -222,7 +244,7 @@ export default function ColorSwatch({ color, index, total }: ColorSwatchProps) {
       </div>
       
       {/* Color info */}
-      <div className="color-info" style={{ color: textColor }}>
+      <div className="color-info" style={{ color: textColor, ['--hex-text-color' as any]: hexTextColor }}>
         <div className="color-weight">{weight}</div>
         <div className="color-contrast">{contrastRatio}</div>
         <div className="color-hex">{hexDisplay}</div>

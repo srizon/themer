@@ -1125,7 +1125,7 @@ body {
     font-size: 0.875rem;
     color: inherit !important; /* ensure both labels use computed accessible color */
   }
-  .color-hex { font-size: 0.875rem; font-weight: 400; color: inherit !important; }
+  .color-hex { font-size: 0.875rem; font-weight: 400; color: var(--hex-text-color, inherit) !important; }
   /* Ensure equal weight for weight and hex labels on mobile */
   .color-weight { font-weight: 400 !important; }
 
@@ -1135,7 +1135,7 @@ body {
     display: block;
     margin: 0;
     font-size: 0.875rem;
-    color: inherit !important;
+    color: var(--hex-text-color, inherit) !important;
   }
   
   .section-header {

@@ -342,6 +342,7 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
             color={color}
             index={index}
             total={colorSet.colors.length}
+            paletteColors={colorSet.colors}
           />
         ))}
       </div>
