@@ -289,7 +289,7 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
 
           
           <div className="control-group">
-            <label>Colors</label>
+            <label>Shades</label>
             <input
               type="number"
               min="3"
@@ -329,7 +329,7 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
           </div>
 
           <div className="control-group">
-            <label>Max Lightness (%)</label>
+            <label>Max Lightness</label>
             <input
               type="number"
               min="0"
@@ -343,7 +343,7 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
           </div>
 
           <div className="control-group">
-            <label>Min Lightness (%)</label>
+            <label>Min Lightness</label>
             <input
               type="number"
               min="0"

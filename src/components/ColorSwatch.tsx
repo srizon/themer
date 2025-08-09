@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ColorSwatchProps {
   color: string;
@@ -10,6 +10,15 @@ interface ColorSwatchProps {
 
 export default function ColorSwatch({ color, index, total }: ColorSwatchProps) {
   const [showCopied, setShowCopied] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    const handleChange = () => setIsMobile(mediaQuery.matches);
+    handleChange();
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const handleCopy = async () => {
     try {
@@ -97,8 +106,94 @@ export default function ColorSwatch({ color, index, total }: ColorSwatchProps) {
     return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
   };
 
+  // Choose an accessible text color (black or white) for the given background color
+  const getAccessibleTextColor = (hex: string): string => {
+    const [r, g, b] = hexToRgb(hex);
+    const bgLuminance = calculateLuminance(r, g, b);
+
+    const whiteRgb: [number, number, number] = [255, 255, 255];
+    const blackRgb: [number, number, number] = [0, 0, 0];
+
+    const whiteContrast = (Math.max(bgLuminance, 1) + 0.05) / (Math.min(bgLuminance, 1) + 0.05);
+    const blackContrast = (Math.max(bgLuminance, 0) + 0.05) / (Math.min(bgLuminance, 0) + 0.05);
+
+    // Prefer the higher contrast color; ties go to black (usually reads better on light tints)
+    const preferred = blackContrast >= whiteContrast ? '#000000' : '#FFFFFF';
+
+    // If the preferred still does not meet 4.5:1, we still return it (it's the best possible of the two)
+    return preferred;
+  };
+
+  // Helpers for HSL conversions
+  const hexToHsl = (hex: string): [number, number, number] => {
+    const [r, g, b] = hexToRgb(hex).map(v => v / 255);
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const delta = max - min;
+    let h = 0;
+    if (delta !== 0) {
+      if (max === r) h = ((g - b) / delta) % 6;
+      else if (max === g) h = (b - r) / delta + 2;
+      else h = (r - g) / delta + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+    const l = (max + min) / 2;
+    const s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+    return [h, s * 100, l * 100];
+  };
+
+  const hslToHex = (h: number, s: number, l: number): string => {
+    const sNorm = s / 100;
+    const lNorm = l / 100;
+    const c = (1 - Math.abs(2 * lNorm - 1)) * sNorm;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = lNorm - c / 2;
+    let rP = 0, gP = 0, bP = 0;
+    if (0 <= h && h < 60) { rP = c; gP = x; bP = 0; }
+    else if (60 <= h && h < 120) { rP = x; gP = c; bP = 0; }
+    else if (120 <= h && h < 180) { rP = 0; gP = c; bP = x; }
+    else if (180 <= h && h < 240) { rP = 0; gP = x; bP = c; }
+    else if (240 <= h && h < 300) { rP = x; gP = 0; bP = c; }
+    else { rP = c; gP = 0; bP = x; }
+    const r = Math.round((rP + m) * 255);
+    const g = Math.round((gP + m) * 255);
+    const b = Math.round((bP + m) * 255);
+    const toHex = (v: number) => v.toString(16).padStart(2, '0').toUpperCase();
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  };
+
+  const getContrastBetween = (hex1: string, hex2: string): number => {
+    const [r1, g1, b1] = hexToRgb(hex1);
+    const [r2, g2, b2] = hexToRgb(hex2);
+    const l1 = calculateLuminance(r1, g1, b1);
+    const l2 = calculateLuminance(r2, g2, b2);
+    const maxL = Math.max(l1, l2);
+    const minL = Math.min(l1, l2);
+    return (maxL + 0.05) / (minL + 0.05);
+  };
+
+  // Mobile text color: use a deep shade of the same hue for very light swatches
+  const getMobileTextColor = (hex: string): string => {
+    const [h, s, l] = hexToHsl(hex);
+    // Only attempt dark same-hue text for light backgrounds
+    if (l >= 75) {
+      const candidate = hslToHex(h, Math.min(100, s * 1.05), 15);
+      const contrast = getContrastBetween(hex, candidate);
+      if (contrast >= 4.5) return candidate;
+      // Fallback: choose best of black/white
+      const blackContrast = getContrastBetween(hex, '#000000');
+      const whiteContrast = getContrastBetween(hex, '#FFFFFF');
+      return blackContrast >= whiteContrast ? '#000000' : '#FFFFFF';
+    }
+    // For mid/dark backgrounds, use standard accessible choice
+    return getAccessibleTextColor(hex);
+  };
+
   const weight = calculateTailwindWeight(index, total);
   const contrastRatio = getContrastRatio(color);
+  const textColor = isMobile ? getMobileTextColor(color) : getAccessibleTextColor(color);
+  const hexDisplay = color.replace('#', '').toUpperCase();
 
   return (
     <div className="color-swatch">
@@ -116,9 +211,10 @@ export default function ColorSwatch({ color, index, total }: ColorSwatchProps) {
       </div>
       
       {/* Color info */}
-      <div className="color-info">
+      <div className="color-info" style={{ color: textColor }}>
         <div className="color-weight">{weight}</div>
         <div className="color-contrast">{contrastRatio}</div>
+        <div className="color-hex">{hexDisplay}</div>
       </div>
     </div>
   );
