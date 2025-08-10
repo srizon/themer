@@ -12,6 +12,12 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Color Palette Generator",
   description: "Generate beautiful color palettes for your design projects",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({
@@ -22,6 +28,9 @@ export default function RootLayout({
   const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+      </head>
       <body className={`${inter.variable} antialiased`}>
         {children}
         {GA_MEASUREMENT_ID ? (
