@@ -14,6 +14,7 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   const [exportFormat, setExportFormat] = useState<ExportFormat>('css');
   const [colorFormat, setColorFormat] = useState<ColorFormat>('hex');
   const [exportCode, setExportCode] = useState('');
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
   useEffect(() => {
     if (!colorSet) return;
@@ -145,7 +146,9 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
       // Check if clipboard API is available
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(exportCode);
-        // You could add a toast notification here
+        setCopyStatus('copied');
+        // Reset status after 2 seconds
+        setTimeout(() => setCopyStatus('idle'), 2000);
       } else {
         // Fallback for browsers that don't support clipboard API
         const textArea = document.createElement('textarea');
@@ -159,12 +162,20 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
         
         if (!document.execCommand('copy')) {
           console.error('Copy command failed');
+          setCopyStatus('error');
+          setTimeout(() => setCopyStatus('idle'), 2000);
+        } else {
+          setCopyStatus('copied');
+          setTimeout(() => setCopyStatus('idle'), 2000);
         }
         
         document.body.removeChild(textArea);
       }
     } catch (error) {
       console.error('Failed to copy export code:', error);
+      setCopyStatus('error');
+      setTimeout(() => setCopyStatus('idle'), 2000);
+      
       // Fallback for browsers that don't support clipboard API
       try {
         const textArea = document.createElement('textarea');
@@ -178,11 +189,18 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
         
         if (!document.execCommand('copy')) {
           console.error('Fallback copy also failed');
+          setCopyStatus('error');
+          setTimeout(() => setCopyStatus('idle'), 2000);
+        } else {
+          setCopyStatus('copied');
+          setTimeout(() => setCopyStatus('idle'), 2000);
         }
         
         document.body.removeChild(textArea);
       } catch (fallbackError) {
         console.error('Fallback copy also failed:', fallbackError);
+        setCopyStatus('error');
+        setTimeout(() => setCopyStatus('idle'), 2000);
       }
     }
   };
@@ -257,10 +275,11 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
             </div>
             <button
               onClick={handleCopy}
-              className="btn btn-primary copy-btn"
+              className={`btn btn-primary copy-btn ${copyStatus === 'copied' ? 'btn-success' : copyStatus === 'error' ? 'btn-error' : ''}`}
               aria-label="Copy export code to clipboard"
+              disabled={copyStatus === 'copied'}
             >
-              Copy to Clipboard
+              {copyStatus === 'copied' ? 'Copied!' : copyStatus === 'error' ? 'Copy Failed' : 'Copy to Clipboard'}
             </button>
           </div>
         </div>

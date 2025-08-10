@@ -28,7 +28,7 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
   // Helper function to calculate lightness from contrast
   const calculateLightnessFromContrast = (contrast: number, isMinContrast: boolean): number => {
     // For min contrast (low values like 1.05), we need high lightness (95%)
-    // For max contrast (high values like 19.5), we need low lightness (5%)
+    // For max contrast (high values like 21), we need low lightness (5%)
     if (isMinContrast) {
       // Min contrast -> Max lightness
       // Lower contrast = higher lightness
@@ -343,7 +343,7 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               step="0.1"
               value={colorSet.maxContrast || ''}
               onChange={(e) => handleMaxContrastChange(parseFloat(e.target.value) || undefined)}
-              placeholder="21"
+              placeholder="19.5"
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"

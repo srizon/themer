@@ -614,7 +614,7 @@ body {
 }
 
 .section-header h2 {
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-dark);
   text-transform: capitalize;
@@ -630,6 +630,7 @@ body {
   border: 2px solid transparent;
   position: relative;
   z-index: 10;
+  width: 100%;
 }
 
 .palette-name:hover {
@@ -641,6 +642,7 @@ body {
   background: var(--color-background);
   border-color: transparent;
   text-transform: none;
+  font-family: inherit;
 }
 
 .actions {
@@ -685,7 +687,7 @@ body {
   transform: scale(1.05);
   z-index: 10;
   border-radius: var(--border-radius);
-  min-width: var(--color-swatch-hover-width);
+  /* min-width: var(--color-swatch-hover-width); */
 }
 
 .color-display {
@@ -1180,6 +1182,15 @@ body {
     line-height: var(--line-height-tight);
   }
   
+  .section-header h2 {
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-tight);
+  }
+  
+  .palette-name {
+    font-size: var(--font-size-lg);
+  }
+  
   .header-actions {
     width: 100%;
     display: flex;
@@ -1339,7 +1350,15 @@ body {
 
 @media (max-width: 480px) {
   .header h1 { 
-    font-size: var(--font-size-xl); 
+    font-size: var(--font-size-2xl); 
+  }
+  
+  .section-header h2 {
+    font-size: var(--font-size-xl);
+  }
+  
+  .palette-name {
+    font-size: var(--font-size-base);
   }
   
   .color-set-controls { 

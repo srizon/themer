@@ -265,7 +265,7 @@ export class ColorThemer {
     // This ensures consistent spacing regardless of whether it's neutral or colored
     
     const maxL = maxLightness ?? 95; // Lightest shade
-    const minL = minLightness ?? 5;  // Darkest shade
+    const minL = minLightness ?? 5;   // Darkest shade
     
     // If we only have one color, return the base lightness
     if (count === 1) {
@@ -340,7 +340,7 @@ export class ColorThemer {
     maxLightness?: number
   ): number[] {
     const maxL = maxLightness ?? 95; // Lightest shade
-    const minL = minLightness ?? 5;  // Darkest shade
+    const minL = minLightness ?? 5;   // Darkest shade
     
     // If we only have one color, return the base lightness
     if (count === 1) {
@@ -611,7 +611,7 @@ export class ColorThemer {
       const saturation = lowerPoint.saturation + (upperPoint.saturation - lowerPoint.saturation) * fraction;
       
       // Apply bounds and adjustments
-      const finalLightness = Math.max(3, Math.min(97, lightness));
+      const finalLightness = Math.max(0, Math.min(100, lightness));
       const finalSaturation = Math.max(20, Math.min(100, saturation));
       
       colors.push(this.hslToHex(h, finalSaturation, finalLightness));
@@ -1006,7 +1006,7 @@ export class ColorThemer {
       }
     }
     
-    return Math.max(1, Math.min(99, bestLightness));
+    return Math.max(0, Math.min(100, bestLightness));
   }
 
   private calculateSaturationCurve(baseSaturation: number, index: number, totalCount: number): number {
@@ -1299,7 +1299,7 @@ export class ColorThemer {
   validateContrastRatios(colorSet: ColorSet): { shade: string; expected: number; actual: number; difference: number }[] {
     const results = [];
     const shadeNames = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
-    const expectedContrasts = [1.05, 1.17, 1.31, 1.44, 1.60, 1.79, 2.69, 4.32, 7.39, 13.03, 19.42];
+    const expectedContrasts = [1.05, 1.17, 1.31, 1.44, 1.60, 1.79, 2.69, 4.32, 7.39, 13.03, 21];
     
     for (let i = 0; i < colorSet.colors.length && i < expectedContrasts.length; i++) {
       const actualContrast = this.getContrastRatio(colorSet.colors[i]);
