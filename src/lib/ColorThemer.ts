@@ -32,6 +32,27 @@ export class ColorThemer {
           colorSet.generatedName = getEnhancedColorName(colorSet.baseColor);
           mutated = true;
         }
+        // Ensure default values are set for all color sets
+        if (colorSet.saturationCurve === undefined) {
+          colorSet.saturationCurve = 0;
+          mutated = true;
+        }
+        if (colorSet.minContrast === undefined) {
+          colorSet.minContrast = 1.05;
+          mutated = true;
+        }
+        if (colorSet.maxContrast === undefined) {
+          colorSet.maxContrast = 19.5;
+          mutated = true;
+        }
+        if (colorSet.minLightness === undefined) {
+          colorSet.minLightness = 5;
+          mutated = true;
+        }
+        if (colorSet.maxLightness === undefined) {
+          colorSet.maxLightness = 95;
+          mutated = true;
+        }
       });
       this.notifyColorSetsChange();
       if (mutated) this.saveToStorage();
@@ -102,7 +123,11 @@ export class ColorThemer {
       baseColor: randomColor,
       colorCount: 11, // Standard Tailwind CSS shade count
       colors: [],
-      saturationCurve: 0 // Default to linear saturation
+      saturationCurve: 0, // Default to linear saturation
+      minContrast: 1.05, // Default minimum contrast ratio
+      maxContrast: 19.5, // Default maximum contrast ratio
+      minLightness: 5, // Default minimum lightness
+      maxLightness: 95 // Default maximum lightness
     };
 
     this.colorSets.push(colorSet);
@@ -158,7 +183,8 @@ export class ColorThemer {
 
 
   private generateColorSet(colorSet: ColorSet) {
-    // Only generate monochromatic colors with optional bounds
+    // Generate monochromatic colors with even lightness distribution
+    // Prioritize lightness bounds over contrast ratios for consistent spacing
     const colors = this.generateMonochromatic(
       colorSet.baseColor, 
       colorSet.colorCount,
@@ -169,8 +195,15 @@ export class ColorThemer {
       colorSet.saturationCurve
     );
     
+    // Only enforce lightness bounds, skip contrast enforcement to preserve even distribution
+    const constrainedColors = this.enforceLightnessBoundsOnly(
+      colors,
+      colorSet.minLightness,
+      colorSet.maxLightness
+    );
+    
     // Validate and adjust colors to ensure they match their expected names
-    const validatedColors = this.validateAndAdjustColors(colors);
+    const validatedColors = this.validateAndAdjustColors(constrainedColors);
     colorSet.colors = validatedColors;
 
     // Persist a deterministic generated name alongside the palette
@@ -261,58 +294,22 @@ export class ColorThemer {
 
   // Generate a balanced lightness curve with even distribution
   private generateBalancedLightnessCurve(count: number, minLightness?: number, maxLightness?: number, baseLightness?: number): number[] {
-    // Use the same even distribution approach for all color types
-    // This ensures consistent spacing regardless of whether it's neutral or colored
+    // Always use perfectly even distribution for consistent results
+    // This ensures all shades are evenly spaced within the lightness bounds
     
     const maxL = maxLightness ?? 95; // Lightest shade
     const minL = minLightness ?? 5;   // Darkest shade
     
-    // If we only have one color, return the base lightness
+    // If we only have one color, return the base lightness clamped to bounds
     if (count === 1) {
-      return [baseLightness ?? 50];
+      const targetLightness = baseLightness ?? 50;
+      return [Math.max(minL, Math.min(maxL, targetLightness))];
     }
     
-    // If base lightness is provided, preserve it
-    if (baseLightness !== undefined) {
-      // Handle edge cases where base color is outside the bounds
-      let baseIndex: number;
-      
-      if (baseLightness <= minL) {
-        // Base color is very dark, place it at the darkest position
-        baseIndex = count - 1;
-      } else if (baseLightness >= maxL) {
-        // Base color is very light, place it at the lightest position
-        baseIndex = 0;
-      } else {
-        // Base color is within bounds, calculate its position
-        const basePosition = (maxL - baseLightness) / (maxL - minL);
-        baseIndex = Math.round(basePosition * (count - 1));
-      }
-      
-      const lightnessValues: number[] = [];
-      
-      for (let i = 0; i < count; i++) {
-        let lightness: number;
-        
-        if (i === baseIndex) {
-          // Preserve the user's exact base color
-          lightness = baseLightness;
-        } else {
-          // Generate other shades around the base color
-          const position = i / (count - 1);
-          const totalRange = maxL - minL;
-          lightness = maxL - (position * totalRange);
-        }
-        
-        lightnessValues.push(lightness);
-      }
-      
-      return lightnessValues;
-    }
-    
-    // Fallback to original behavior if no base lightness provided
-    const totalRange = maxL - minL;
+    // Always create perfectly even distribution within the bounds
+    // This ensures consistent spacing regardless of base color
     const lightnessValues: number[] = [];
+    const totalRange = maxL - minL;
     
     for (let i = 0; i < count; i++) {
       // Calculate position from 0 to 1
@@ -330,7 +327,7 @@ export class ColorThemer {
   // Tailwind weight calculation moved to shared utils and duplicated in UI usage
 
   // Generate HSL-based lightness curve with even distribution
-  // Preserves the user's base color and generates other shades around it
+  // Creates perfectly even spacing between min and max lightness bounds
   private generateHSLBasedLightnessCurve(
     hue: number, 
     saturation: number, 
@@ -342,39 +339,22 @@ export class ColorThemer {
     const maxL = maxLightness ?? 95; // Lightest shade
     const minL = minLightness ?? 5;   // Darkest shade
     
-    // If we only have one color, return the base lightness
+    // If we only have one color, return the base lightness clamped to bounds
     if (count === 1) {
-      return [baseLightness];
+      return [Math.max(minL, Math.min(maxL, baseLightness))];
     }
     
-    // Handle edge cases where base color is outside the bounds
-    let baseIndex: number;
-    
-    if (baseLightness <= minL) {
-      // Base color is very dark, place it at the darkest position
-      baseIndex = count - 1;
-    } else if (baseLightness >= maxL) {
-      // Base color is very light, place it at the lightest position
-      baseIndex = 0;
-    } else {
-      // Base color is within bounds, calculate its position
-      const basePosition = (maxL - baseLightness) / (maxL - minL);
-      baseIndex = Math.round(basePosition * (count - 1));
-    }
-    
+    // Always create perfectly even distribution within the bounds
+    // This ensures consistent spacing regardless of base color
     const lightnessValues: number[] = [];
+    const totalRange = maxL - minL;
     
     for (let i = 0; i < count; i++) {
-      let lightness: number;
+      // Calculate position from 0 to 1
+      const position = i / (count - 1);
       
-      if (i === baseIndex) {
-        // Preserve the user's exact base color (not the adjusted one)
-        lightness = baseLightness;
-      } else {
-        // Generate other shades around the base color
-        const position = i / (count - 1);
-        lightness = maxL - (position * (maxL - minL));
-      }
+      // Linear interpolation for perfectly even distribution
+      const lightness = maxL - (position * totalRange);
       
       lightnessValues.push(lightness);
     }
@@ -758,6 +738,137 @@ export class ColorThemer {
   }
 
 
+
+  // Enforce only lightness bounds to preserve even distribution
+  private enforceLightnessBoundsOnly(
+    colors: string[],
+    minLightness?: number,
+    maxLightness?: number
+  ): string[] {
+    const constrainedColors: string[] = [];
+    
+    for (const color of colors) {
+      let [h, s, l] = this.hexToHsl(color);
+      
+      // Only enforce lightness bounds, preserve the distribution
+      if (minLightness !== undefined && l < minLightness) {
+        l = minLightness;
+      }
+      if (maxLightness !== undefined && l > maxLightness) {
+        l = maxLightness;
+      }
+      
+      // Regenerate the color with constrained lightness
+      const constrainedColor = this.hslToHex(h, s, l);
+      constrainedColors.push(constrainedColor);
+    }
+    
+    return constrainedColors;
+  }
+
+  // Enforce color constraints to ensure all colors stay within specified bounds
+  private enforceColorConstraints(
+    colors: string[],
+    minContrast?: number,
+    maxContrast?: number,
+    minLightness?: number,
+    maxLightness?: number
+  ): string[] {
+    const constrainedColors: string[] = [];
+    
+    for (const color of colors) {
+      let [h, s, l] = this.hexToHsl(color);
+      let constrainedColor = color;
+      let needsAdjustment = false;
+      
+      // Check and enforce lightness bounds
+      if (minLightness !== undefined && l < minLightness) {
+        l = minLightness;
+        needsAdjustment = true;
+      }
+      if (maxLightness !== undefined && l > maxLightness) {
+        l = maxLightness;
+        needsAdjustment = true;
+      }
+      
+      // If lightness was adjusted, regenerate the color
+      if (needsAdjustment) {
+        constrainedColor = this.hslToHex(h, s, l);
+      }
+      
+      // Check and enforce contrast bounds
+      if (minContrast !== undefined || maxContrast !== undefined) {
+        const currentContrast = this.getContrastRatio(constrainedColor);
+        
+        if (minContrast !== undefined && currentContrast < minContrast) {
+          // Current contrast is too low, need to find a color with higher contrast
+          constrainedColor = this.findColorWithTargetContrast(h, s, minContrast, minLightness, maxLightness);
+        } else if (maxContrast !== undefined && currentContrast > maxContrast) {
+          // Current contrast is too high, need to find a color with lower contrast
+          constrainedColor = this.findColorWithTargetContrast(h, s, maxContrast, minLightness, maxLightness);
+        }
+      }
+      
+      constrainedColors.push(constrainedColor);
+    }
+    
+    return constrainedColors;
+  }
+  
+  // Find a color with target contrast while respecting lightness bounds
+  private findColorWithTargetContrast(
+    hue: number,
+    saturation: number,
+    targetContrast: number,
+    minLightness?: number,
+    maxLightness?: number
+  ): string {
+    const minL = minLightness ?? 0;
+    const maxL = maxLightness ?? 100;
+    
+    let bestColor = this.hslToHex(hue, saturation, 50);
+    let bestDiff = Infinity;
+    
+    // Search within the lightness bounds for the closest contrast match
+    const stepSize = targetContrast < 2 ? 0.2 : targetContrast < 5 ? 0.5 : 1;
+    
+    for (let l = minL; l <= maxL; l += stepSize) {
+      const testColor = this.hslToHex(hue, saturation, l);
+      const contrast = this.getContrastRatio(testColor);
+      const diff = Math.abs(contrast - targetContrast);
+      
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        bestColor = testColor;
+      }
+      
+      // If we're very close, we can stop early
+      if (diff < 0.01) break;
+    }
+    
+    // Refine the result with a finer search if needed
+    if (bestDiff > 0.05) {
+      const [, , bestL] = this.hexToHsl(bestColor);
+      const refineRange = stepSize * 2;
+      const startL = Math.max(minL, bestL - refineRange);
+      const endL = Math.min(maxL, bestL + refineRange);
+      
+      for (let l = startL; l <= endL; l += 0.1) {
+        const testColor = this.hslToHex(hue, saturation, l);
+        const contrast = this.getContrastRatio(testColor);
+        const diff = Math.abs(contrast - targetContrast);
+        
+        if (diff < bestDiff) {
+          bestDiff = diff;
+          bestColor = testColor;
+        }
+        
+        if (diff < 0.005) break;
+      }
+    }
+    
+    return bestColor;
+  }
 
   private validateAndAdjustColors(colors: string[]): string[] {
     // For monochromatic palettes, don't adjust colors at all
@@ -1236,6 +1347,22 @@ export class ColorThemer {
       if (!colorSet.generatedName) {
         colorSet.generatedName = getEnhancedColorName(colorSet.baseColor);
       }
+      // Ensure default values are set for imported color sets
+      if (colorSet.saturationCurve === undefined) {
+        colorSet.saturationCurve = 0;
+      }
+      if (colorSet.minContrast === undefined) {
+        colorSet.minContrast = 1.05;
+      }
+      if (colorSet.maxContrast === undefined) {
+        colorSet.maxContrast = 19.5;
+      }
+      if (colorSet.minLightness === undefined) {
+        colorSet.minLightness = 5;
+      }
+      if (colorSet.maxLightness === undefined) {
+        colorSet.maxLightness = 95;
+      }
     });
 
     this.notifyColorSetsChange();
@@ -1328,5 +1455,49 @@ export class ColorThemer {
       Difference: v.difference.toFixed(3),
       Status: v.difference < 0.1 ? '✅' : v.difference < 0.3 ? '⚠️' : '❌'
     })));
+  }
+
+  // Debug method to validate constraint enforcement
+  debugConstraintEnforcement(colorSet: ColorSet): void {
+    console.log('Constraint Enforcement Analysis for:', colorSet.baseColor);
+    console.log('Constraints:', {
+      minContrast: colorSet.minContrast,
+      maxContrast: colorSet.maxContrast,
+      minLightness: colorSet.minLightness,
+      maxLightness: colorSet.maxLightness
+    });
+
+    const violatingColors: string[] = [];
+    
+    colorSet.colors.forEach((color, index) => {
+      const [, , lightness] = this.hexToHsl(color);
+      const contrast = this.getContrastRatio(color);
+      
+      let violations: string[] = [];
+      
+      if (colorSet.minContrast !== undefined && contrast < colorSet.minContrast) {
+        violations.push(`contrast too low: ${contrast.toFixed(2)} < ${colorSet.minContrast}`);
+      }
+      if (colorSet.maxContrast !== undefined && contrast > colorSet.maxContrast) {
+        violations.push(`contrast too high: ${contrast.toFixed(2)} > ${colorSet.maxContrast}`);
+      }
+      if (colorSet.minLightness !== undefined && lightness < colorSet.minLightness) {
+        violations.push(`lightness too low: ${lightness.toFixed(1)} < ${colorSet.minLightness}`);
+      }
+      if (colorSet.maxLightness !== undefined && lightness > colorSet.maxLightness) {
+        violations.push(`lightness too high: ${lightness.toFixed(1)} > ${colorSet.maxLightness}`);
+      }
+      
+      if (violations.length > 0) {
+        violatingColors.push(`Shade ${index}: ${color} - ${violations.join(', ')}`);
+      }
+    });
+    
+    if (violatingColors.length > 0) {
+      console.warn('❌ Constraint violations found:');
+      violatingColors.forEach(violation => console.warn(violation));
+    } else {
+      console.log('✅ All colors are within specified constraints');
+    }
   }
 }

@@ -33,6 +33,26 @@ export default function Home() {
       }
     });
     setColorThemer(themer);
+    
+    // Expose debugging methods in development
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+      (window as any).colorThemer = themer;
+      (window as any).debugConstraints = () => {
+        const colorSets = themer.getColorSets();
+        if (colorSets.length > 0) {
+          console.log('🔍 Testing constraint enforcement for all color sets:');
+          colorSets.forEach((colorSet, index) => {
+            console.log(`\n--- Color Set ${index + 1} ---`);
+            themer.debugConstraintEnforcement(colorSet);
+          });
+        } else {
+          console.log('No color sets available to debug.');
+        }
+      };
+      console.log('🛠️ Development debugging available:');
+      console.log('- Use window.debugConstraints() to check constraint enforcement');
+      console.log('- Use window.colorThemer to access the ColorThemer instance');
+    }
   }, []);
 
   const handleExportAll = () => {

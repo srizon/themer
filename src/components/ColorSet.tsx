@@ -27,20 +27,20 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
 
   // Helper function to calculate lightness from contrast
   const calculateLightnessFromContrast = (contrast: number, isMinContrast: boolean): number => {
-    // For min contrast (low values like 1.05), we need high lightness (95%)
-    // For max contrast (high values like 21), we need low lightness (5%)
+    // For min contrast (low values like 1.05), we need high lightness (100%)
+    // For max contrast (high values like 21), we need low lightness (0%)
     if (isMinContrast) {
       // Min contrast -> Max lightness
       // Lower contrast = higher lightness
       const normalizedContrast = Math.max(1, Math.min(21, contrast));
-      const lightness = 95 - ((normalizedContrast - 1) * 4.5); // 1.05 -> 95%, 21 -> 5%
-      return Math.max(5, Math.min(95, Math.round(lightness)));
+      const lightness = 100 - ((normalizedContrast - 1) * 5); // 1.05 -> 100%, 21 -> 0%
+      return Math.max(0, Math.min(100, Math.round(lightness)));
     } else {
       // Max contrast -> Min lightness
       // Higher contrast = lower lightness
       const normalizedContrast = Math.max(1, Math.min(21, contrast));
-      const lightness = 5 + ((21 - normalizedContrast) * 4.5); // 21 -> 5%, 1.05 -> 95%
-      return Math.max(5, Math.min(95, Math.round(lightness)));
+      const lightness = 0 + ((21 - normalizedContrast) * 5); // 21 -> 0%, 1.05 -> 100%
+      return Math.max(0, Math.min(100, Math.round(lightness)));
     }
   };
 
@@ -49,14 +49,14 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
     if (isMaxLightness) {
       // Max lightness -> Min contrast
       // Higher lightness = lower contrast
-      const normalizedLightness = Math.max(5, Math.min(95, lightness));
-      const contrast = 1 + ((95 - normalizedLightness) / 4.5); // 95% -> 1.05, 5% -> 21
+      const normalizedLightness = Math.max(0, Math.min(100, lightness));
+      const contrast = 1 + ((100 - normalizedLightness) / 5); // 100% -> 1.05, 0% -> 21
       return Math.max(1.05, Math.min(21, Math.round(contrast * 100) / 100));
     } else {
       // Min lightness -> Max contrast
       // Lower lightness = higher contrast
-      const normalizedLightness = Math.max(5, Math.min(95, lightness));
-      const contrast = 21 - ((normalizedLightness - 5) / 4.5); // 5% -> 21, 95% -> 1.05
+      const normalizedLightness = Math.max(0, Math.min(100, lightness));
+      const contrast = 21 - ((normalizedLightness - 0) / 5); // 0% -> 21, 100% -> 1.05
       return Math.max(1.05, Math.min(21, Math.round(contrast * 100) / 100));
     }
   };
@@ -64,6 +64,14 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
   const handleMinContrastChange = (value: number | undefined) => {
     // Reset to default if cleared
     const finalValue = value !== undefined ? value : 1.05;
+    
+    // Validate against max contrast
+    const maxContrast = colorSet.maxContrast ?? 19.5;
+    if (finalValue > maxContrast) {
+      // Don't allow min to be higher than max
+      return;
+    }
+    
     const updates: Partial<ColorSetType> = { minContrast: finalValue };
     
     // Auto-update max lightness when min contrast changes
@@ -76,6 +84,14 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
   const handleMaxContrastChange = (value: number | undefined) => {
     // Reset to default if cleared
     const finalValue = value !== undefined ? value : 19.5;
+    
+    // Validate against min contrast
+    const minContrast = colorSet.minContrast ?? 1.05;
+    if (finalValue < minContrast) {
+      // Don't allow max to be lower than min
+      return;
+    }
+    
     const updates: Partial<ColorSetType> = { maxContrast: finalValue };
     
     // Auto-update min lightness when max contrast changes
@@ -87,7 +103,15 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
 
   const handleMinLightnessChange = (value: number | undefined) => {
     // Reset to default if cleared
-    const finalValue = value !== undefined ? value : 5;
+    const finalValue = value !== undefined ? value : 0;
+    
+    // Validate against max lightness
+    const maxLightness = colorSet.maxLightness ?? 95;
+    if (finalValue > maxLightness) {
+      // Don't allow min to be higher than max
+      return;
+    }
+    
     const updates: Partial<ColorSetType> = { minLightness: finalValue };
     
     // Auto-update max contrast when min lightness changes
@@ -105,7 +129,15 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
 
   const handleMaxLightnessChange = (value: number | undefined) => {
     // Reset to default if cleared
-    const finalValue = value !== undefined ? value : 95;
+    const finalValue = value !== undefined ? value : 100;
+    
+    // Validate against min lightness
+    const minLightness = colorSet.minLightness ?? 5;
+    if (finalValue < minLightness) {
+      // Don't allow max to be lower than min
+      return;
+    }
+    
     const updates: Partial<ColorSetType> = { maxLightness: finalValue };
     
     // Auto-update min contrast when max lightness changes
@@ -285,7 +317,7 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               min="-100"
               max="100"
               step="1"
-              value={colorSet.saturationCurve || ''}
+              value={colorSet.saturationCurve ?? 0}
               onChange={(e) => {
                 const value = e.target.value;
                 if (value === '') {
@@ -300,7 +332,6 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
-              placeholder="0"
             />
           </div>
 
@@ -318,9 +349,8 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               min="1"
               max="21"
               step="0.1"
-              value={colorSet.minContrast || ''}
+              value={colorSet.minContrast ?? 1.05}
               onChange={(e) => handleMinContrastChange(parseFloat(e.target.value) || undefined)}
-              placeholder="1.05"
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
@@ -341,9 +371,8 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               min="1"
               max="21"
               step="0.1"
-              value={colorSet.maxContrast || ''}
+              value={colorSet.maxContrast ?? 19.5}
               onChange={(e) => handleMaxContrastChange(parseFloat(e.target.value) || undefined)}
-              placeholder="19.5"
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
@@ -361,12 +390,11 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
             >Max Lightness</label>
             <input
               type="number"
-              min="0"
+              min="1"
               max="100"
               step="1"
-              value={colorSet.maxLightness || ''}
+              value={colorSet.maxLightness ?? 95}
               onChange={(e) => handleMaxLightnessChange(parseInt(e.target.value) || undefined)}
-              placeholder="95"
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
@@ -387,9 +415,8 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               min="0"
               max="100"
               step="1"
-              value={colorSet.minLightness || ''}
+              value={colorSet.minLightness ?? 5}
               onChange={(e) => handleMinLightnessChange(parseInt(e.target.value) || undefined)}
-              placeholder="5"
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
