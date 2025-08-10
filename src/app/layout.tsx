@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Color Palette Generator",
-  description: "Generate beautiful color palettes for your design projects",
+  title: "Themer | Color Generator for Design Systems",
+  description: "Generate the perfect color palettes for your design systems.",
   viewport: {
     width: 'device-width',
     initialScale: 1,

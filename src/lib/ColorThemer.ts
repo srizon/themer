@@ -101,7 +101,8 @@ export class ColorThemer {
       id: setId,
       baseColor: randomColor,
       colorCount: 11, // Standard Tailwind CSS shade count
-      colors: []
+      colors: [],
+      saturationCurve: 0 // Default to linear saturation
     };
 
     this.colorSets.push(colorSet);
@@ -143,10 +144,10 @@ export class ColorThemer {
 
     Object.assign(colorSet, updates);
     
-    // Regenerate colors if base color, color count, or contrast/lightness bounds changed
+    // Regenerate colors if base color, color count, contrast/lightness bounds, or saturation curve changed
     if (updates.baseColor || updates.colorCount || updates.minContrast !== undefined || 
         updates.maxContrast !== undefined || updates.minLightness !== undefined || 
-        updates.maxLightness !== undefined) {
+        updates.maxLightness !== undefined || updates.saturationCurve !== undefined) {
       this.generateColorSet(colorSet);
     }
     
@@ -164,7 +165,8 @@ export class ColorThemer {
       colorSet.minContrast,
       colorSet.maxContrast,
       colorSet.minLightness,
-      colorSet.maxLightness
+      colorSet.maxLightness,
+      colorSet.saturationCurve
     );
     
     // Validate and adjust colors to ensure they match their expected names
@@ -184,7 +186,8 @@ export class ColorThemer {
     minContrast?: number, 
     maxContrast?: number, 
     minLightness?: number, 
-    maxLightness?: number
+    maxLightness?: number,
+    saturationCurve?: number
   ): string[] {
     const [h, s, l] = this.hexToHsl(baseColor);
     
@@ -196,33 +199,30 @@ export class ColorThemer {
       // For neutral colors, use the balanced lightness curve with bounds
       const lightnessValues = this.generateBalancedLightnessCurve(count, minLightness, maxLightness, l);
       return lightnessValues.map((lightness, index) => {
-        // If this is the base color position, return the original base color
-        const maxL = maxLightness ?? 95;
-        const minL = minLightness ?? 5;
+        // Only preserve base color saturation at the extreme edges (shades 50 and 950)
+        // All middle colors should fully respond to the saturation curve
+        const isEdgeShade = index === 0 || index === count - 1; // shade 50 or 950
         
-        // Handle edge cases where base color is outside the bounds
-        let baseIndex: number;
-        if (l <= minL) {
-          // Base color is very dark, place it at the darkest position
-          baseIndex = count - 1;
-        } else if (l >= maxL) {
-          // Base color is very light, place it at the lightest position
-          baseIndex = 0;
+        if (isEdgeShade) {
+          // At edges, preserve the base color's saturation
+          if (s === 0) {
+            return this.hslToHex(0, 0, lightness);
+          } else {
+            return this.hslToHex(h, s, lightness);
+          }
         } else {
-          // Base color is within bounds, calculate its position
-          const basePosition = (maxL - l) / (maxL - minL);
-          baseIndex = Math.round(basePosition * (count - 1));
-        }
-        
-        if (index === baseIndex) {
-          return baseColor; // Preserve the user's exact base color
-        } else {
+          // For all middle colors, apply the saturation curve fully
+          let adjustedSaturation = s;
+          if (saturationCurve !== undefined && saturationCurve !== 0) {
+            adjustedSaturation = this.applySaturationCurve(s, index, count, saturationCurve);
+          }
+          
           // For neutral colors, preserve the hue and saturation of the base color
           // Only use pure gray if the base color is actually pure gray (saturation = 0)
           if (s === 0) {
             return this.hslToHex(0, 0, lightness);
           } else {
-            return this.hslToHex(h, s, lightness);
+            return this.hslToHex(h, adjustedSaturation, lightness);
           }
         }
       });
@@ -238,29 +238,22 @@ export class ColorThemer {
       
       // Generate colors that will maintain exact HSL values when displayed
       return lightnessValues.map((lightness, index) => {
-        // If this is the base color position, return the original base color
-        const maxL = maxLightness ?? 95;
-        const minL = minLightness ?? 5;
+        // Only preserve base color saturation at the extreme edges (shades 50 and 950)
+        // All middle colors should fully respond to the saturation curve
+        const isEdgeShade = index === 0 || index === count - 1; // shade 50 or 950
         
-        // Handle edge cases where base color is outside the bounds
-        let baseIndex: number;
-        if (l <= minL) {
-          // Base color is very dark, place it at the darkest position
-          baseIndex = count - 1;
-        } else if (l >= maxL) {
-          // Base color is very light, place it at the lightest position
-          baseIndex = 0;
-        } else {
-          // Base color is within bounds, calculate its position
-          const basePosition = (maxL - l) / (maxL - minL);
-          baseIndex = Math.round(basePosition * (count - 1));
-        }
-        
-        if (index === baseIndex) {
-          return baseColor; // Preserve the user's exact base color
-        } else {
-          // Find the best hex color that produces the desired rounded HSL values
+        if (isEdgeShade) {
+          // At edges, preserve the base color's saturation
           return this.generateExactHSLColor(exactHue, exactSaturation, Math.round(lightness));
+        } else {
+          // For all middle colors, apply the saturation curve fully
+          let adjustedSaturation = exactSaturation;
+          if (saturationCurve !== undefined && saturationCurve !== 0) {
+            adjustedSaturation = this.applySaturationCurve(exactSaturation, index, count, saturationCurve);
+          }
+          
+          // Find the best hex color that produces the desired rounded HSL values
+          return this.generateExactHSLColor(exactHue, Math.round(adjustedSaturation), Math.round(lightness));
         }
       });
     }
@@ -498,6 +491,42 @@ export class ColorThemer {
   // Easing function for smoother transitions
   private easeInOutCubic(t: number): number {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  // Apply saturation curve based on user preference
+  private applySaturationCurve(baseSaturation: number, index: number, totalCount: number, curvePercent: number): number {
+    // Normalize index to 0-1 range
+    const normalizedIndex = index / (totalCount - 1);
+    
+    // Create curve based on curvePercent
+    // Positive values create an arch curve (more saturation in middle)
+    // Negative values create a U curve (less saturation in middle)
+    let curveMultiplier: number;
+    
+    if (curvePercent > 0) {
+      // Arch curve: peak in middle, lower at edges
+      // Use sine function to create smooth arch
+      curveMultiplier = 1 + (curvePercent / 100) * Math.sin(normalizedIndex * Math.PI);
+    } else if (curvePercent < 0) {
+      // U curve: dip in middle, higher at edges
+      // For negative curves, we want the middle to have the lowest saturation
+      // The sine function goes from 0 to 1 to 0, so we want to create a U shape
+      // We need the middle to have the lowest multiplier, so we use sine directly
+      const sineValue = Math.sin(normalizedIndex * Math.PI);
+      // This creates a U shape where middle gets the full negative effect
+      curveMultiplier = 1 + (curvePercent / 100) * sineValue;
+      
+
+    } else {
+      // No curve
+      curveMultiplier = 1;
+    }
+    
+    // Apply the curve to base saturation
+    const adjustedSaturation = baseSaturation * curveMultiplier;
+    
+    // Ensure saturation stays within valid bounds (0-100)
+    return Math.max(0, Math.min(100, adjustedSaturation));
   }
 
   // Calculate dynamic shade 100 based on base color characteristics

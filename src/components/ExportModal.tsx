@@ -239,11 +239,11 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
                 className="input input-select"
                 aria-label="Select color format"
               >
-                <option value="hex">HEX (#ffffff)</option>
-                <option value="rgb">RGB (255, 255, 255)</option>
-                <option value="rgba">RGBA (255, 255, 255, 1)</option>
-                <option value="hsl">HSL (0, 0%, 100%)</option>
-                <option value="hsla">HSLA (0, 0%, 100%, 1)</option>
+                <option value="hex">HEX</option>
+                <option value="rgb">RGB</option>
+                <option value="rgba">RGBA</option>
+                <option value="hsl">HSL</option>
+                <option value="hsla">HSLA</option>
               </select>
             </div>
           </div>

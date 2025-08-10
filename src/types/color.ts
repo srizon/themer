@@ -9,6 +9,7 @@ export interface ColorSet {
   maxContrast?: number;
   minLightness?: number;
   maxLightness?: number;
+  saturationCurve?: number; // -100 to 100, controls saturation curve shape
 }
 
 export interface ImportData {

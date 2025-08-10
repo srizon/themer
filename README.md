@@ -5,7 +5,7 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 ## Features
 
 - **Drag & Drop Reordering**: Reorder color palettes by dragging and dropping them
-- **Advanced Color Controls**: Fine-tune palettes with min/max contrast and lightness controls
+- **Advanced Color Controls**: Fine-tune palettes with min/max contrast, lightness controls, and saturation curve adjustment
 - **Interactive Color Swatches**: Click to copy colors to clipboard
 - **Export Options**: Export palettes in CSS, SCSS, JSON, and Tailwind CSS formats
 - **Import/Export**: Save and load your color palettes
@@ -16,6 +16,8 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 - **Advanced Color Algorithms**: Sophisticated monochromatic color generation with perceptual uniformity
 - **Smart Tailwind Integration**: Intelligent weight calculation for any color count
 - **Automatic Value Synchronization**: Contrast and lightness values automatically update each other
+- **Saturation Curve Control**: Fine-tune the saturation distribution curve for more creative palettes
+- **Enhanced Color Naming**: Sophisticated color naming system with 200+ descriptive names
 - **Optional Analytics**: Google Analytics 4 pageview tracking via `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 
 ## Tech Stack
@@ -186,7 +188,15 @@ themer/
 
 ## Recent Updates
 
-### v0.1.7 - Enhanced Color Naming System (Latest)
+### v0.1.8 - Saturation Curve Control & Enhanced Color Naming (Latest)
+- **Saturation Curve Control**: Added new `saturationCurve` parameter (-100 to 100) for fine-tuning saturation distribution
+- **Enhanced Color Naming System**: Expanded color naming with 300+ descriptive names including exotic fruits, gemstones, and natural elements
+- **Improved Color Categorization**: Better hue-based color naming with saturation and lightness modifiers
+- **Advanced Saturation Algorithms**: More sophisticated saturation curve generation for creative palette customization
+- **UI Improvements**: Streamlined drag handles and enhanced user interface elements
+- **Better Color Variety**: More diverse and creative color names for better palette identification
+
+### v0.1.7 - Enhanced Color Naming System
 - **Advanced Color Naming**: Introduced sophisticated color naming system with 200+ descriptive color names based on hue, saturation, and lightness
 - **Intelligent Color Categorization**: Enhanced `getEnhancedColorName()` function provides creative and accurate color names like "Crimson", "Seafoam", "Midnight Purple", etc.
 - **Color Name Fallback System**: Added `getBasicColorCategory()` function for backward compatibility with systems requiring basic color categories

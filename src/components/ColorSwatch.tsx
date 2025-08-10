@@ -153,17 +153,16 @@ export default function ColorSwatch({ color, index, total, paletteColors }: Colo
   const weight = calculateTailwindWeight(index, total);
   const contrastRatio = getContrastRatio(color);
   const textColor = isMobile ? getMobileTextColor(color) : getAccessibleTextColor(color);
-  let hexTextColor = textColor;
-  if (isMobile) {
-    hexTextColor = getTextColorFromPalette(color, paletteColors);
-  }
+  // Use the same palette-based text color logic for both mobile and desktop hex display
+  const hexTextColor = getTextColorFromPalette(color, paletteColors);
   const hexDisplay = color.replace('#', '').toUpperCase();
 
-  type ColorInfoStyle = CSSProperties & { ['--hex-text-color']?: string };
-  const colorInfoStyle: ColorInfoStyle = { color: textColor, '--hex-text-color': hexTextColor };
+  type ColorSwatchStyle = CSSProperties & { ['--hex-text-color']?: string };
+  const colorSwatchStyle: ColorSwatchStyle = { '--hex-text-color': hexTextColor };
+  const colorInfoStyle: CSSProperties = { color: textColor };
 
   return (
-    <div className="color-swatch">
+    <div className="color-swatch" style={colorSwatchStyle}>
       <div
         className="color-display"
         style={{ backgroundColor: color }}
@@ -175,13 +174,15 @@ export default function ColorSwatch({ color, index, total, paletteColors }: Colo
             Copied!
           </div>
         )}
+        
+        {/* Hex text - moved inside color-display for proper z-index stacking */}
+        <div className="color-hex">{hexDisplay}</div>
       </div>
       
       {/* Color info */}
       <div className="color-info" style={colorInfoStyle}>
         <div className="color-weight">{weight}</div>
         <div className="color-contrast">{contrastRatio}</div>
-        <div className="color-hex">{hexDisplay}</div>
       </div>
     </div>
   );

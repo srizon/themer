@@ -97,6 +97,12 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
     onUpdate(colorSet.id, updates);
   };
 
+  const handleSaturationCurveChange = (value: number | undefined) => {
+    // Reset to default if cleared
+    const finalValue = value !== undefined ? value : 0;
+    onUpdate(colorSet.id, { saturationCurve: finalValue });
+  };
+
   const handleMaxLightnessChange = (value: number | undefined) => {
     // Reset to default if cleared
     const finalValue = value !== undefined ? value : 95;
@@ -141,18 +147,6 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
   return (
     <section className="color-section">
       <div className="section-header">
-        <div 
-          className="drag-handle" 
-          title="Drag to reorder"
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="8" cy="8" r="1"/>
-            <circle cx="16" cy="8" r="1"/>
-            <circle cx="8" cy="16" r="1"/>
-            <circle cx="16" cy="16" r="1"/>
-          </svg>
-        </div>
         <div>
           {isEditingName ? (
             <input
@@ -218,41 +212,107 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
       </div>
       
       {isEditing && (
-        <div className="color-set-controls">
-          <div className="control-group">
-            <label>Base Color</label>
-            <div className="color-input-wrapper">
+        <div 
+          className="color-set-controls"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+          <div 
+            className="control-group"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <label
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >Base Color</label>
+            <div 
+              className="color-input-wrapper"
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
               <input
                 type="color"
                 value={colorSet.baseColor}
                 onChange={(e) => handleBaseColorChange(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
                 className="input input-color"
               />
               <input
                 type="text"
                 value={colorSet.baseColor}
                 onChange={(e) => handleBaseColorChange(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
                 className="input input-text"
               />
             </div>
           </div>
-          
 
-          
-          <div className="control-group">
-            <label>Shades</label>
+          <div 
+            className="control-group"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <label
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >Shades</label>
             <input
               type="number"
-              min="3"
+              min="1"
               max="19"
               value={colorSet.colorCount}
               onChange={(e) => handleColorCountChange(parseInt(e.target.value))}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
             />
           </div>
 
-          <div className="control-group">
-            <label>Min Contrast</label>
+          <div 
+            className="control-group"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <label
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >Saturation Curve</label>
+            <input
+              type="number"
+              min="-100"
+              max="100"
+              step="1"
+              value={colorSet.saturationCurve || ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === '') {
+                  handleSaturationCurveChange(undefined);
+                } else {
+                  const numValue = parseInt(value);
+                  if (!isNaN(numValue)) {
+                    handleSaturationCurveChange(numValue);
+                  }
+                }
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              className="input input-number"
+              placeholder="0"
+            />
+          </div>
+
+          <div 
+            className="control-group"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <label
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >Min Contrast</label>
             <input
               type="number"
               min="1"
@@ -261,12 +321,21 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               value={colorSet.minContrast || ''}
               onChange={(e) => handleMinContrastChange(parseFloat(e.target.value) || undefined)}
               placeholder="1.05"
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
             />
           </div>
 
-          <div className="control-group">
-            <label>Max Contrast</label>
+          <div 
+            className="control-group"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <label
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >Max Contrast</label>
             <input
               type="number"
               min="1"
@@ -274,13 +343,22 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               step="0.1"
               value={colorSet.maxContrast || ''}
               onChange={(e) => handleMaxContrastChange(parseFloat(e.target.value) || undefined)}
-              placeholder="19.5"
+              placeholder="21"
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
             />
           </div>
 
-          <div className="control-group">
-            <label>Max Lightness</label>
+          <div 
+            className="control-group"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <label
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >Max Lightness</label>
             <input
               type="number"
               min="0"
@@ -289,12 +367,21 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               value={colorSet.maxLightness || ''}
               onChange={(e) => handleMaxLightnessChange(parseInt(e.target.value) || undefined)}
               placeholder="95"
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
             />
           </div>
 
-          <div className="control-group">
-            <label>Min Lightness</label>
+          <div 
+            className="control-group"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <label
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >Min Lightness</label>
             <input
               type="number"
               min="0"
@@ -303,6 +390,8 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               value={colorSet.minLightness || ''}
               onChange={(e) => handleMinLightnessChange(parseInt(e.target.value) || undefined)}
               placeholder="5"
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
             />
           </div>

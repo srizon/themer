@@ -18,6 +18,8 @@ export default function Home() {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
+
+
   useEffect(() => {
     const themer = new ColorThemer({
       onColorSetsChange: (sets) => setColorSets(sets),
@@ -89,6 +91,16 @@ export default function Home() {
   };
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
+    // Only prevent dragging when the user is dragging the range slider
+    const target = e.target as HTMLElement;
+    
+    // Check if the drag started from a range slider input
+    if (target.closest('input[type="range"]')) {
+      e.preventDefault();
+      return;
+    }
+    
+    // Allow dragging from anywhere else (including the entire color section)
     e.dataTransfer.setData('text/plain', index.toString());
     e.dataTransfer.effectAllowed = 'move';
     setDraggedIndex(index);
@@ -134,7 +146,7 @@ export default function Home() {
           {colorSets.map((colorSet, index) => (
             <div
               key={colorSet.id}
-              draggable
+              draggable={true}
               onDragStart={(e) => handleDragStart(e, index)}
               onDragEnd={handleDragEnd}
               onDragOver={(e) => handleDragOver(e, index)}

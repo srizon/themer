@@ -218,122 +218,122 @@ export function getEnhancedColorName(hex: string): string {
   
   // Red range (0-30°)
   if (h >= 0 && h < 15) {
-    if (s > 70) baseNames = ['Crimson', 'Ruby', 'Cardinal', 'Vermillion'];
-    else if (l > 60) baseNames = ['Rose', 'Blush', 'Salmon', 'Coral'];
-    else baseNames = ['Wine', 'Burgundy', 'Maroon', 'Claret'];
+    if (s > 70) baseNames = ['Crimson', 'Ruby', 'Cardinal', 'Vermillion', 'Pomegranate', 'Strawberry', 'Rosehip', 'Chili'];
+    else if (l > 60) baseNames = ['Rose', 'Blush', 'Salmon', 'Coral', 'Watermelon', 'Pink Grapefruit'];
+    else baseNames = ['Wine', 'Burgundy', 'Maroon', 'Claret', 'Mulberry', 'Cranberry'];
   } else if (h >= 15 && h < 30) {
-    if (s > 70) baseNames = ['Scarlet', 'Fire Engine', 'Cherry Red', 'Flame'];
-    else if (l > 60) baseNames = ['Coral', 'Peach', 'Apricot', 'Sunset'];
-    else baseNames = ['Burgundy', 'Brick', 'Rust', 'Terra Cotta'];
+    if (s > 70) baseNames = ['Scarlet', 'Fire Engine', 'Cherry Red', 'Flame', 'Blood Orange', 'Red Currant'];
+    else if (l > 60) baseNames = ['Coral', 'Peach', 'Apricot', 'Sunset', 'Guava', 'Papaya', 'Nectarine'];
+    else baseNames = ['Burgundy', 'Brick', 'Rust', 'Terra Cotta', 'Rosewood'];
   }
   
   // Orange range (30-60°)
   else if (h >= 30 && h < 45) {
-    if (s > 70) baseNames = ['Tangerine', 'Orange Peel', 'Mandarin', 'Pumpkin'];
-    else if (l > 60) baseNames = ['Peach', 'Papaya', 'Melon', 'Cantaloupe'];
-    else baseNames = ['Rust', 'Copper', 'Auburn', 'Sienna'];
+    if (s > 70) baseNames = ['Tangerine', 'Orange Peel', 'Mandarin', 'Pumpkin', 'Mango', 'Persimmon', 'Kumquat'];
+    else if (l > 60) baseNames = ['Peach', 'Papaya', 'Melon', 'Cantaloupe', 'Mango Sorbet', 'Butternut'];
+    else baseNames = ['Rust', 'Copper', 'Auburn', 'Sienna', 'Cedar', 'Canyon'];
   } else if (h >= 45 && h < 60) {
-    if (s > 70) baseNames = ['Amber', 'Marigold', 'Saffron', 'Turmeric'];
-    else if (l > 60) baseNames = ['Honey', 'Cream', 'Wheat', 'Sandstone'];
-    else baseNames = ['Bronze', 'Caramel', 'Cognac', 'Toffee'];
+    if (s > 70) baseNames = ['Amber', 'Marigold', 'Saffron', 'Turmeric', 'Dahlia', 'Calendula'];
+    else if (l > 60) baseNames = ['Honey', 'Cream', 'Wheat', 'Sandstone', 'Pineapple', 'Banana', 'Butterscotch'];
+    else baseNames = ['Bronze', 'Caramel', 'Cognac', 'Toffee', 'Maple', 'Toasted Almond'];
   }
   
   // Yellow range (60-90°)
   else if (h >= 60 && h < 75) {
-    if (s > 70) baseNames = ['Golden', 'Sunflower', 'Lemon', 'Canary'];
-    else if (l > 60) baseNames = ['Butter', 'Cream', 'Ivory', 'Champagne'];
-    else baseNames = ['Olive', 'Mustard', 'Khaki', 'Brass'];
+    if (s > 70) baseNames = ['Golden', 'Sunflower', 'Lemon', 'Canary', 'Daffodil', 'Pineapple', 'Mimosa'];
+    else if (l > 60) baseNames = ['Butter', 'Cream', 'Ivory', 'Champagne', 'Vanilla Bean', 'Custard'];
+    else baseNames = ['Olive', 'Mustard', 'Khaki', 'Brass', 'Goldenrod', 'Ochre'];
   } else if (h >= 75 && h < 90) {
-    if (s > 70) baseNames = ['Lime', 'Chartreuse', 'Electric Lime', 'Neon Green'];
-    else if (l > 60) baseNames = ['Sage', 'Mint', 'Pistachio', 'Celery'];
-    else baseNames = ['Forest', 'Olive', 'Army Green', 'Moss'];
+    if (s > 70) baseNames = ['Lime', 'Chartreuse', 'Electric Lime', 'Neon Green', 'Green Apple', 'Kiwifruit'];
+    else if (l > 60) baseNames = ['Sage', 'Mint', 'Pistachio', 'Celery', 'Matcha', 'Wasabi'];
+    else baseNames = ['Forest', 'Olive', 'Army Green', 'Moss', 'Herbal'];
   }
   
   // Green range (90-150°)
   else if (h >= 90 && h < 105) {
-    if (s > 70) baseNames = ['Lime', 'Spring Green', 'Electric Green', 'Neon'];
-    else if (l > 60) baseNames = ['Sage', 'Mint', 'Tea Green', 'Honeydew'];
-    else baseNames = ['Forest', 'Hunter', 'Pine', 'Juniper'];
+    if (s > 70) baseNames = ['Lime', 'Spring Green', 'Electric Green', 'Neon', 'Basil'];
+    else if (l > 60) baseNames = ['Sage', 'Mint', 'Tea Green', 'Honeydew', 'Meadow'];
+    else baseNames = ['Forest', 'Hunter', 'Pine', 'Juniper', 'Bamboo'];
   } else if (h >= 105 && h < 120) {
-    if (s > 70) baseNames = ['Emerald', 'Malachite', 'Jade', 'Kelly Green'];
-    else if (l > 60) baseNames = ['Mint', 'Seafoam', 'Celadon', 'Lichen'];
-    else baseNames = ['Pine', 'Evergreen', 'Fern', 'Ivy'];
+    if (s > 70) baseNames = ['Emerald', 'Malachite', 'Jade', 'Kelly Green', 'Avocado'];
+    else if (l > 60) baseNames = ['Mint', 'Seafoam', 'Celadon', 'Lichen', 'Meadow'];
+    else baseNames = ['Pine', 'Evergreen', 'Fern', 'Ivy', 'Palm'];
   } else if (h >= 120 && h < 135) {
-    if (s > 70) baseNames = ['Jade', 'Forest Green', 'Shamrock', 'Clover'];
-    else if (l > 60) baseNames = ['Seafoam', 'Mint Chip', 'Eucalyptus', 'Sage'];
-    else baseNames = ['Hunter', 'Forest', 'Bottle Green', 'Deep Green'];
+    if (s > 70) baseNames = ['Jade', 'Forest Green', 'Shamrock', 'Clover', 'Basil'];
+    else if (l > 60) baseNames = ['Seafoam', 'Mint Chip', 'Eucalyptus', 'Sage', 'Meadow'];
+    else baseNames = ['Hunter', 'Forest', 'Bottle Green', 'Deep Green', 'Bamboo'];
   } else if (h >= 135 && h < 150) {
-    if (s > 70) baseNames = ['Jade', 'Sea Green', 'Teal Green', 'Viridian'];
-    else if (l > 60) baseNames = ['Seafoam', 'Aqua Mint', 'Sea Glass', 'Mint Green'];
-    else baseNames = ['Hunter', 'Teal', 'Petrol', 'Dark Teal'];
+    if (s > 70) baseNames = ['Jade', 'Sea Green', 'Teal Green', 'Viridian', 'Seaweed', 'Algae'];
+    else if (l > 60) baseNames = ['Seafoam', 'Aqua Mint', 'Sea Glass', 'Mint Green', 'Meadow'];
+    else baseNames = ['Hunter', 'Teal', 'Petrol', 'Dark Teal', 'Seaweed'];
   }
   
   // Cyan/Teal range (150-180°)
   else if (h >= 150 && h < 165) {
-    if (s > 70) baseNames = ['Turquoise', 'Aqua', 'Cyan', 'Caribbean'];
-    else if (l > 60) baseNames = ['Aqua', 'Mint', 'Sea Glass', 'Robin Egg'];
-    else baseNames = ['Teal', 'Petrol', 'Deep Sea', 'Pine Green'];
+    if (s > 70) baseNames = ['Turquoise', 'Aqua', 'Cyan', 'Caribbean', 'Lagoon', 'Tidepool'];
+    else if (l > 60) baseNames = ['Aqua', 'Mint', 'Sea Glass', 'Robin Egg', 'Lagoon'];
+    else baseNames = ['Teal', 'Petrol', 'Deep Sea', 'Pine Green', 'Lagoon'];
   } else if (h >= 165 && h < 180) {
-    if (s > 70) baseNames = ['Aqua', 'Turquoise', 'Electric Blue', 'Neon Blue'];
-    else if (l > 60) baseNames = ['Turquoise', 'Aqua Mist', 'Baby Blue', 'Robin Egg'];
-    else baseNames = ['Teal', 'Steel Blue', 'Peacock', 'Deep Teal'];
+    if (s > 70) baseNames = ['Aqua', 'Turquoise', 'Electric Blue', 'Neon Blue', 'Lagoon', 'Tidepool'];
+    else if (l > 60) baseNames = ['Turquoise', 'Aqua Mist', 'Baby Blue', 'Robin Egg', 'Lagoon'];
+    else baseNames = ['Teal', 'Steel Blue', 'Peacock', 'Deep Teal', 'Tidepool'];
   }
   
   // Blue range (180-240°)
   else if (h >= 180 && h < 195) {
-    if (s > 70) baseNames = ['Cyan', 'Electric Blue', 'Neon Blue', 'Bright Blue'];
-    else if (l > 60) baseNames = ['Sky Blue', 'Baby Blue', 'Powder Blue', 'Periwinkle'];
-    else baseNames = ['Steel', 'Slate Blue', 'Storm Blue', 'Denim'];
+    if (s > 70) baseNames = ['Cyan', 'Electric Blue', 'Neon Blue', 'Bright Blue', 'Ocean'];
+    else if (l > 60) baseNames = ['Sky Blue', 'Baby Blue', 'Powder Blue', 'Periwinkle', 'Glacier', 'Arctic'];
+    else baseNames = ['Steel', 'Slate Blue', 'Storm Blue', 'Denim', 'Deep Ocean', 'Stormy Sea'];
   } else if (h >= 195 && h < 210) {
-    if (s > 70) baseNames = ['Azure', 'Cerulean', 'Dodger Blue', 'Electric Blue'];
-    else if (l > 60) baseNames = ['Periwinkle', 'Cornflower', 'Sky Blue', 'Powder Blue'];
-    else baseNames = ['Denim', 'Steel Blue', 'Slate', 'Storm'];
+    if (s > 70) baseNames = ['Azure', 'Cerulean', 'Dodger Blue', 'Electric Blue', 'Ocean'];
+    else if (l > 60) baseNames = ['Periwinkle', 'Cornflower', 'Sky Blue', 'Powder Blue', 'Glacier', 'Arctic'];
+    else baseNames = ['Denim', 'Steel Blue', 'Slate', 'Storm', 'Deep Ocean', 'Stormy Sea'];
   } else if (h >= 210 && h < 225) {
-    if (s > 70) baseNames = ['Royal Blue', 'Cobalt', 'Sapphire', 'Electric Blue'];
-    else if (l > 60) baseNames = ['Cornflower', 'Periwinkle', 'Lavender Blue', 'Sky Blue'];
-    else baseNames = ['Navy', 'Midnight Blue', 'Prussian Blue', 'Dark Blue'];
+    if (s > 70) baseNames = ['Royal Blue', 'Cobalt', 'Sapphire', 'Electric Blue', 'Ocean'];
+    else if (l > 60) baseNames = ['Cornflower', 'Periwinkle', 'Lavender Blue', 'Sky Blue', 'Glacier'];
+    else baseNames = ['Navy', 'Midnight Blue', 'Prussian Blue', 'Dark Blue', 'Blueberry'];
   } else if (h >= 225 && h < 240) {
-    if (s > 70) baseNames = ['Sapphire', 'Royal Blue', 'Ultramarine', 'Cobalt'];
-    else if (l > 60) baseNames = ['Cornflower', 'Periwinkle', 'Lavender', 'Lilac'];
-    else baseNames = ['Navy', 'Midnight', 'Prussian', 'Oxford Blue'];
+    if (s > 70) baseNames = ['Sapphire', 'Royal Blue', 'Ultramarine', 'Cobalt', 'Ocean'];
+    else if (l > 60) baseNames = ['Cornflower', 'Periwinkle', 'Lavender', 'Lilac', 'Arctic'];
+    else baseNames = ['Navy', 'Midnight', 'Prussian', 'Oxford Blue', 'Blueberry'];
   }
   
   // Purple range (240-300°)
   else if (h >= 240 && h < 255) {
-    if (s > 70) baseNames = ['Blue Violet', 'Electric Purple', 'Ultramarine', 'Royal Purple'];
+    if (s > 70) baseNames = ['Blue Violet', 'Electric Purple', 'Ultramarine', 'Royal Purple', 'Grape', 'Boysenberry'];
     else if (l > 60) baseNames = ['Periwinkle', 'Lavender', 'Lilac', 'Wisteria'];
-    else baseNames = ['Indigo', 'Navy Purple', 'Dark Violet', 'Midnight Purple'];
+    else baseNames = ['Indigo', 'Navy Purple', 'Dark Violet', 'Midnight Purple', 'Blackberry'];
   } else if (h >= 255 && h < 270) {
-    if (s > 70) baseNames = ['Indigo', 'Electric Purple', 'Violet', 'Purple'];
+    if (s > 70) baseNames = ['Indigo', 'Electric Purple', 'Violet', 'Purple', 'Grape', 'Elderberry'];
     else if (l > 60) baseNames = ['Lilac', 'Lavender', 'Periwinkle', 'Amethyst'];
-    else baseNames = ['Eggplant', 'Dark Purple', 'Plum', 'Aubergine'];
+    else baseNames = ['Eggplant', 'Dark Purple', 'Plum', 'Aubergine', 'Blackberry'];
   } else if (h >= 270 && h < 285) {
-    if (s > 70) baseNames = ['Violet', 'Purple', 'Electric Violet', 'Neon Purple'];
+    if (s > 70) baseNames = ['Violet', 'Purple', 'Electric Violet', 'Neon Purple', 'Grape', 'Ube'];
     else if (l > 60) baseNames = ['Plum', 'Lavender', 'Thistle', 'Orchid'];
-    else baseNames = ['Mulberry', 'Eggplant', 'Deep Purple', 'Plum'];
+    else baseNames = ['Mulberry', 'Eggplant', 'Deep Purple', 'Plum', 'Boysenberry'];
   } else if (h >= 285 && h < 300) {
-    if (s > 70) baseNames = ['Purple', 'Magenta Purple', 'Royal Purple', 'Amethyst'];
+    if (s > 70) baseNames = ['Purple', 'Magenta Purple', 'Royal Purple', 'Amethyst', 'Grape', 'Fig'];
     else if (l > 60) baseNames = ['Plum', 'Orchid', 'Mauve', 'Lilac'];
-    else baseNames = ['Mulberry', 'Wine Purple', 'Burgundy Purple', 'Eggplant'];
+    else baseNames = ['Mulberry', 'Wine Purple', 'Burgundy Purple', 'Eggplant', 'Blackberry'];
   }
   
   // Magenta/Pink range (300-360°)
   else if (h >= 300 && h < 315) {
-    if (s > 70) baseNames = ['Magenta', 'Fuchsia', 'Electric Pink', 'Hot Pink'];
-    else if (l > 60) baseNames = ['Orchid', 'Pink', 'Rose', 'Carnation'];
-    else baseNames = ['Mauve', 'Plum', 'Wine', 'Burgundy'];
+    if (s > 70) baseNames = ['Magenta', 'Fuchsia', 'Electric Pink', 'Hot Pink', 'Dragon Fruit', 'Strawberry'];
+    else if (l > 60) baseNames = ['Orchid', 'Pink', 'Rose', 'Carnation', 'Lychee', 'Watermelon'];
+    else baseNames = ['Mauve', 'Plum', 'Wine', 'Burgundy', 'Raspberry'];
   } else if (h >= 315 && h < 330) {
-    if (s > 70) baseNames = ['Magenta', 'Hot Pink', 'Electric Pink', 'Neon Pink'];
-    else if (l > 60) baseNames = ['Orchid', 'Pink', 'Rose', 'Blush'];
-    else baseNames = ['Mauve', 'Dusty Rose', 'Old Rose', 'Antique Rose'];
+    if (s > 70) baseNames = ['Magenta', 'Hot Pink', 'Electric Pink', 'Neon Pink', 'Dragon Fruit', 'Strawberry'];
+    else if (l > 60) baseNames = ['Orchid', 'Pink', 'Rose', 'Blush', 'Lychee', 'Guava'];
+    else baseNames = ['Mauve', 'Dusty Rose', 'Old Rose', 'Antique Rose', 'Raspberry'];
   } else if (h >= 330 && h < 345) {
-    if (s > 70) baseNames = ['Hot Pink', 'Magenta', 'Fuchsia', 'Electric Pink'];
-    else if (l > 60) baseNames = ['Pink', 'Rose', 'Blush', 'Baby Pink'];
-    else baseNames = ['Berry', 'Raspberry', 'Cranberry', 'Rose Wine'];
+    if (s > 70) baseNames = ['Hot Pink', 'Magenta', 'Fuchsia', 'Electric Pink', 'Dragon Fruit', 'Strawberry'];
+    else if (l > 60) baseNames = ['Pink', 'Rose', 'Blush', 'Baby Pink', 'Lychee', 'Watermelon'];
+    else baseNames = ['Berry', 'Raspberry', 'Cranberry', 'Rose Wine', 'Pomegranate'];
   } else {
-    if (s > 70) baseNames = ['Fuchsia', 'Hot Pink', 'Electric Pink', 'Neon Pink'];
-    else if (l > 60) baseNames = ['Pink', 'Rose', 'Blush', 'Cotton Candy'];
-    else baseNames = ['Berry', 'Raspberry', 'Wine', 'Dark Rose'];
+    if (s > 70) baseNames = ['Fuchsia', 'Hot Pink', 'Electric Pink', 'Neon Pink', 'Dragon Fruit', 'Strawberry'];
+    else if (l > 60) baseNames = ['Pink', 'Rose', 'Blush', 'Cotton Candy', 'Lychee', 'Guava'];
+    else baseNames = ['Berry', 'Raspberry', 'Wine', 'Dark Rose', 'Cranberry'];
   }
   
   // Select a deterministic name from the available options for variety
@@ -375,7 +375,9 @@ export function getBasicColorCategory(enhancedName: string): string {
   if (name.includes('wine') || name.includes('crimson') || name.includes('scarlet') || name.includes('rose') || 
       name.includes('burgundy') || name.includes('cherry') || name.includes('ruby') || name.includes('cardinal') || 
       name.includes('vermillion') || name.includes('blush') || name.includes('salmon') || name.includes('maroon') || 
-      name.includes('claret') || name.includes('fire engine') || name.includes('flame')) {
+      name.includes('claret') || name.includes('fire engine') || name.includes('flame') ||
+      name.includes('pomegranate') || name.includes('strawberry') || name.includes('rosehip') || name.includes('chili') ||
+      name.includes('red currant') || name.includes('mulberry') || name.includes('cranberry') || name.includes('blood orange')) {
     return 'red';
   }
   
@@ -384,7 +386,9 @@ export function getBasicColorCategory(enhancedName: string): string {
       name.includes('orange') || name.includes('mandarin') || name.includes('pumpkin') || name.includes('papaya') || 
       name.includes('melon') || name.includes('cantaloupe') || name.includes('copper') || name.includes('auburn') || 
       name.includes('sienna') || name.includes('apricot') || name.includes('sunset') || name.includes('brick') || 
-      name.includes('terra cotta')) {
+      name.includes('terra cotta') || name.includes('mango') || name.includes('persimmon') || name.includes('kumquat') ||
+      name.includes('butternut') || name.includes('cedar') || name.includes('canyon') || name.includes('nectarine') ||
+      name.includes('mango sorbet')) {
     return 'orange';
   }
   
@@ -394,7 +398,9 @@ export function getBasicColorCategory(enhancedName: string): string {
       name.includes('wheat') || name.includes('sandstone') || name.includes('caramel') || name.includes('cognac') || 
       name.includes('toffee') || name.includes('sunflower') || name.includes('lemon') || name.includes('canary') || 
       name.includes('ivory') || name.includes('champagne') || name.includes('mustard') || name.includes('khaki') || 
-      name.includes('brass')) {
+      name.includes('brass') || name.includes('pineapple') || name.includes('banana') || name.includes('butterscotch') ||
+      name.includes('maple') || name.includes('toasted almond') || name.includes('daffodil') || name.includes('mimosa') ||
+      name.includes('goldenrod') || name.includes('ochre') || name.includes('vanilla bean') || name.includes('custard')) {
     return 'yellow';
   }
   
@@ -409,7 +415,11 @@ export function getBasicColorCategory(enhancedName: string): string {
       name.includes('ivy') || name.includes('shamrock') || name.includes('clover') || name.includes('mint chip') || 
       name.includes('eucalyptus') || name.includes('bottle green') || name.includes('deep green') || 
       name.includes('sea green') || name.includes('teal green') || name.includes('viridian') || 
-      name.includes('aqua mint') || name.includes('sea glass') || name.includes('mint green')) {
+      name.includes('aqua mint') || name.includes('sea glass') || name.includes('mint green') ||
+      name.includes('green apple') || name.includes('kiwifruit') || name.includes('kiwi') || name.includes('matcha') ||
+      name.includes('wasabi') || name.includes('herbal') || name.includes('basil') || name.includes('avocado') ||
+      name.includes('bamboo') || name.includes('palm') || name.includes('meadow') || name.includes('seaweed') ||
+      name.includes('algae')) {
     return 'green';
   }
   
@@ -418,7 +428,8 @@ export function getBasicColorCategory(enhancedName: string): string {
       name.includes('caribbean') || name.includes('robin egg') || name.includes('petrol') || name.includes('deep sea') || 
       name.includes('pine green') || name.includes('electric blue') || name.includes('neon blue') || 
       name.includes('aqua mist') || name.includes('baby blue') || name.includes('steel blue') || 
-      name.includes('peacock') || name.includes('deep teal') || name.includes('abyssal teal')) {
+      name.includes('peacock') || name.includes('deep teal') || name.includes('abyssal teal') ||
+      name.includes('lagoon') || name.includes('tidepool')) {
     return 'cyan';
   }
   
@@ -430,7 +441,9 @@ export function getBasicColorCategory(enhancedName: string): string {
       name.includes('slate blue') || name.includes('storm blue') || name.includes('royal blue') || 
       name.includes('cobalt') || name.includes('lavender blue') || name.includes('midnight blue') || 
       name.includes('prussian blue') || name.includes('dark blue') || name.includes('ultramarine') || 
-      name.includes('oxford blue') || name.includes('alice blue')) {
+      name.includes('oxford blue') || name.includes('alice blue') || name.includes('ocean') ||
+      name.includes('deep ocean') || name.includes('glacier') || name.includes('arctic') || name.includes('stormy sea') ||
+      name.includes('blueberry')) {
     return 'blue';
   }
   
@@ -442,7 +455,8 @@ export function getBasicColorCategory(enhancedName: string): string {
       name.includes('midnight purple') || name.includes('amethyst') || name.includes('aubergine') || 
       name.includes('deep purple') || name.includes('electric violet') || name.includes('neon purple') || 
       name.includes('thistle') || name.includes('magenta purple') || name.includes('wine purple') || 
-      name.includes('burgundy purple')) {
+      name.includes('burgundy purple') || name.includes('grape') || name.includes('boysenberry') ||
+      name.includes('elderberry') || name.includes('ube') || name.includes('blackberry') || name.includes('fig')) {
     return 'purple';
   }
   
@@ -452,7 +466,9 @@ export function getBasicColorCategory(enhancedName: string): string {
       name.includes('electric pink') || name.includes('carnation') || name.includes('neon pink') || 
       name.includes('dusty rose') || name.includes('old rose') || name.includes('antique rose') || 
       name.includes('baby pink') || name.includes('raspberry') || name.includes('cranberry') || 
-      name.includes('rose wine') || name.includes('cotton candy') || name.includes('dark rose')) {
+      name.includes('rose wine') || name.includes('cotton candy') || name.includes('dark rose') ||
+      name.includes('dragon fruit') || name.includes('lychee') || name.includes('guava') ||
+      name.includes('watermelon') || name.includes('strawberry')) {
     return 'pink';
   }
   
