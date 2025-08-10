@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ColorSet as ColorSetType } from '@/types/color';
 import { getEnhancedColorName } from '@/lib/colorUtils';
 import ColorSwatch from './ColorSwatch';
@@ -16,13 +16,55 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(colorSet.customName || '');
+  
+  // Local state for input values to allow empty states
+  const [tempInputValues, setTempInputValues] = useState({
+    colorCount: colorSet.colorCount.toString(),
+    saturationCurve: (colorSet.saturationCurve ?? 0).toString(),
+    minContrast: (colorSet.minContrast ?? 1.05).toString(),
+    maxContrast: (colorSet.maxContrast ?? 19.5).toString(),
+    minLightness: (colorSet.minLightness ?? 5).toString(),
+    maxLightness: (colorSet.maxLightness ?? 95).toString(),
+  });
+
+  // Sync local state when colorSet props change
+  useEffect(() => {
+    setTempInputValues({
+      colorCount: colorSet.colorCount.toString(),
+      saturationCurve: (colorSet.saturationCurve ?? 0).toString(),
+      minContrast: (colorSet.minContrast ?? 1.05).toString(),
+      maxContrast: (colorSet.maxContrast ?? 19.5).toString(),
+      minLightness: (colorSet.minLightness ?? 5).toString(),
+      maxLightness: (colorSet.maxLightness ?? 95).toString(),
+    });
+  }, [colorSet.colorCount, colorSet.saturationCurve, colorSet.minContrast, colorSet.maxContrast, colorSet.minLightness, colorSet.maxLightness]);
 
   const handleBaseColorChange = (color: string) => {
     onUpdate(colorSet.id, { baseColor: color });
   };
 
-  const handleColorCountChange = (count: number) => {
-    onUpdate(colorSet.id, { colorCount: count });
+  const handleColorCountChange = (value: string) => {
+    setTempInputValues(prev => ({ ...prev, colorCount: value }));
+  };
+  
+  const handleColorCountBlur = () => {
+    if (tempInputValues.colorCount === '') {
+      // Use default value
+      const defaultValue = 10;
+      onUpdate(colorSet.id, { colorCount: defaultValue });
+      setTempInputValues(prev => ({ ...prev, colorCount: defaultValue.toString() }));
+    } else {
+      const numValue = parseInt(tempInputValues.colorCount);
+      if (isNaN(numValue)) {
+        // Reset to current value if invalid
+        setTempInputValues(prev => ({ ...prev, colorCount: colorSet.colorCount.toString() }));
+      } else {
+        // Clamp to valid range
+        const clampedValue = Math.max(1, Math.min(19, numValue));
+        onUpdate(colorSet.id, { colorCount: clampedValue });
+        setTempInputValues(prev => ({ ...prev, colorCount: clampedValue.toString() }));
+      }
+    }
   };
 
   // Helper function to calculate lightness from contrast
@@ -61,90 +103,180 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
     }
   };
 
-  const handleMinContrastChange = (value: number | undefined) => {
-    // Reset to default if cleared
-    const finalValue = value !== undefined ? value : 1.05;
-    
-    // Validate against max contrast
-    const maxContrast = colorSet.maxContrast ?? 19.5;
-    if (finalValue > maxContrast) {
-      // Don't allow min to be higher than max
-      return;
+  const handleMinContrastChange = (value: string) => {
+    setTempInputValues(prev => ({ ...prev, minContrast: value }));
+  };
+  
+  const handleMinContrastBlur = () => {
+    if (tempInputValues.minContrast === '') {
+      // Use default value
+      const defaultValue = 1.05;
+      const updates: Partial<ColorSetType> = { minContrast: defaultValue };
+      
+      // Auto-update max lightness when min contrast changes
+      const newMaxLightness = calculateLightnessFromContrast(defaultValue, true);
+      updates.maxLightness = newMaxLightness;
+      
+      onUpdate(colorSet.id, updates);
+      setTempInputValues(prev => ({ ...prev, minContrast: defaultValue.toString() }));
+    } else {
+      const numValue = parseFloat(tempInputValues.minContrast);
+      if (isNaN(numValue)) {
+        // Reset to current value if invalid
+        setTempInputValues(prev => ({ ...prev, minContrast: (colorSet.minContrast ?? 1.05).toString() }));
+      } else {
+        // Clamp to valid range and validate against max contrast
+        const maxContrast = colorSet.maxContrast ?? 19.5;
+        const clampedValue = Math.max(1, Math.min(21, Math.min(maxContrast, numValue)));
+        
+        const updates: Partial<ColorSetType> = { minContrast: clampedValue };
+        
+        // Auto-update max lightness when min contrast changes
+        const newMaxLightness = calculateLightnessFromContrast(clampedValue, true);
+        updates.maxLightness = newMaxLightness;
+        
+        onUpdate(colorSet.id, updates);
+        setTempInputValues(prev => ({ ...prev, minContrast: clampedValue.toString() }));
+      }
     }
-    
-    const updates: Partial<ColorSetType> = { minContrast: finalValue };
-    
-    // Auto-update max lightness when min contrast changes
-    const newMaxLightness = calculateLightnessFromContrast(finalValue, true);
-    updates.maxLightness = newMaxLightness;
-    
-    onUpdate(colorSet.id, updates);
   };
 
-  const handleMaxContrastChange = (value: number | undefined) => {
-    // Reset to default if cleared
-    const finalValue = value !== undefined ? value : 19.5;
-    
-    // Validate against min contrast
-    const minContrast = colorSet.minContrast ?? 1.05;
-    if (finalValue < minContrast) {
-      // Don't allow max to be lower than min
-      return;
+  const handleMaxContrastChange = (value: string) => {
+    setTempInputValues(prev => ({ ...prev, maxContrast: value }));
+  };
+  
+  const handleMaxContrastBlur = () => {
+    if (tempInputValues.maxContrast === '') {
+      // Use default value
+      const defaultValue = 19.5;
+      const updates: Partial<ColorSetType> = { maxContrast: defaultValue };
+      
+      // Auto-update min lightness when max contrast changes
+      const newMinLightness = calculateLightnessFromContrast(defaultValue, false);
+      updates.minLightness = newMinLightness;
+      
+      onUpdate(colorSet.id, updates);
+      setTempInputValues(prev => ({ ...prev, maxContrast: defaultValue.toString() }));
+    } else {
+      const numValue = parseFloat(tempInputValues.maxContrast);
+      if (isNaN(numValue)) {
+        // Reset to current value if invalid
+        setTempInputValues(prev => ({ ...prev, maxContrast: (colorSet.maxContrast ?? 19.5).toString() }));
+      } else {
+        // Clamp to valid range and validate against min contrast
+        const minContrast = colorSet.minContrast ?? 1.05;
+        const clampedValue = Math.max(1, Math.min(21, Math.max(minContrast, numValue)));
+        
+        const updates: Partial<ColorSetType> = { maxContrast: clampedValue };
+        
+        // Auto-update min lightness when max contrast changes
+        const newMinLightness = calculateLightnessFromContrast(clampedValue, false);
+        updates.minLightness = newMinLightness;
+        
+        onUpdate(colorSet.id, updates);
+        setTempInputValues(prev => ({ ...prev, maxContrast: clampedValue.toString() }));
+      }
     }
-    
-    const updates: Partial<ColorSetType> = { maxContrast: finalValue };
-    
-    // Auto-update min lightness when max contrast changes
-    const newMinLightness = calculateLightnessFromContrast(finalValue, false);
-    updates.minLightness = newMinLightness;
-    
-    onUpdate(colorSet.id, updates);
   };
 
-  const handleMinLightnessChange = (value: number | undefined) => {
-    // Reset to default if cleared
-    const finalValue = value !== undefined ? value : 0;
-    
-    // Validate against max lightness
-    const maxLightness = colorSet.maxLightness ?? 95;
-    if (finalValue > maxLightness) {
-      // Don't allow min to be higher than max
-      return;
+  const handleMinLightnessChange = (value: string) => {
+    setTempInputValues(prev => ({ ...prev, minLightness: value }));
+  };
+  
+  const handleMinLightnessBlur = () => {
+    if (tempInputValues.minLightness === '') {
+      // Use default value
+      const defaultValue = 5;
+      const updates: Partial<ColorSetType> = { minLightness: defaultValue };
+      
+      // Auto-update max contrast when min lightness changes
+      const newMaxContrast = calculateContrastFromLightness(defaultValue, false);
+      updates.maxContrast = newMaxContrast;
+      
+      onUpdate(colorSet.id, updates);
+      setTempInputValues(prev => ({ ...prev, minLightness: defaultValue.toString() }));
+    } else {
+      const numValue = parseInt(tempInputValues.minLightness);
+      if (isNaN(numValue)) {
+        // Reset to current value if invalid
+        setTempInputValues(prev => ({ ...prev, minLightness: (colorSet.minLightness ?? 5).toString() }));
+      } else {
+        // Clamp to valid range and validate against max lightness
+        const maxLightness = colorSet.maxLightness ?? 95;
+        const clampedValue = Math.max(0, Math.min(100, Math.min(maxLightness, numValue)));
+        
+        const updates: Partial<ColorSetType> = { minLightness: clampedValue };
+        
+        // Auto-update max contrast when min lightness changes
+        const newMaxContrast = calculateContrastFromLightness(clampedValue, false);
+        updates.maxContrast = newMaxContrast;
+        
+        onUpdate(colorSet.id, updates);
+        setTempInputValues(prev => ({ ...prev, minLightness: clampedValue.toString() }));
+      }
     }
-    
-    const updates: Partial<ColorSetType> = { minLightness: finalValue };
-    
-    // Auto-update max contrast when min lightness changes
-    const newMaxContrast = calculateContrastFromLightness(finalValue, false);
-    updates.maxContrast = newMaxContrast;
-    
-    onUpdate(colorSet.id, updates);
   };
 
-  const handleSaturationCurveChange = (value: number | undefined) => {
-    // Reset to default if cleared
-    const finalValue = value !== undefined ? value : 0;
-    onUpdate(colorSet.id, { saturationCurve: finalValue });
+  const handleSaturationCurveChange = (value: string) => {
+    setTempInputValues(prev => ({ ...prev, saturationCurve: value }));
+  };
+  
+  const handleSaturationCurveBlur = () => {
+    if (tempInputValues.saturationCurve === '') {
+      // Use default value
+      const defaultValue = 0;
+      onUpdate(colorSet.id, { saturationCurve: defaultValue });
+      setTempInputValues(prev => ({ ...prev, saturationCurve: defaultValue.toString() }));
+    } else {
+      const numValue = parseInt(tempInputValues.saturationCurve);
+      if (isNaN(numValue)) {
+        // Reset to current value if invalid
+        setTempInputValues(prev => ({ ...prev, saturationCurve: (colorSet.saturationCurve ?? 0).toString() }));
+      } else {
+        // Clamp to valid range
+        const clampedValue = Math.max(-100, Math.min(100, numValue));
+        onUpdate(colorSet.id, { saturationCurve: clampedValue });
+        setTempInputValues(prev => ({ ...prev, saturationCurve: clampedValue.toString() }));
+      }
+    }
   };
 
-  const handleMaxLightnessChange = (value: number | undefined) => {
-    // Reset to default if cleared
-    const finalValue = value !== undefined ? value : 100;
-    
-    // Validate against min lightness
-    const minLightness = colorSet.minLightness ?? 5;
-    if (finalValue < minLightness) {
-      // Don't allow max to be lower than min
-      return;
+  const handleMaxLightnessChange = (value: string) => {
+    setTempInputValues(prev => ({ ...prev, maxLightness: value }));
+  };
+  
+  const handleMaxLightnessBlur = () => {
+    if (tempInputValues.maxLightness === '') {
+      // Use default value
+      const defaultValue = 95;
+      const updates: Partial<ColorSetType> = { maxLightness: defaultValue };
+      
+      // Auto-update min contrast when max lightness changes
+      const newMinContrast = calculateContrastFromLightness(defaultValue, true);
+      updates.minContrast = newMinContrast;
+      
+      onUpdate(colorSet.id, updates);
+      setTempInputValues(prev => ({ ...prev, maxLightness: defaultValue.toString() }));
+    } else {
+      const numValue = parseInt(tempInputValues.maxLightness);
+      if (isNaN(numValue)) {
+        // Reset to current value if invalid
+        setTempInputValues(prev => ({ ...prev, maxLightness: (colorSet.maxLightness ?? 95).toString() }));
+      } else {
+        // Clamp to valid range and validate against min lightness
+        const minLightness = colorSet.minLightness ?? 5;
+        const clampedValue = Math.max(1, Math.min(100, Math.max(minLightness, numValue)));
+        
+        const updates: Partial<ColorSetType> = { maxLightness: clampedValue };
+        
+        // Auto-update min contrast when max lightness changes
+        const newMinContrast = calculateContrastFromLightness(clampedValue, true);
+        updates.minContrast = newMinContrast;
+        
+        onUpdate(colorSet.id, updates);
+        setTempInputValues(prev => ({ ...prev, maxLightness: clampedValue.toString() }));
+      }
     }
-    
-    const updates: Partial<ColorSetType> = { maxLightness: finalValue };
-    
-    // Auto-update min contrast when max lightness changes
-    const newMinContrast = calculateContrastFromLightness(finalValue, true);
-    updates.minContrast = newMinContrast;
-    
-    onUpdate(colorSet.id, updates);
   };
 
   const handleNameChange = (name: string) => {
@@ -295,8 +427,9 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               type="number"
               min="1"
               max="19"
-              value={colorSet.colorCount}
-              onChange={(e) => handleColorCountChange(parseInt(e.target.value))}
+              value={tempInputValues.colorCount}
+              onChange={(e) => handleColorCountChange(e.target.value)}
+              onBlur={handleColorCountBlur}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
@@ -317,18 +450,9 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               min="-100"
               max="100"
               step="1"
-              value={colorSet.saturationCurve ?? 0}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === '') {
-                  handleSaturationCurveChange(undefined);
-                } else {
-                  const numValue = parseInt(value);
-                  if (!isNaN(numValue)) {
-                    handleSaturationCurveChange(numValue);
-                  }
-                }
-              }}
+              value={tempInputValues.saturationCurve}
+              onChange={(e) => handleSaturationCurveChange(e.target.value)}
+              onBlur={handleSaturationCurveBlur}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
@@ -349,8 +473,9 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               min="1"
               max="21"
               step="0.1"
-              value={colorSet.minContrast ?? 1.05}
-              onChange={(e) => handleMinContrastChange(parseFloat(e.target.value) || undefined)}
+              value={tempInputValues.minContrast}
+              onChange={(e) => handleMinContrastChange(e.target.value)}
+              onBlur={handleMinContrastBlur}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
@@ -371,8 +496,9 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               min="1"
               max="21"
               step="0.1"
-              value={colorSet.maxContrast ?? 19.5}
-              onChange={(e) => handleMaxContrastChange(parseFloat(e.target.value) || undefined)}
+              value={tempInputValues.maxContrast}
+              onChange={(e) => handleMaxContrastChange(e.target.value)}
+              onBlur={handleMaxContrastBlur}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
@@ -393,8 +519,9 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               min="1"
               max="100"
               step="1"
-              value={colorSet.maxLightness ?? 95}
-              onChange={(e) => handleMaxLightnessChange(parseInt(e.target.value) || undefined)}
+              value={tempInputValues.maxLightness}
+              onChange={(e) => handleMaxLightnessChange(e.target.value)}
+              onBlur={handleMaxLightnessBlur}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
@@ -415,8 +542,9 @@ export default function ColorSet({ colorSet, onRemove, onUpdate, onExport }: Col
               min="0"
               max="100"
               step="1"
-              value={colorSet.minLightness ?? 5}
-              onChange={(e) => handleMinLightnessChange(parseInt(e.target.value) || undefined)}
+              value={tempInputValues.minLightness}
+              onChange={(e) => handleMinLightnessChange(e.target.value)}
+              onBlur={handleMinLightnessBlur}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="input input-number"
