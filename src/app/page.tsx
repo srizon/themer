@@ -36,8 +36,8 @@ export default function Home() {
     
     // Expose debugging methods in development
     if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      (window as any).colorThemer = themer;
-      (window as any).debugConstraints = () => {
+      (window as typeof window & { colorThemer: ColorThemer; debugConstraints: () => void }).colorThemer = themer;
+      (window as typeof window & { colorThemer: ColorThemer; debugConstraints: () => void }).debugConstraints = () => {
         const colorSets = themer.getColorSets();
         if (colorSets.length > 0) {
           console.log('🔍 Testing constraint enforcement for all color sets:');

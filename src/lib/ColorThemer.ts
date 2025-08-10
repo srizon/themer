@@ -306,8 +306,56 @@ export class ColorThemer {
       return [Math.max(minL, Math.min(maxL, targetLightness))];
     }
     
-    // Always create perfectly even distribution within the bounds
-    // This ensures consistent spacing regardless of base color
+    // Check if base color lightness is within the range and should be included
+    const shouldIncludeBase = baseLightness !== undefined && 
+                              baseLightness >= minL && 
+                              baseLightness <= maxL;
+    
+    if (shouldIncludeBase) {
+      // Try to include the base color lightness in the palette
+      const lightnessValues: number[] = [];
+      const totalRange = maxL - minL;
+      
+      // Calculate where the base lightness would fall in the even distribution
+      const basePosition = (maxL - baseLightness!) / totalRange;
+      const idealIndex = Math.round(basePosition * (count - 1));
+      
+      // Generate even distribution first
+      for (let i = 0; i < count; i++) {
+        const position = i / (count - 1);
+        const lightness = maxL - (position * totalRange);
+        lightnessValues.push(lightness);
+      }
+      
+      // Replace the closest shade with the exact base color lightness
+      // But only if it's not too disruptive to the overall distribution
+      const currentAtIndex = lightnessValues[idealIndex];
+      const difference = Math.abs(currentAtIndex - baseLightness!);
+      
+      // If the difference is small enough (within 10% of step size), use base lightness
+      const stepSize = totalRange / (count - 1);
+      if (difference <= stepSize * 0.4) { // 40% of step size tolerance
+        lightnessValues[idealIndex] = baseLightness!;
+        
+        // Adjust neighboring values slightly to maintain good distribution
+        if (idealIndex > 0 && idealIndex < count - 1) {
+          const prevDiff = lightnessValues[idealIndex - 1] - baseLightness!;
+          const nextDiff = baseLightness! - lightnessValues[idealIndex + 1];
+          
+          // Only adjust if it won't create too large gaps
+          if (prevDiff < stepSize * 0.5) {
+            lightnessValues[idealIndex - 1] = baseLightness! + stepSize * 0.6;
+          }
+          if (nextDiff < stepSize * 0.5) {
+            lightnessValues[idealIndex + 1] = baseLightness! - stepSize * 0.6;
+          }
+        }
+      }
+      
+      return lightnessValues;
+    }
+    
+    // Fallback to even distribution if base color can't be included naturally
     const lightnessValues: number[] = [];
     const totalRange = maxL - minL;
     
@@ -344,8 +392,54 @@ export class ColorThemer {
       return [Math.max(minL, Math.min(maxL, baseLightness))];
     }
     
-    // Always create perfectly even distribution within the bounds
-    // This ensures consistent spacing regardless of base color
+    // Check if base color lightness is within the range and should be included
+    const shouldIncludeBase = baseLightness >= minL && baseLightness <= maxL;
+    
+    if (shouldIncludeBase) {
+      // Try to include the base color lightness in the palette
+      const lightnessValues: number[] = [];
+      const totalRange = maxL - minL;
+      
+      // Calculate where the base lightness would fall in the even distribution
+      const basePosition = (maxL - baseLightness) / totalRange;
+      const idealIndex = Math.round(basePosition * (count - 1));
+      
+      // Generate even distribution first
+      for (let i = 0; i < count; i++) {
+        const position = i / (count - 1);
+        const lightness = maxL - (position * totalRange);
+        lightnessValues.push(lightness);
+      }
+      
+      // Replace the closest shade with the exact base color lightness
+      // But only if it's not too disruptive to the overall distribution
+      const currentAtIndex = lightnessValues[idealIndex];
+      const difference = Math.abs(currentAtIndex - baseLightness);
+      
+      // If the difference is small enough (within 40% of step size), use base lightness
+      const stepSize = totalRange / (count - 1);
+      if (difference <= stepSize * 0.4) { // 40% of step size tolerance
+        lightnessValues[idealIndex] = baseLightness;
+        
+        // Adjust neighboring values slightly to maintain good distribution
+        if (idealIndex > 0 && idealIndex < count - 1) {
+          const prevDiff = lightnessValues[idealIndex - 1] - baseLightness;
+          const nextDiff = baseLightness - lightnessValues[idealIndex + 1];
+          
+          // Only adjust if it won't create too large gaps
+          if (prevDiff < stepSize * 0.5) {
+            lightnessValues[idealIndex - 1] = baseLightness + stepSize * 0.6;
+          }
+          if (nextDiff < stepSize * 0.5) {
+            lightnessValues[idealIndex + 1] = baseLightness - stepSize * 0.6;
+          }
+        }
+      }
+      
+      return lightnessValues;
+    }
+    
+    // Fallback to even distribution if base color can't be included naturally
     const lightnessValues: number[] = [];
     const totalRange = maxL - minL;
     
@@ -748,7 +842,8 @@ export class ColorThemer {
     const constrainedColors: string[] = [];
     
     for (const color of colors) {
-      let [h, s, l] = this.hexToHsl(color);
+      const [h, s, lOriginal] = this.hexToHsl(color);
+      let l = lOriginal;
       
       // Only enforce lightness bounds, preserve the distribution
       if (minLightness !== undefined && l < minLightness) {
@@ -777,7 +872,8 @@ export class ColorThemer {
     const constrainedColors: string[] = [];
     
     for (const color of colors) {
-      let [h, s, l] = this.hexToHsl(color);
+      const [h, s, lOriginal] = this.hexToHsl(color);
+      let l = lOriginal;
       let constrainedColor = color;
       let needsAdjustment = false;
       
@@ -1473,7 +1569,7 @@ export class ColorThemer {
       const [, , lightness] = this.hexToHsl(color);
       const contrast = this.getContrastRatio(color);
       
-      let violations: string[] = [];
+      const violations: string[] = [];
       
       if (colorSet.minContrast !== undefined && contrast < colorSet.minContrast) {
         violations.push(`contrast too low: ${contrast.toFixed(2)} < ${colorSet.minContrast}`);

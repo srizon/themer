@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ColorSet, ExportFormat, ColorFormat } from '@/types/color';
 import { calculateTailwindWeight, hexToHsl, hexToRgb, getEnhancedColorName } from '@/lib/colorUtils';
 
@@ -16,107 +16,20 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
   const [exportCode, setExportCode] = useState('');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
-  useEffect(() => {
-    if (!colorSet) return;
-    switch (exportFormat) {
-      case 'css':
-        setExportCode(generateCSSExport());
-        break;
-      case 'scss':
-        setExportCode(generateSCSSExport());
-        break;
-      case 'json':
-        setExportCode(generateJSONExport());
-        break;
-      case 'tailwind':
-        setExportCode(generateTailwindExport());
-        break;
-    }
-  }, [colorSet, exportFormat, colorFormat]);
-
-  const generateCSSExport = (): string => {
-    if (!colorSet) return '';
-    
-    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
-    const exportName = formatColorNameForExport(colorName);
-    
-    let css = '';
-    colorSet.colors.forEach((color, index) => {
-      const weight = calculateTailwindWeight(index, colorSet.colors.length);
-      const formattedColor = convertColorFormat(color, colorFormat);
-      css += `--${exportName}-${weight}: ${formattedColor};\n`;
-    });
-    return css;
-  };
-
-  const generateSCSSExport = (): string => {
-    if (!colorSet) return '';
-    
-    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
-    const exportName = formatColorNameForExport(colorName);
-    
-    let scss = `// ${colorName.charAt(0).toUpperCase() + colorName.slice(1)} Color Palette\n`;
-    colorSet.colors.forEach((color, index) => {
-      const weight = calculateTailwindWeight(index, colorSet.colors.length);
-      const formattedColor = convertColorFormat(color, colorFormat);
-      scss += `$${exportName}-${weight}: ${formattedColor};\n`;
-    });
-    return scss;
-  };
-
-  const generateJSONExport = (): string => {
-    if (!colorSet) return '';
-    
-    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
-    const exportName = formatColorNameForExport(colorName);
-    
-    const palette: Record<string, string> = {};
-    colorSet.colors.forEach((color, index) => {
-      const weight = calculateTailwindWeight(index, colorSet.colors.length);
-      const formattedColor = convertColorFormat(color, colorFormat);
-      palette[weight] = formattedColor;
-    });
-    return JSON.stringify({ [exportName]: palette }, null, 2);
-  };
-
-  const generateTailwindExport = (): string => {
-    if (!colorSet) return '';
-    
-    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
-    const exportName = formatColorNameForExport(colorName);
-    
-    let config = 'module.exports = {\n';
-    config += '  theme: {\n';
-    config += '    extend: {\n';
-    config += '      colors: {\n';
-    config += `        ${exportName}: {\n`;
-    colorSet.colors.forEach((color, index) => {
-      const weight = calculateTailwindWeight(index, colorSet.colors.length);
-      const formattedColor = convertColorFormat(color, colorFormat);
-      config += `          ${weight}: '${formattedColor}',\n`;
-    });
-    config += '        }\n';
-    config += '      }\n';
-    config += '    }\n';
-    config += '  }\n';
-    config += '}';
-    return config;
-  };
-
-  const generatePaletteName = (): string => {
+  const generatePaletteName = useCallback((): string => {
     if (!colorSet) return '';
     
     if (colorSet.customName) return colorSet.customName;
     
     // Use enhanced color naming
     return getEnhancedColorName(colorSet.baseColor);
-  };
+  }, [colorSet]);
 
-  const formatColorNameForExport = (colorName: string): string => {
+  const formatColorNameForExport = useCallback((colorName: string): string => {
     return colorName.toLowerCase().replace(/\s+/g, '-');
-  };
+  }, []);
 
-  const convertColorFormat = (hex: string, format: ColorFormat): string => {
+  const convertColorFormat = useCallback((hex: string, format: ColorFormat): string => {
     switch (format) {
       case 'hex':
         return hex;
@@ -139,7 +52,96 @@ export default function ExportModal({ isOpen, onClose, colorSet }: ExportModalPr
       default:
         return hex;
     }
-  };
+  }, []);
+
+  const generateCSSExport = useCallback((): string => {
+    if (!colorSet) return '';
+    
+    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
+    const exportName = formatColorNameForExport(colorName);
+    
+    let css = '';
+    colorSet.colors.forEach((color, index) => {
+      const weight = calculateTailwindWeight(index, colorSet.colors.length);
+      const formattedColor = convertColorFormat(color, colorFormat);
+      css += `--${exportName}-${weight}: ${formattedColor};\n`;
+    });
+    return css;
+  }, [colorSet, colorFormat, generatePaletteName, formatColorNameForExport, convertColorFormat]);
+
+  const generateSCSSExport = useCallback((): string => {
+    if (!colorSet) return '';
+    
+    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
+    const exportName = formatColorNameForExport(colorName);
+    
+    let scss = `// ${colorName.charAt(0).toUpperCase() + colorName.slice(1)} Color Palette\n`;
+    colorSet.colors.forEach((color, index) => {
+      const weight = calculateTailwindWeight(index, colorSet.colors.length);
+      const formattedColor = convertColorFormat(color, colorFormat);
+      scss += `$${exportName}-${weight}: ${formattedColor};\n`;
+    });
+    return scss;
+  }, [colorSet, colorFormat, generatePaletteName, formatColorNameForExport, convertColorFormat]);
+
+  const generateJSONExport = useCallback((): string => {
+    if (!colorSet) return '';
+    
+    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
+    const exportName = formatColorNameForExport(colorName);
+    
+    const palette: Record<string, string> = {};
+    colorSet.colors.forEach((color, index) => {
+      const weight = calculateTailwindWeight(index, colorSet.colors.length);
+      const formattedColor = convertColorFormat(color, colorFormat);
+      palette[weight] = formattedColor;
+    });
+    return JSON.stringify({ [exportName]: palette }, null, 2);
+  }, [colorSet, colorFormat, generatePaletteName, formatColorNameForExport, convertColorFormat]);
+
+  const generateTailwindExport = useCallback((): string => {
+    if (!colorSet) return '';
+    
+    const colorName = colorSet.customName || colorSet.generatedName || generatePaletteName();
+    const exportName = formatColorNameForExport(colorName);
+    
+    let config = 'module.exports = {\n';
+    config += '  theme: {\n';
+    config += '    extend: {\n';
+    config += '      colors: {\n';
+    config += `        ${exportName}: {\n`;
+    colorSet.colors.forEach((color, index) => {
+      const weight = calculateTailwindWeight(index, colorSet.colors.length);
+      const formattedColor = convertColorFormat(color, colorFormat);
+      config += `          ${weight}: '${formattedColor}',\n`;
+    });
+    config += '        }\n';
+    config += '      }\n';
+    config += '    }\n';
+    config += '  }\n';
+    config += '}';
+    return config;
+  }, [colorSet, colorFormat, generatePaletteName, formatColorNameForExport, convertColorFormat]);
+
+
+
+  useEffect(() => {
+    if (!colorSet) return;
+    switch (exportFormat) {
+      case 'css':
+        setExportCode(generateCSSExport());
+        break;
+      case 'scss':
+        setExportCode(generateSCSSExport());
+        break;
+      case 'json':
+        setExportCode(generateJSONExport());
+        break;
+      case 'tailwind':
+        setExportCode(generateTailwindExport());
+        break;
+    }
+  }, [colorSet, exportFormat, colorFormat, generateCSSExport, generateJSONExport, generateSCSSExport, generateTailwindExport]);
 
   const handleCopy = async () => {
     try {
