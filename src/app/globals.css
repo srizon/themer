@@ -1292,12 +1292,12 @@ body {
   }
   
   .header h1 {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-3xl);
     line-height: var(--line-height-tight);
   }
   
   .page-title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-3xl);
     line-height: var(--line-height-tight);
   }
   
@@ -1470,11 +1470,11 @@ body {
 
 @media (max-width: 480px) {
   .header h1 { 
-    font-size: var(--font-size-2xl); 
+    font-size: var(--font-size-3xl); 
   }
   
   .page-title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-3xl);
   }
   
   .section-header h2 {
