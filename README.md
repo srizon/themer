@@ -1,4 +1,4 @@
-# Color Palette Generator
+# Untitled
 
 A modern, responsive color palette generator built with Next.js, TypeScript, and Tailwind CSS. Generate beautiful color palettes for your design projects with various color theory algorithms.
 
@@ -8,7 +8,10 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 - **Advanced Color Controls**: Fine-tune palettes with min/max contrast, lightness controls, and saturation curve adjustment
 - **Interactive Color Swatches**: Click to copy colors to clipboard
 - **Export Options**: Export palettes in CSS, SCSS, JSON, and Tailwind CSS formats
-- **Import/Export**: Save and load your color palettes
+- **SVG Export**: Copy the entire page as SVG to clipboard for easy pasting into Figma or other design tools
+- **Image Export**: Export the entire page as a high-resolution PNG image
+- **Page Title Editing**: Edit the page title inline with click-to-edit functionality
+- **Import/Export**: Save and load your color palettes with page titles
 - **Responsive Design**: Works perfectly on desktop and mobile devices
 - **Real-time Updates**: See changes instantly as you modify colors and settings
 - **Color Information**: View contrast ratios and Tailwind-style weights for each color
@@ -108,6 +111,29 @@ The app is ready to deploy on any platform that supports Next.js:
 3. **Color Formats**: Select HEX, RGB, RGBA, HSL, or HSLA
 4. **Copy to Clipboard**: One-click copying of generated code
 
+### SVG Export for Design Tools
+
+1. **Copy as SVG**: Click the "Copy as SVG" button in the header
+2. **Paste in Figma**: The SVG is automatically copied to your clipboard
+3. **Design Integration**: Use the exported SVG directly in Figma, Sketch, or other design tools
+4. **Perfect Fidelity**: Maintains exact colors, layout, and styling from your palette generator
+5. **Professional Layout**: Includes proper spacing, typography, and visual hierarchy
+
+### Image Export
+
+1. **Export as PNG**: Click the "Export as Image" button in the header
+2. **High Resolution**: Exports at 2x scale for crisp, professional images
+3. **Clipboard Ready**: Automatically copies to clipboard for easy pasting
+4. **Fallback Download**: If clipboard copy fails, automatically downloads the image
+5. **Perfect for Presentations**: Ideal for sharing palettes in documents, presentations, or social media
+
+### Page Title Management
+
+1. **Click to Edit**: Click on the page title to edit it inline
+2. **Persistent Storage**: Page titles are automatically saved with your palettes
+3. **Export Integration**: Page titles are included in exports for better organization
+4. **Smart Filenames**: Export filenames automatically include the page title and timestamp
+
 ### Importing Palettes
 
 1. **Export All**: Use the "Export All" button to save all palettes
@@ -166,7 +192,7 @@ themer/
 │   │   ├── page.tsx                  # Main page component
 │   │   └── globals.css               # Global styles
 │   ├── components/                   # React components
-│   │   ├── Header.tsx                # App header with actions
+│   │   ├── Header.tsx                # App header with actions and title editing
 │   │   ├── ColorSet.tsx              # Individual color palette
 │   │   ├── ColorSwatch.tsx           # Individual color swatch
 │   │   ├── ExportModal.tsx           # Export functionality
@@ -175,6 +201,7 @@ themer/
 │   ├── lib/                          # Utility libraries
 │   │   ├── ColorThemer.ts            # Core color generation logic
 │   │   ├── colorUtils.ts             # Shared color utilities (HSL/RGB, weights, contrast)
+│   │   ├── svgExport.ts              # SVG and image export functionality
 │   │   └── gtag.ts                   # GA helpers (pageview/event)
 │   └── types/                        # TypeScript type definitions
 │       └── color.ts                  # Color-related types
@@ -188,7 +215,18 @@ themer/
 
 ## Recent Updates
 
-### v0.1.8 - Saturation Curve Control & Enhanced Color Naming (Latest)
+### v0.1.9 - SVG Export & Image Export (Latest)
+- **SVG Export System**: Complete SVG export functionality with `src/lib/svgExport.ts`
+- **Professional SVG Generation**: Creates high-quality SVG with proper spacing, typography, and layout
+- **Image Export**: Added `html2canvas` integration for high-resolution PNG exports
+- **Page Title Editing**: Inline page title editing with persistent storage
+- **Enhanced Export Data**: Export files now include page titles and metadata
+- **Smart Filename Generation**: Export filenames automatically include page title and timestamp
+- **Improved Header**: Added SVG and image export buttons with loading states
+- **Better User Experience**: Streamlined export workflow with clipboard integration
+- **Dependencies**: Added `html2canvas` and `@types/html2canvas` for image export capabilities
+
+### v0.1.8 - Saturation Curve Control & Enhanced Color Naming
 - **Saturation Curve Control**: Added new `saturationCurve` parameter (-100 to 100) for fine-tuning saturation distribution
 - **Enhanced Color Naming System**: Expanded color naming with 300+ descriptive names including exotic fruits, gemstones, and natural elements
 - **Improved Color Categorization**: Better hue-based color naming with saturation and lightness modifiers

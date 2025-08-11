@@ -17,7 +17,7 @@ export default function Home() {
   const [importData, setImportData] = useState<ImportData | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-
+  const [pageTitle, setPageTitle] = useState('Untitled');
 
 
   useEffect(() => {
@@ -30,9 +30,13 @@ export default function Home() {
       onImportModalOpen: (data) => {
         setImportData(data);
         setImportModalOpen(true);
-      }
+      },
+      onTitleChange: (title) => setPageTitle(title)
     });
     setColorThemer(themer);
+    
+    // Sync the page title from ColorThemer
+    setPageTitle(themer.getPageTitle());
     
     // Expose debugging methods in development
     if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
@@ -153,10 +157,19 @@ export default function Home() {
     setDragOverIndex(null);
   };
 
+  const handleTitleChange = (newTitle: string) => {
+    if (colorThemer) {
+      colorThemer.setPageTitle(newTitle);
+      setPageTitle(newTitle); // Update local state immediately
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh' }}>
       <div className="container">
         <Header
+          title={pageTitle}
+          onTitleChange={handleTitleChange}
           onExportAll={handleExportAll}
           onImport={handleImport}
           onClearData={handleClearData}

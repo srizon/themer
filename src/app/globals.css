@@ -424,14 +424,14 @@ body {
 
 .header-content {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: var(--spacing-2xl);
+  gap: var(--gap-md);
 }
 
 .header-text {
   flex: 1;
 }
+
 
 .header h1 {
   font-size: var(--font-size-4xl);
@@ -439,6 +439,85 @@ body {
   color: var(--color-primary);
   margin-bottom: var(--spacing-sm);
   letter-spacing: var(--letter-spacing-tight);
+}
+
+.page-title {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: var(--transition);
+  outline: none;
+  border: 2px solid transparent;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  /* Ensure h1 styling is preserved */
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.page-title:hover {
+  background: var(--color-hover);
+}
+
+.page-title.editing,
+.page-title:focus {
+  /* background: var(--color-hover); */
+  /* border-color: var(--color-primary); */
+  outline: none;
+  cursor: text;
+}
+
+/* Override any input-like behavior with very specific selectors */
+.page-title.editing[contenteditable="true"],
+.page-title[contenteditable="true"]:focus,
+.page-title[contenteditable="true"].editing {
+  width: 100% !important;
+  /* Desktop font size by default */
+  font-size: var(--font-size-4xl) !important;
+  color: var(--color-primary) !important;
+  text-transform: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Responsive font sizes for editing state */
+@media (max-width: 768px) {
+  .page-title.editing[contenteditable="true"],
+  .page-title[contenteditable="true"]:focus,
+  .page-title[contenteditable="true"].editing {
+    font-size: var(--font-size-2xl) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title.editing[contenteditable="true"],
+  .page-title[contenteditable="true"]:focus,
+  .page-title[contenteditable="true"].editing {
+    font-size: var(--font-size-2xl) !important;
+  }
+}
+
+/* .page-title.editing::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 0;
+  border-left: 4px solid var(--color-primary);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  animation: blink 1s infinite;
+} */
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
 .header p {
@@ -450,6 +529,19 @@ body {
 .header-actions {
   display: flex;
   gap: var(--spacing-lg);
+  margin-left: auto;
+}
+
+/* Hide Copy to Figma button on mobile */
+.btn-copy-figma {
+  display: none;
+}
+
+/* Show Copy to Figma button on desktop */
+@media (min-width: 768px) {
+  .btn-copy-figma {
+    display: inline-flex;
+  }
 }
 
 /* ===== DROPDOWN MENU ===== */
@@ -639,7 +731,7 @@ body {
 
 .palette-name.editing,
 .palette-name:focus {
-  background: var(--color-background);
+  background: transparent;
   border-color: transparent;
   text-transform: none;
   font-family: inherit;
@@ -733,6 +825,7 @@ body {
 .color-weight {
   font-size: var(--font-size-sm);
   color: var(--color-primary);
+  font-family: var(--font-family-mono);
 }
 
 .color-contrast {
@@ -1175,9 +1268,35 @@ body {
   .header-content {
     gap: var(--gap-md);
     align-items: stretch;
+    flex-wrap: nowrap;
+  }
+
+  .header-text {
+    order: 1;
+    width: 100%;
+  }
+
+  .header-actions {
+    order: 3;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--gap-sm);
+  }
+
+  /* SVG export button styling for mobile */
+  .header-content > .btn {
+    order: 2;
+    align-self: center;
+    margin: 0 auto;
   }
   
   .header h1 {
+    font-size: var(--font-size-2xl);
+    line-height: var(--line-height-tight);
+  }
+  
+  .page-title {
     font-size: var(--font-size-2xl);
     line-height: var(--line-height-tight);
   }
@@ -1297,6 +1416,7 @@ body {
   
   .color-weight { 
     font-weight: var(--font-weight-normal) !important; 
+    font-family: var(--font-family-mono) !important;
   }
 
   /* Mobile-only: swap contrast for HEX on the right */
@@ -1353,12 +1473,23 @@ body {
     font-size: var(--font-size-2xl); 
   }
   
+  .page-title {
+    font-size: var(--font-size-2xl);
+  }
+  
   .section-header h2 {
     font-size: var(--font-size-xl);
   }
   
   .palette-name {
     font-size: var(--font-size-base);
+  }
+
+  /* SVG export button on very small screens */
+  .header-content > .btn {
+    font-size: var(--font-size-sm);
+    padding: var(--padding-button-sm);
+    min-width: auto;
   }
   
   .color-set-controls { 
@@ -1391,6 +1522,10 @@ body {
     font-size: var(--font-size-sm); 
   }
   
+  .color-weight {
+    font-family: var(--font-family-mono);
+  }
+  
   .color-hex { 
     font-size: var(--font-size-sm); 
   }
@@ -1414,6 +1549,19 @@ body {
 }
 
 /* ===== UTILITY CLASSES ===== */
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .loading {
   opacity: 0.7;

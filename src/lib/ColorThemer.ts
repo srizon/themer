@@ -7,6 +7,7 @@ export class ColorThemer {
   private currentColorFormat: ColorFormat = 'hex';
   private nextSetId = 1;
   private storageKey = 'colorThemerData';
+  private pageTitle: string = 'Untitled';
   private callbacks: ColorThemerCallbacks;
 
   constructor(callbacks: ColorThemerCallbacks) {
@@ -65,6 +66,7 @@ export class ColorThemer {
       currentExportFormat: this.currentExportFormat,
       currentColorFormat: this.currentColorFormat,
       nextSetId: this.nextSetId,
+      pageTitle: this.pageTitle,
       lastSaved: new Date().toISOString()
     };
     
@@ -87,6 +89,7 @@ export class ColorThemer {
           this.currentExportFormat = data.currentExportFormat || 'css';
           this.currentColorFormat = data.currentColorFormat || 'hex';
           this.nextSetId = data.nextSetId || 1;
+          this.pageTitle = data.pageTitle || 'Untitled';
         }
       }
     } catch (error) {
@@ -96,6 +99,7 @@ export class ColorThemer {
       this.currentExportFormat = 'css';
       this.currentColorFormat = 'hex';
       this.nextSetId = 1;
+      this.pageTitle = 'Untitled';
     }
   }
 
@@ -1363,6 +1367,7 @@ export class ColorThemer {
     const exportData = {
       version: '1.0',
       exportedAt: new Date().toISOString(),
+      pageTitle: this.pageTitle,
       colorSets: this.colorSets,
       metadata: {
         totalPalettes: this.colorSets.length,
@@ -1373,9 +1378,27 @@ export class ColorThemer {
     const dataStr = JSON.stringify(exportData, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     
+    // Generate filename using page title and timestamp
+    const now = new Date();
+    const timestamp = now.getFullYear().toString().slice(-2) + 
+                     (now.getMonth() + 1).toString().padStart(2, '0') + 
+                     now.getDate().toString().padStart(2, '0') + 
+                     now.getHours().toString().padStart(2, '0') + 
+                     now.getMinutes().toString().padStart(2, '0');
+    
+    // Clean the page title for filename (remove special chars, convert spaces to hyphens)
+    const cleanTitle = this.pageTitle
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+    
+    const filename = `themer-${cleanTitle}-${timestamp}.json`;
+    
     const link = document.createElement('a');
     link.href = URL.createObjectURL(dataBlob);
-    link.download = `color-palettes-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = filename;
     link.click();
     
     URL.revokeObjectURL(link.href);
@@ -1410,6 +1433,8 @@ export class ColorThemer {
     let skippedCount = 0;
 
     if (shouldMerge) {
+      // For merge, we don't change the existing page title
+      // Only import color sets
       importData.colorSets.forEach((importedSet: ColorSet) => {
         const existingSet = this.colorSets.find(set => 
           (set.customName && set.customName === importedSet.customName) ||
@@ -1428,6 +1453,11 @@ export class ColorThemer {
     } else {
       this.colorSets = [];
       this.nextSetId = 1;
+      
+      // Import page title if available
+      if (importData.pageTitle) {
+        this.pageTitle = importData.pageTitle;
+      }
       
       importData.colorSets.forEach((importedSet: ColorSet) => {
         importedSet.id = this.nextSetId++;
@@ -1484,6 +1514,7 @@ export class ColorThemer {
       this.colorSets = [];
       this.currentExportFormat = 'css';
       this.nextSetId = 1;
+      this.pageTitle = 'Untitled';
       
       this.addColorSet();
       this.showNotification('All data cleared and reset to defaults', 'success');
@@ -1511,6 +1542,20 @@ export class ColorThemer {
   setCurrentColorFormat(format: ColorFormat) {
     this.currentColorFormat = format;
     this.saveToStorage();
+  }
+
+  getPageTitle(): string {
+    return this.pageTitle;
+  }
+
+  setPageTitle(title: string) {
+    this.pageTitle = title || 'Untitled';
+    this.saveToStorage();
+    
+    // Notify callback if available
+    if (this.callbacks.onTitleChange) {
+      this.callbacks.onTitleChange(this.pageTitle);
+    }
   }
 
   // Debug method to test contrast ratios

@@ -1,16 +1,26 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { exportPageAsSVG, exportPageAsImage } from '@/lib/svgExport';
 
 interface HeaderProps {
+  title: string;
+  onTitleChange: (title: string) => void;
   onExportAll: () => void;
   onImport: () => void;
   onClearData: () => void;
 }
 
-export default function Header({ onExportAll, onImport, onClearData }: HeaderProps) {
+export default function Header({ title, onTitleChange, onExportAll, onImport, onClearData }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isExportingSVG, setIsExportingSVG] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+
+  // Sync local state when title prop changes
+  useEffect(() => {
+    // setTempTitle(title); // This line is no longer needed as we are using contentEditable
+  }, [title]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -44,12 +54,115 @@ export default function Header({ onExportAll, onImport, onClearData }: HeaderPro
     setMenuOpen(false);
   };
 
+  const handleExportSVG = async () => {
+    setIsExportingSVG(true);
+    try {
+      await exportPageAsSVG();
+      // Show success feedback
+      showNotification('Copied to clipboard! You can now paste it in Figma.', 'success');
+    } catch (error) {
+      console.error('Failed to export SVG:', error);
+      // Show error feedback
+      showNotification('Failed to copy to clipboard. Please try again.', 'error');
+    } finally {
+      setIsExportingSVG(false);
+    }
+  };
+
+  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    // Create a simple notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type} show`;
+    notification.textContent = message;
+    
+    // Add to body
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 300);
+    }, 3000);
+  };
+
+  const handleTitleClick = () => {
+    setIsEditingTitle(true);
+  };
+
+  const handleTitleBlur = () => {
+    setIsEditingTitle(false);
+    // Get the current text content from the h1 element
+    const titleElement = document.querySelector('.page-title') as HTMLElement;
+    if (titleElement) {
+      const newTitle = titleElement.textContent?.trim() || '';
+      // If title is empty, set it to "Untitled"
+      if (!newTitle) {
+        titleElement.textContent = 'Untitled';
+        onTitleChange('Untitled');
+      } else {
+        onTitleChange(newTitle);
+      }
+    }
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      (e.currentTarget as HTMLElement).blur(); // This will trigger handleTitleBlur
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      // Reset to original title or "Untitled" if empty
+      const titleElement = document.querySelector('.page-title') as HTMLElement;
+      if (titleElement) {
+        const resetTitle = title || 'Untitled';
+        titleElement.textContent = resetTitle;
+      }
+      setIsEditingTitle(false);
+    }
+  };
+
   return (
     <header className="header">
       <div className="header-content">
         <div className="header-text">
-          <h1>Color Palette Generator</h1>
+          <h1
+            className={`page-title ${isEditingTitle ? 'editing' : ''}`}
+            onClick={handleTitleClick}
+            contentEditable={isEditingTitle}
+            onBlur={handleTitleBlur}
+            onKeyDown={handleTitleKeyDown}
+            suppressContentEditableWarning={true}
+          >
+            {title}
+          </h1>
         </div>
+
+        <button
+          className="btn btn-secondary btn-sm btn-copy-figma"
+          onClick={handleExportSVG}
+          disabled={isExportingSVG}
+          title="Copy page as SVG to clipboard"
+        >
+          {isExportingSVG ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin">
+              <path d="M21 12a9 9 0 11-6.219-8.56" />
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z"/>
+              <path d="M12 2h3.5a3.5 3.5 0 1 1 0 7H12V2z"/>
+              <path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0z"/>
+              <path d="M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z"/>
+              <path d="M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z"/>
+            </svg>
+          )}
+          <span>Copy to Figma</span>
+        </button>
 
         <div className="header-actions">
           <div className="dropdown" ref={menuRef}>

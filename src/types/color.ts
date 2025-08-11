@@ -15,6 +15,7 @@ export interface ColorSet {
 export interface ImportData {
   version: string;
   exportedAt: string;
+  pageTitle?: string;
   colorSets: ColorSet[];
   metadata: {
     totalPalettes: number;
@@ -26,6 +27,7 @@ export interface ColorThemerCallbacks {
   onColorSetsChange: (colorSets: ColorSet[]) => void;
   onExportModalOpen: (colorSet: ColorSet) => void;
   onImportModalOpen: (data: ImportData) => void;
+  onTitleChange?: (title: string) => void;
   onNotification?: (message: string, type: 'success' | 'warning' | 'error' | 'info') => void;
 }
 
