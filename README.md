@@ -250,9 +250,8 @@ All color generation logic is in the `ColorThemer` class:
 - **Security Features**: HTTP/HTTPS protocol validation and data structure validation
 - **Comprehensive Error Handling**: User-friendly error messages for various scenarios
 
-### v0.1.9 - SVG Export & Image Export
-- **SVG Export System**: Complete SVG export functionality with professional layout
-- **Image Export**: High-resolution PNG exports with clipboard integration
+### v0.1.9 - Copy to Figma 
+- **Copy to Figma**: Instantly copy your palette and paste directly in in Figma
 - **Page Title Editing**: Inline editing with persistent storage
 - **Enhanced Export Data**: Include page titles and metadata in exports
 
