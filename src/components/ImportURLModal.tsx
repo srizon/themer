@@ -70,7 +70,7 @@ export default function ImportURLModal({ isOpen, onClose, onImport }: ImportURLM
         <div className="modal-body">
           <div className="export-section">
             <p style={{ marginBottom: 'var(--spacing-lg)', color: 'var(--color-text-light)', lineHeight: 'var(--line-height-normal)' }}>
-              Enter the URL of a JSON file to import your color palettes.
+              Enter the URL of the JSON file to import your color palettes.
             </p>
             
             <form onSubmit={handleSubmit}>
@@ -109,14 +109,6 @@ export default function ImportURLModal({ isOpen, onClose, onImport }: ImportURLM
 
               <div className="modal-actions">
                 <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handleClose}
-                  disabled={isLoading}
-                >
-                  Cancel
-                </button>
-                <button
                   type="submit"
                   className="btn btn-primary"
                   disabled={!url.trim() || isLoading}
@@ -131,6 +123,14 @@ export default function ImportURLModal({ isOpen, onClose, onImport }: ImportURLM
                   ) : (
                     'Import'
                   )}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleClose}
+                  disabled={isLoading}
+                >
+                  Cancel
                 </button>
               </div>
             </form>

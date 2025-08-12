@@ -12,6 +12,7 @@ A modern, responsive color palette generator built with Next.js, TypeScript, and
 - **Image Export**: Export the entire page as a high-resolution PNG image
 - **Page Title Editing**: Edit the page title inline with click-to-edit functionality
 - **Import/Export**: Save and load your color palettes with page titles
+- **Import from URL**: Import color palettes directly from JSON files hosted online
 - **Responsive Design**: Works perfectly on desktop and mobile devices
 - **Real-time Updates**: See changes instantly as you modify colors and settings
 - **Color Information**: View contrast ratios and Tailwind-style weights for each color
@@ -137,8 +138,27 @@ The app is ready to deploy on any platform that supports Next.js:
 ### Importing Palettes
 
 1. **Export All**: Use the "Export All" button to save all palettes
-2. **Import**: Use the "Import" button to load saved palettes
-3. **Merge or Replace**: Choose how to handle existing palettes
+2. **Import from File**: Use the "Import" button to load saved palettes from your computer
+3. **Import from URL**: Use the "Import from URL" button to import palettes from a JSON file hosted online
+4. **Merge or Replace**: Choose how to handle existing palettes when importing
+
+#### Import from URL
+
+The new "Import from URL" feature allows you to import color palettes directly from JSON files hosted online:
+
+- **Supported URLs**: HTTP and HTTPS URLs pointing to valid JSON files
+- **File Format**: Must contain the same structure as exported files (with `colorSets` array)
+- **Error Handling**: Comprehensive error messages for invalid URLs, network issues, or malformed files
+- **Security**: Only accepts HTTP/HTTPS protocols for security
+- **Validation**: Automatically validates the imported data structure before processing
+
+**Example Usage:**
+1. Click the menu button (⋮) in the header
+2. Select "Import from URL"
+3. Enter the URL of your JSON file (e.g., `https://example.com/palettes.json`)
+4. Click "Import" to load the palettes
+
+**Sample File**: A sample `sample-palettes.json` file is included in the project root for testing.
 
 ## Color Theory Algorithms
 
@@ -215,7 +235,16 @@ themer/
 
 ## Recent Updates
 
-### v0.1.9 - SVG Export & Image Export (Latest)
+### v0.1.10 - Import from URL Feature (Latest)
+- **Import from URL**: New feature to import color palettes directly from JSON files hosted online
+- **Enhanced Import Modal**: Professional modal interface for URL input with validation and error handling
+- **Security Features**: Only accepts HTTP/HTTPS protocols and validates imported data structure
+- **Comprehensive Error Handling**: User-friendly error messages for network issues, invalid URLs, and malformed files
+- **Sample File**: Included `sample-palettes.json` for testing the import functionality
+- **UI Improvements**: Added "Import from URL" option to the header dropdown menu with link icon
+- **Form Styling**: Added new CSS styles for form inputs and modal descriptions
+
+### v0.1.9 - SVG Export & Image Export
 - **SVG Export System**: Complete SVG export functionality with `src/lib/svgExport.ts`
 - **Professional SVG Generation**: Creates high-quality SVG with proper spacing, typography, and layout
 - **Image Export**: Added `html2canvas` integration for high-resolution PNG exports
