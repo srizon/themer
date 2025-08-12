@@ -8,10 +8,11 @@ interface HeaderProps {
   onTitleChange: (title: string) => void;
   onExportAll: () => void;
   onImport: () => void;
+  onImportFromURL: () => void;
   onClearData: () => void;
 }
 
-export default function Header({ title, onTitleChange, onExportAll, onImport, onClearData }: HeaderProps) {
+export default function Header({ title, onTitleChange, onExportAll, onImport, onImportFromURL, onClearData }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isExportingSVG, setIsExportingSVG] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -39,13 +40,16 @@ export default function Header({ title, onTitleChange, onExportAll, onImport, on
     };
   }, []);
 
-  const handleAction = (action: 'export' | 'import' | 'clear') => {
+  const handleAction = (action: 'export' | 'import' | 'importFromURL' | 'clear') => {
     switch (action) {
       case 'export':
         onExportAll();
         break;
       case 'import':
         onImport();
+        break;
+      case 'importFromURL':
+        onImportFromURL();
         break;
       case 'clear':
         onClearData();
@@ -189,7 +193,7 @@ export default function Header({ title, onTitleChange, onExportAll, onImport, on
                     <polyline points="7,10 12,15 17,10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
-                  <span>Export All</span>
+                  <span>Download Backup</span>
                 </button>
 
                 <button className="dropdown-item" role="menuitem" onClick={() => handleAction('import')}>
@@ -198,7 +202,15 @@ export default function Header({ title, onTitleChange, onExportAll, onImport, on
                     <polyline points="17,8 12,3 7,8" />
                     <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
-                  <span>Import</span>
+                  <span>Restore Backup</span>
+                </button>
+
+                <button className="dropdown-item" role="menuitem" onClick={() => handleAction('importFromURL')}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                  </svg>
+                  <span>Import from URL</span>
                 </button>
 
                 <div className="dropdown-separator" />
