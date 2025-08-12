@@ -1,6 +1,8 @@
 import { ColorSet, ColorThemerCallbacks, ExportFormat, ColorFormat, ImportData } from '@/types/color';
 import { getEnhancedColorName, getBasicColorCategory } from './colorUtils';
 
+
+
 export class ColorThemer {
   private colorSets: ColorSet[] = [];
   private currentExportFormat: ExportFormat = 'css';
@@ -1428,13 +1430,88 @@ export class ColorThemer {
     input.click();
   }
 
+  private validateURL(url: string): URL {
+    if (!url || typeof url !== 'string') {
+      throw new Error('Invalid URL provided');
+    }
+
+    try {
+      const urlObj = new URL(url);
+      if (!urlObj.protocol.startsWith('http')) {
+        throw new Error('URL must use HTTP or HTTPS protocol');
+      }
+      return urlObj;
+    } catch {
+      throw new Error('Invalid URL format. Please enter a valid URL.');
+    }
+  }
+
+
+
+  async importFromURL(url: string) {
+    try {
+      // Validate URL format
+      this.validateURL(url);
+
+      // Fetch the JSON file from the URL
+      const response = await fetch(url);
+              if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('The URL or file could not be found. Please check the URL and try again.');
+          } else if (response.status === 403) {
+            throw new Error('Access to this file is restricted. Please try a different URL.');
+          } else if (response.status >= 400 && response.status < 500) {
+            throw new Error('The URL appears to be invalid or the file cannot be accessed. Please check the URL and try again.');
+          } else if (response.status >= 500) {
+            throw new Error('The server is experiencing issues. Please try again later.');
+          } else {
+            throw new Error(`Unable to access the file (error ${response.status}). Please check the URL and try again.`);
+          }
+        }
+
+      const jsonText = await response.text();
+      const importData = JSON.parse(jsonText);
+      
+      // Validate the imported data structure
+      if (!importData.colorSets || !Array.isArray(importData.colorSets)) {
+        throw new Error('Invalid file format. File must contain colorSets array.');
+      }
+
+      this.callbacks.onImportModalOpen(importData);
+    } catch (error) {
+      console.error('Error importing from URL:', error);
+      let errorMessage = 'Failed to import from URL.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Invalid file format')) {
+          errorMessage = 'The file format is not supported. Please ensure the URL points to a valid export file.';
+        } else if (error.message.includes('URL must use HTTP')) {
+          errorMessage = 'Please use a valid web address that starts with http:// or https://';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      this.showNotification(errorMessage, 'error');
+      throw error; // Re-throw to allow UI to handle the error
+    }
+  }
+
   processImport(importData: ImportData, shouldMerge: boolean) {
     let importedCount = 0;
     let skippedCount = 0;
 
+    // Always update page title if available, regardless of merge/replace mode
+    if (importData.pageTitle) {
+      this.pageTitle = importData.pageTitle;
+      // Notify the UI about the title change
+      if (this.callbacks.onTitleChange) {
+        this.callbacks.onTitleChange(importData.pageTitle);
+      }
+    }
+
     if (shouldMerge) {
-      // For merge, we don't change the existing page title
-      // Only import color sets
+      // For merge, we add to existing color sets
       importData.colorSets.forEach((importedSet: ColorSet) => {
         const existingSet = this.colorSets.find(set => 
           (set.customName && set.customName === importedSet.customName) ||
@@ -1453,11 +1530,6 @@ export class ColorThemer {
     } else {
       this.colorSets = [];
       this.nextSetId = 1;
-      
-      // Import page title if available
-      if (importData.pageTitle) {
-        this.pageTitle = importData.pageTitle;
-      }
       
       importData.colorSets.forEach((importedSet: ColorSet) => {
         importedSet.id = this.nextSetId++;
@@ -1515,6 +1587,11 @@ export class ColorThemer {
       this.currentExportFormat = 'css';
       this.nextSetId = 1;
       this.pageTitle = 'Untitled';
+      
+      // Notify the UI about the title change
+      if (this.callbacks.onTitleChange) {
+        this.callbacks.onTitleChange('Untitled');
+      }
       
       this.addColorSet();
       this.showNotification('All data cleared and reset to defaults', 'success');

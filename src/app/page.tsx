@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import ColorSet from '@/components/ColorSet';
 import ExportModal from '@/components/ExportModal';
 import ImportConfirmationModal from '@/components/ImportConfirmationModal';
+import ImportURLModal from '@/components/ImportURLModal';
 import { ColorThemer } from '@/lib/ColorThemer';
 import { ColorSet as ColorSetType, ImportData } from '@/types/color';
 
@@ -15,6 +16,7 @@ export default function Home() {
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [currentExportColorSet, setCurrentExportColorSet] = useState<ColorSetType | null>(null);
   const [importData, setImportData] = useState<ImportData | null>(null);
+  const [importURLModalOpen, setImportURLModalOpen] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [pageTitle, setPageTitle] = useState('Untitled');
@@ -68,6 +70,16 @@ export default function Home() {
   const handleImport = () => {
     if (colorThemer) {
       colorThemer.importPalettes();
+    }
+  };
+
+  const handleImportFromURL = () => {
+    setImportURLModalOpen(true);
+  };
+
+  const handleImportFromURLSubmit = async (url: string) => {
+    if (colorThemer) {
+      await colorThemer.importFromURL(url);
     }
   };
 
@@ -172,6 +184,7 @@ export default function Home() {
           onTitleChange={handleTitleChange}
           onExportAll={handleExportAll}
           onImport={handleImport}
+          onImportFromURL={handleImportFromURL}
           onClearData={handleClearData}
         />
 
@@ -223,6 +236,12 @@ export default function Home() {
           isOpen={importModalOpen}
           onClose={handleImportModalClose}
           onAction={handleImportAction}
+        />
+
+        <ImportURLModal
+          isOpen={importURLModalOpen}
+          onClose={() => setImportURLModalOpen(false)}
+          onImport={handleImportFromURLSubmit}
         />
       </div>
     </div>

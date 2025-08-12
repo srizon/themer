@@ -9,7 +9,7 @@ interface ImportConfirmationModalProps {
 }
 
 export default function ImportConfirmationModal({ isOpen, onClose, onAction }: ImportConfirmationModalProps) {
-  const [selectedAction, setSelectedAction] = useState<'merge' | 'replace'>('merge');
+  const [selectedAction, setSelectedAction] = useState<'merge' | 'replace'>('replace');
 
   if (!isOpen) return null;
 
@@ -33,7 +33,7 @@ export default function ImportConfirmationModal({ isOpen, onClose, onAction }: I
         
         <div className="modal-body">
           <p>
-            You have existing palettes. How would you like to handle the import?
+            You have existing palettes. How would you like to handle the import? The page title will be updated to match the imported file.
           </p>
           
           <div className="import-options">
