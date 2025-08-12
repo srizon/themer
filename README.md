@@ -1,78 +1,177 @@
-# Untitled
+# Themer
 
-A modern, responsive color palette generator built with Next.js, TypeScript, and Tailwind CSS. Generate beautiful color palettes for your design projects with various color theory algorithms.
+A modern, responsive color palette generator built with Next.js, TypeScript, and Tailwind CSS. Create beautiful, professional color palettes for your design projects with advanced color theory algorithms.
+
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ## Features
 
-- **Drag & Drop Reordering**: Reorder color palettes by dragging and dropping them
-- **Advanced Color Controls**: Fine-tune palettes with min/max contrast, lightness controls, and saturation curve adjustment
-- **Interactive Color Swatches**: Click to copy colors to clipboard
-- **Export Options**: Export palettes in CSS, SCSS, JSON, and Tailwind CSS formats
-- **SVG Export**: Copy the entire page as SVG to clipboard for easy pasting into Figma or other design tools
-- **Image Export**: Export the entire page as a high-resolution PNG image
-- **Page Title Editing**: Edit the page title inline with click-to-edit functionality
-- **Import/Export**: Save and load your color palettes with page titles
-- **Import from URL**: Import color palettes directly from JSON files hosted online
-- **Responsive Design**: Works perfectly on desktop and mobile devices
+### Core Functionality
+- **Advanced Color Generation**: Sophisticated monochromatic algorithms with perceptual uniformity
+- **Smart Tailwind Integration**: Intelligent weight calculation for any color count (3-20 colors)
 - **Real-time Updates**: See changes instantly as you modify colors and settings
-- **Color Information**: View contrast ratios and Tailwind-style weights for each color
-- **Local Storage**: Automatically saves your palettes to browser storage
-- **Advanced Color Algorithms**: Sophisticated monochromatic color generation with perceptual uniformity
-- **Smart Tailwind Integration**: Intelligent weight calculation for any color count
-- **Automatic Value Synchronization**: Contrast and lightness values automatically update each other
-- **Saturation Curve Control**: Fine-tune the saturation distribution curve for more creative palettes
-- **Enhanced Color Naming**: Sophisticated color naming system with 200+ descriptive names
-- **Optional Analytics**: Google Analytics 4 pageview tracking via `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+- **Responsive Design**: Works perfectly on desktop and mobile devices
 
-## Tech Stack
+### Interactive Controls
+- **Drag & Drop Reordering**: Reorder color palettes by dragging and dropping
+- **Advanced Color Controls**: Fine-tune with min/max contrast, lightness controls, and saturation curve adjustment
+- **Interactive Color Swatches**: Click to copy colors to clipboard
+- **Page Title Editing**: Edit the page title inline with click-to-edit functionality
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Styling**: Pure CSS with CSS Custom Properties
-- **State Management**: React hooks with localStorage persistence
-- **Deployment**: Ready for Vercel, Netlify, or any Node.js hosting
-- **Analytics (optional)**: Google Analytics 4
+### Export & Import
+- **Multiple Export Formats**: CSS, SCSS, JSON, and Tailwind CSS
+- **SVG Export**: Copy the entire page as SVG for Figma or other design tools
+- **Image Export**: Export as high-resolution PNG images
+- **Import/Export**: Save and load color palettes with page titles
+- **Import from URL**: Import palettes directly from hosted JSON files
 
-## Getting Started
+### Data Management
+- **Local Storage**: Automatically saves palettes to browser storage
+- **Color Information**: View contrast ratios and Tailwind-style weights
+- **Enhanced Color Naming**: 300+ descriptive names with intelligent categorization
+- **Optional Analytics**: Google Analytics for pageview tracking
+
+## Quick Start
 
 ### Prerequisites
-
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/srizon/themer.git
-cd themer
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/srizon/themer.git
+   cd themer
+   ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-3. Run the development server:
-```bash
-npm run dev
-```
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+4. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
 ### Environment Variables (Optional)
 
-Create a `.env.local` file to enable Google Analytics 4 pageview tracking:
+Create a `.env.local` file to enable Google Analytics:
 
 ```bash
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
-### Building for Production
+## Tech Stack
 
-```bash
-npm run build
-npm start
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Next.js** | 15 | React framework with App Router |
+| **TypeScript** | 5 | Type-safe JavaScript |
+| **CSS** | Custom Properties | Pure CSS styling system |
+| **State Management** | React Hooks | Component state and localStorage |
+| **Deployment** | Vercel Ready | Optimized for Vercel deployment |
+
+## Usage Guide
+
+### Creating Color Palettes
+
+1. **Add New Palette**: Click "Add Another Color" to create a new palette
+2. **Choose Base Color**: Use the color picker or enter a hex value
+3. **Set Color Count**: Choose between 3-20 colors
+4. **Fine-tune Controls**: Adjust contrast, lightness, and saturation curves
+5. **Reorder Palettes**: Drag and drop to reorder your palettes
+6. **Customize Names**: Click on palette names to edit them
+
+### Exporting Your Work
+
+#### Individual Palette Export
+- Click the export button on any palette
+- Choose format: CSS, SCSS, JSON, or Tailwind CSS
+- Select color format: HEX, RGB, RGBA, HSL, or HSLA
+- Copy generated code to clipboard
+
+#### SVG Export for Design Tools
+- Click "Copy as SVG" in the header
+- Automatically copies to clipboard
+- Paste directly into Figma, Sketch, or other design tools
+- Maintains exact colors, layout, and styling
+
+#### Image Export
+- Click "Export as Image" for high-resolution PNG
+- Exports at 2x scale for crisp, professional images
+- Automatically copies to clipboard
+- Perfect for presentations and documentation
+
+### Importing Palettes
+
+#### From File
+- Use "Export All" to save all palettes
+- Use "Import" to load saved palettes from your computer
+- Choose to merge or replace existing palettes
+
+#### From URL
+- Click "Import from URL" in the header menu
+- Enter the URL of a hosted JSON file
+- Supports HTTP/HTTPS protocols
+- Automatic validation and error handling
+
+## Advanced Features
+
+### Color Theory Algorithms
+
+#### Enhanced Monochromatic Generation
+- **Perceptual Uniformity**: Even visual spacing between shades
+- **Neutral Color Detection**: Special handling for grays and near-neutral colors
+- **Exact HSL Preservation**: Maintains precise hue and saturation values
+- **Balanced Lightness Curves**: Mathematically even distribution from 5% to 95% lightness
+
+#### Smart Tailwind Weight Calculation
+- **Standard 11-color palettes**: Traditional Tailwind weights (50, 100, 200, ..., 950)
+- **Custom counts**: Mathematically even distribution with 25-point rounding
+- **Perceptual uniformity**: Ensures equal visual spacing between weights
+
+### Advanced Controls
+- **Saturation Curve Control**: Fine-tune saturation distribution (-100 to 100)
+- **Automatic Synchronization**: Contrast and lightness values update each other
+- **Color Validation**: Ensures all generated colors meet quality standards
+- **WCAG Compliance**: Built-in contrast ratio calculations
+
+## Project Structure
+
+```
+themer/
+├── src/
+│   ├── app/                          # Next.js App Router
+│   │   ├── layout.tsx                # Root layout with GA integration
+│   │   ├── page.tsx                  # Main application page
+│   │   └── globals.css               # Global styles and CSS variables
+│   ├── components/                   # React components
+│   │   ├── Header.tsx                # App header with actions and title editing
+│   │   ├── ColorSet.tsx              # Individual color palette component
+│   │   ├── ColorSwatch.tsx           # Individual color swatch component
+│   │   ├── ExportModal.tsx           # Export functionality modal
+│   │   ├── ImportConfirmationModal.tsx # Import handling modal
+│   │   └── GoogleAnalytics.tsx       # GA pageview tracking component
+│   ├── lib/                          # Utility libraries
+│   │   ├── ColorThemer.ts            # Core color generation algorithms
+│   │   ├── colorUtils.ts             # Shared color utilities and conversions
+│   │   ├── svgExport.ts              # SVG and image export functionality
+│   │   └── gtag.ts                   # Google Analytics helpers
+│   └── types/                        # TypeScript type definitions
+│       └── color.ts                  # Color-related type definitions
+├── package.json                      # Dependencies and scripts
+├── next.config.ts                    # Next.js configuration
+├── tsconfig.json                     # TypeScript configuration
+├── eslint.config.mjs                 # ESLint configuration
+├── vercel.json                       # Vercel deployment configuration
+└── README.md                         # Project documentation
 ```
 
 ## Deployment
@@ -83,242 +182,42 @@ npm start
 2. Connect your repository to Vercel
 3. Deploy automatically
 
-If using Google Analytics, add `NEXT_PUBLIC_GA_MEASUREMENT_ID` in your project settings under Environment Variables.
+**Environment Variables**: Add `NEXT_PUBLIC_GA_MEASUREMENT_ID` in your Vercel project settings if using Google Analytics.
 
 ### Other Platforms
 
-The app is ready to deploy on any platform that supports Next.js:
+The app is ready to deploy on any platform supporting Next.js:
 
 - **Netlify**: Use the Next.js build command
-- **Railway**: Connect your GitHub repo
+- **Railway**: Connect your GitHub repository
 - **DigitalOcean App Platform**: Select Next.js as the framework
 - **AWS Amplify**: Connect your repository
 
-## Usage
+## Development
 
-### Creating Color Palettes
+### Available Scripts
 
-1. **Add a New Palette**: Click "Add Another Color" to create a new palette
-2. **Choose Base Color**: Use the color picker or enter a hex value
-3. **Adjust Color Count**: Set the number of colors (3-20)
-4. **Fine-tune Controls**: Use min/max contrast and lightness controls for precise customization
-5. **Reorder Palettes**: Drag and drop palettes to reorder them
-6. **Customize Names**: Click on palette names to edit them
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
 
-### Exporting Palettes
+### Building for Production
 
-1. **Individual Export**: Click the export button on any palette
-2. **Format Options**: Choose from CSS, SCSS, JSON, or Tailwind CSS
-3. **Color Formats**: Select HEX, RGB, RGBA, HSL, or HSLA
-4. **Copy to Clipboard**: One-click copying of generated code
-
-### SVG Export for Design Tools
-
-1. **Copy as SVG**: Click the "Copy as SVG" button in the header
-2. **Paste in Figma**: The SVG is automatically copied to your clipboard
-3. **Design Integration**: Use the exported SVG directly in Figma, Sketch, or other design tools
-4. **Perfect Fidelity**: Maintains exact colors, layout, and styling from your palette generator
-5. **Professional Layout**: Includes proper spacing, typography, and visual hierarchy
-
-### Image Export
-
-1. **Export as PNG**: Click the "Export as Image" button in the header
-2. **High Resolution**: Exports at 2x scale for crisp, professional images
-3. **Clipboard Ready**: Automatically copies to clipboard for easy pasting
-4. **Fallback Download**: If clipboard copy fails, automatically downloads the image
-5. **Perfect for Presentations**: Ideal for sharing palettes in documents, presentations, or social media
-
-### Page Title Management
-
-1. **Click to Edit**: Click on the page title to edit it inline
-2. **Persistent Storage**: Page titles are automatically saved with your palettes
-3. **Export Integration**: Page titles are included in exports for better organization
-4. **Smart Filenames**: Export filenames automatically include the page title and timestamp
-
-### Importing Palettes
-
-1. **Export All**: Use the "Export All" button to save all palettes
-2. **Import from File**: Use the "Import" button to load saved palettes from your computer
-3. **Import from URL**: Use the "Import from URL" button to import palettes from a JSON file hosted online
-4. **Merge or Replace**: Choose how to handle existing palettes when importing
-
-#### Import from URL
-
-The new "Import from URL" feature allows you to import color palettes directly from JSON files hosted online:
-
-- **Supported URLs**: HTTP and HTTPS URLs pointing to valid JSON files
-- **File Format**: Must contain the same structure as exported files (with `colorSets` array)
-- **Error Handling**: Comprehensive error messages for invalid URLs, network issues, or malformed files
-- **Security**: Only accepts HTTP/HTTPS protocols for security
-- **Validation**: Automatically validates the imported data structure before processing
-
-**Example Usage:**
-1. Click the menu button (⋮) in the header
-2. Select "Import from URL"
-3. Enter the URL of your JSON file (e.g., `https://example.com/palettes.json`)
-4. Click "Import" to load the palettes
-
-**Sample File**: A sample `sample-palettes.json` file is included in the project root for testing.
-
-## Color Theory Algorithms
-
-### Monochromatic (Enhanced)
-Creates variations of a single hue with different lightness levels. Features:
-- **Perceptual Uniformity**: Even visual spacing between shades
-- **Neutral Color Detection**: Special handling for grays and near-neutral colors
-- **Exact HSL Preservation**: Maintains precise hue and saturation values
-- **Balanced Lightness Curves**: Mathematically even distribution from 5% to 95% lightness
-- **Advanced Controls**: Fine-tune with min/max contrast and lightness controls
-- **Automatic Synchronization**: Contrast and lightness values automatically update each other
-- **Drag & Drop Reordering**: Easily reorder palettes for better organization
-
-## Advanced Features
-
-### Smart Tailwind Weight Calculation
-The app now features intelligent weight calculation that adapts to any color count:
-
-- **Standard 11-color palettes**: Uses traditional Tailwind weights (50, 100, 200, ..., 950)
-- **13-color palettes**: Extended weights with intermediate values (50, 125, 200, ..., 950)
-- **Custom counts**: Mathematically even distribution with 25-point rounding for clean values
-- **Perceptual uniformity**: Ensures equal visual spacing between weights
-
-### Enhanced Color Generation
-Recent improvements include:
-
-- **Lab Color Space Support**: Perceptual color space for more natural progressions
-- **Sophisticated Saturation Curves**: Bell-curve distribution that peaks in mid-tones
-- **Lightness-based Adjustments**: Dynamic saturation adjustments based on lightness
-- **Exact HSL Matching**: Advanced algorithms to preserve exact hue and saturation values
-- **Neutral Color Detection**: Special handling for grays and near-neutral colors
-
-### Color Validation and Adjustment
-- **Automatic Color Validation**: Ensures all generated colors meet quality standards
-- **Contrast Ratio Calculations**: WCAG-compliant contrast calculations
-- **Color Space Conversions**: Full support for RGB, HSL, and Lab color spaces
-
-### Drag & Drop Reordering
-- **Intuitive Interface**: Drag any color palette to reorder it
-- **Visual Feedback**: Opacity and rotation effects during drag operations
-- **Smooth Animations**: CSS transitions for seamless user experience
-- **Persistent Order**: Reordered palettes are automatically saved to local storage
-
-## Project Structure
-
-```
-themer/
-├── src/
-│   ├── app/                          # Next.js App Router
-│   │   ├── layout.tsx                # Root layout (loads GA if configured)
-│   │   ├── page.tsx                  # Main page component
-│   │   └── globals.css               # Global styles
-│   ├── components/                   # React components
-│   │   ├── Header.tsx                # App header with actions and title editing
-│   │   ├── ColorSet.tsx              # Individual color palette
-│   │   ├── ColorSwatch.tsx           # Individual color swatch
-│   │   ├── ExportModal.tsx           # Export functionality
-│   │   ├── ImportConfirmationModal.tsx # Import handling
-│   │   └── GoogleAnalytics.tsx       # Client component to send GA pageviews
-│   ├── lib/                          # Utility libraries
-│   │   ├── ColorThemer.ts            # Core color generation logic
-│   │   ├── colorUtils.ts             # Shared color utilities (HSL/RGB, weights, contrast)
-│   │   ├── svgExport.ts              # SVG and image export functionality
-│   │   └── gtag.ts                   # GA helpers (pageview/event)
-│   └── types/                        # TypeScript type definitions
-│       └── color.ts                  # Color-related types
-├── package.json                      # Dependencies and scripts
-├── next.config.ts                    # Next.js configuration
-├── tsconfig.json                     # TypeScript configuration
-├── eslint.config.mjs                 # ESLint configuration
-├── vercel.json                       # Vercel deployment configuration
-└── README.md                         # Project documentation
+```bash
+npm run build
+npm start
 ```
 
-## Recent Updates
+### Code Style
 
-### v0.1.10 - Import from URL Feature (Latest)
-- **Import from URL**: New feature to import color palettes directly from JSON files hosted online
-- **Enhanced Import Modal**: Professional modal interface for URL input with validation and error handling
-- **Security Features**: Only accepts HTTP/HTTPS protocols and validates imported data structure
-- **Comprehensive Error Handling**: User-friendly error messages for network issues, invalid URLs, and malformed files
-- **Sample File**: Included `sample-palettes.json` for testing the import functionality
-- **UI Improvements**: Added "Import from URL" option to the header dropdown menu with link icon
-- **Form Styling**: Added new CSS styles for form inputs and modal descriptions
-
-### v0.1.9 - SVG Export & Image Export
-- **SVG Export System**: Complete SVG export functionality with `src/lib/svgExport.ts`
-- **Professional SVG Generation**: Creates high-quality SVG with proper spacing, typography, and layout
-- **Image Export**: Added `html2canvas` integration for high-resolution PNG exports
-- **Page Title Editing**: Inline page title editing with persistent storage
-- **Enhanced Export Data**: Export files now include page titles and metadata
-- **Smart Filename Generation**: Export filenames automatically include page title and timestamp
-- **Improved Header**: Added SVG and image export buttons with loading states
-- **Better User Experience**: Streamlined export workflow with clipboard integration
-- **Dependencies**: Added `html2canvas` and `@types/html2canvas` for image export capabilities
-
-### v0.1.8 - Saturation Curve Control & Enhanced Color Naming
-- **Saturation Curve Control**: Added new `saturationCurve` parameter (-100 to 100) for fine-tuning saturation distribution
-- **Enhanced Color Naming System**: Expanded color naming with 300+ descriptive names including exotic fruits, gemstones, and natural elements
-- **Improved Color Categorization**: Better hue-based color naming with saturation and lightness modifiers
-- **Advanced Saturation Algorithms**: More sophisticated saturation curve generation for creative palette customization
-- **UI Improvements**: Streamlined drag handles and enhanced user interface elements
-- **Better Color Variety**: More diverse and creative color names for better palette identification
-
-### v0.1.7 - Enhanced Color Naming System
-- **Advanced Color Naming**: Introduced sophisticated color naming system with 200+ descriptive color names based on hue, saturation, and lightness
-- **Intelligent Color Categorization**: Enhanced `getEnhancedColorName()` function provides creative and accurate color names like "Crimson", "Seafoam", "Midnight Purple", etc.
-- **Color Name Fallback System**: Added `getBasicColorCategory()` function for backward compatibility with systems requiring basic color categories
-- **Improved User Experience**: Palette names now use enhanced color names for better recognition and visual appeal
-- **Consolidated Color Logic**: Refactored color naming logic into shared utilities for consistency across components
-- **Dynamic Color Modifiers**: Smart modifiers based on saturation and lightness ("Bright", "Deep", "Soft", "Vintage", etc.)
-
-### v0.1.6 - Analytics & Shared Utilities
-- **Google Analytics 4**: Optional pageview tracking via `NEXT_PUBLIC_GA_MEASUREMENT_ID`, with `src/components/GoogleAnalytics.tsx` and helpers in `src/lib/gtag.ts`. Loaded conditionally in `src/app/layout.tsx`.
-- **Shared Color Utilities**: Common color conversion and Tailwind weight helpers consolidated in `src/lib/colorUtils.ts`. Components updated to import from shared utils.
-- **Docs**: Updated README with environment variables and project structure.
-
-### v0.1.5 - UI Polish & Icons
-- **Icons & Favicons**: Updated `favicon.ico` and added app icons (`android-chrome-192x192.png`, `android-chrome-512x512.png`, `apple-touch-icon.png`, `favicon-16x16.png`, `favicon-32x32.png`) under `src/app/`
-- **Header UX**: Improved actions menu behavior and accessibility in `Header.tsx`
-- **Styling Refinements**: Polished styles in `globals.css`
-- **Config Cleanup**: Minor `tsconfig.json` updates
-
-### v0.1.4 - Base Color Preservation & Enhanced Algorithms
-- **Base Color Preservation**: The user's exact base color is now preserved in the generated palette at the appropriate position
-- **Intelligent Color Positioning**: Base colors are automatically positioned based on their lightness value within the palette range
-- **Enhanced Neutral Color Handling**: Improved algorithms for grays and near-neutral colors with better base color preservation
-- **Edge Case Handling**: Proper handling of very light or very dark base colors that fall outside the standard range
-- **Improved Color Generation**: More sophisticated algorithms that maintain exact HSL values while preserving user intent
-- **Better User Experience**: Users can now see their chosen base color exactly as selected in the final palette
-
-### v0.1.3 - Drag & Drop Reordering & Advanced Controls
-- **Drag & Drop Reordering**: Reorder color palettes by dragging and dropping them
-- **Advanced Color Controls**: Added min/max contrast and lightness controls with automatic synchronization
-- **Simplified Palette Types**: Streamlined to focus on monochromatic palettes with advanced customization
-- **Enhanced User Experience**: Improved visual feedback during drag operations with opacity and rotation effects
-- **Automatic Value Synchronization**: Contrast and lightness values automatically update each other for consistency
-- **Vercel Deployment Ready**: Added vercel.json configuration for seamless deployment
-
-### v0.1.2 - Advanced Color Algorithms
-- **Enhanced Monochromatic Generation**: Improved algorithms with perceptual uniformity and exact HSL preservation
-- **Smart Tailwind Weight Calculation**: Intelligent weight distribution for any color count (3-20 colors)
-- **Lab Color Space Support**: Added perceptual color space for more natural color progressions
-- **Sophisticated Saturation Curves**: Bell-curve distribution that creates more harmonious palettes
-- **Neutral Color Detection**: Special handling for grays and near-neutral colors
-- **Exact HSL Matching**: Advanced algorithms to preserve precise hue and saturation values
-- **Enhanced Color Validation**: Improved color quality standards and contrast calculations
-- **Balanced Lightness Curves**: Mathematically even distribution from 5% to 95% lightness
-
-### v0.1.1 - Documentation Cleanup
-- **Removed test references**: Cleaned up documentation to reflect no testing framework
-- **Updated contributing guidelines**: Simplified contribution process
-- **Improved code style documentation**: Added clarity about project standards
-
-### v0.1.0 - Project Restructuring
-- **Restructured project layout**: Moved from nested `themer-nextjs/` directory to flat structure
-- **Updated dependencies**: Upgraded to Next.js 15.4.6 and React 19.1.0
-- **Improved file organization**: Cleaner project structure for better maintainability
-- **Enhanced TypeScript support**: Updated type definitions and configurations
-- **Modern ESLint setup**: Updated to ESLint v9 with Next.js configuration
+- **TypeScript**: Strict type checking enabled
+- **ESLint**: Code linting with Next.js configuration
+- **CSS**: Pure CSS with CSS Custom Properties
+- **State Management**: React hooks with localStorage persistence
+- **Testing**: Manual testing and code quality focus
 
 ## Customization
 
@@ -330,56 +229,72 @@ themer/
 
 ### Styling
 
-The app uses pure CSS with CSS Custom Properties for styling. You can customize:
-- Colors and variables in `src/app/globals.css`
-- Component-specific styles in each component
-- CSS Custom Properties for consistent theming
+- **Global Styles**: Modify `src/app/globals.css`
+- **CSS Variables**: Use CSS Custom Properties for consistent theming
+- **Component Styles**: Customize component-specific styles
 
 ### Color Algorithms
 
-All color generation algorithms are in the `ColorThemer` class. You can modify:
-- Color validation logic
+All color generation logic is in the `ColorThemer` class:
+
+- Color validation and quality standards
 - Weight calculation for Tailwind-style naming
 - Contrast ratio calculations
 - Perceptual color space conversions
 
-## Development
+## Recent Updates
 
-### Available Scripts
+### v0.1.10 - Import from URL Feature
+- **Import from URL**: Import palettes directly from hosted JSON files
+- **Enhanced Import Modal**: Professional interface with validation and error handling
+- **Security Features**: HTTP/HTTPS protocol validation and data structure validation
+- **Comprehensive Error Handling**: User-friendly error messages for various scenarios
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+### v0.1.9 - SVG Export & Image Export
+- **SVG Export System**: Complete SVG export functionality with professional layout
+- **Image Export**: High-resolution PNG exports with clipboard integration
+- **Page Title Editing**: Inline editing with persistent storage
+- **Enhanced Export Data**: Include page titles and metadata in exports
 
-### Code Style
-
-The project uses:
-- TypeScript for type safety
-- ESLint for code linting
-- Pure CSS with CSS Custom Properties for styling
-- React hooks for state management
-- No testing framework (focus on manual testing and code quality)
+### v0.1.8 - Saturation Curve Control
+- **Saturation Curve Control**: Fine-tune saturation distribution (-100 to 100)
+- **Enhanced Color Naming**: 300+ descriptive names with intelligent categorization
+- **Advanced Algorithms**: Sophisticated saturation curve generation
+- **UI Improvements**: Streamlined interface elements
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Ensure code follows project standards
-5. Submit a pull request
+We welcome contributions! Here's how to get started:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Contribution Guidelines
+
+- Follow the existing code style and structure
+- Ensure all code passes ESLint checks
+- Test your changes thoroughly
+- Update documentation as needed
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
-For issues and questions:
-- Create an issue on GitHub
-- Check the documentation
-- Review the code comments
+- **GitHub Issues**: [Create an issue](https://github.com/srizon/themer/issues)
+- **Documentation**: Check this README and code comments
+- **Code Quality**: Follow project standards and best practices
 
 ---
 
-Built with ❤️ using Next.js, TypeScript, and CSS
+<div align="center">
+
+**Built with ❤️ using Next.js, TypeScript, and CSS**
+
+[Star on GitHub](https://github.com/srizon/themer) • [Report Bug](https://github.com/srizon/themer/issues) • [Request Feature](https://github.com/srizon/themer/issues)
+
+</div>
